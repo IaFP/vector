@@ -125,7 +125,7 @@ data Box a = Box { unBox :: a }
 instance Functor Box where
   fmap f (Box x) = Box (f x)
 
-instance Total Box => Applicative Box where
+instance Applicative Box where
   pure = Box
   Box f <*> Box x = Box (f x)
 
@@ -164,12 +164,12 @@ data Monad m => Stream m a = forall s. (m @ Step s a) => Stream (s -> m (Step s 
 -- ------
 
 -- | Length of a 'Stream'
-length :: (forall s a. m @ Step s a) => Stream m a -> m Int
+length :: Stream m a -> m Int
 {-# INLINE_FUSED length #-}
 length = foldl' (\n _ -> n+1) 0
 
 -- | Check if a 'Stream' is empty
-null :: (forall s. m @ Step s Bool) => Stream m a -> m Bool
+null :: Stream m a -> m Bool
 {-# INLINE_FUSED null #-}
 null (Stream step t) = null_loop t
   where
@@ -184,7 +184,7 @@ null (Stream step t) = null_loop t
 -- ------------
 
 -- | Empty 'Stream'
-empty :: (forall s a. m @ Step s a) => Stream m a
+empty :: m @ Step () a => Stream m a
 {-# INLINE_FUSED empty #-}
 empty = Stream (const (return Done)) ()
 
@@ -952,12 +952,12 @@ fold1M :: (forall s a. m @ Step s a) => (a -> a -> m a) -> Stream m a -> m a
 fold1M = foldl1M
 
 -- | Left fold with a strict accumulator
-foldl' :: (forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> m a
+foldl' :: (a -> b -> a) -> a -> Stream m b -> m a
 {-# INLINE foldl' #-}
 foldl' f = foldlM' (\a b -> return (f a b))
 
 -- | Left fold with a strict accumulator and a monadic operator
-foldlM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> m a
+foldlM' :: (a -> b -> m a) -> a -> Stream m b -> m a
 {-# INLINE_FUSED foldlM' #-}
 foldlM' m w (Stream step t) = foldlM'_loop SPEC w t
   where
@@ -971,18 +971,18 @@ foldlM' m w (Stream step t) = foldlM'_loop SPEC w t
             Done       -> return z
 
 -- | Same as 'foldlM''
-foldM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> m a
+foldM' :: (a -> b -> m a) -> a -> Stream m b -> m a
 {-# INLINE foldM' #-}
 foldM' = foldlM'
 
 -- | Left fold over a non-empty 'Stream' with a strict accumulator
-foldl1' :: (forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> m a
+foldl1' :: (a -> a -> a) -> Stream m a -> m a
 {-# INLINE foldl1' #-}
 foldl1' f = foldl1M' (\a b -> return (f a b))
 
 -- | Left fold over a non-empty 'Stream' with a strict accumulator and a
 -- monadic operator
-foldl1M' :: (forall s a. m @ Step s a, HasCallStack, Monad m) => (a -> a -> m a) -> Stream m a -> m a
+foldl1M' :: HasCallStack => (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE_FUSED foldl1M' #-}
 foldl1M' f (Stream step t) = foldl1M'_loop SPEC t
   where
@@ -995,17 +995,17 @@ foldl1M' f (Stream step t) = foldl1M'_loop SPEC t
             Done       -> error emptyStream
 
 -- | Same as 'foldl1M''
-fold1M' :: (forall s a. m @ Step s a) => (a -> a -> m a) -> Stream m a -> m a
+fold1M' :: (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE fold1M' #-}
 fold1M' = foldl1M'
 
 -- | Right fold
-foldr :: (forall s a. m @ Step s a) => (a -> b -> b) -> b -> Stream m a -> m b
+foldr :: (a -> b -> b) -> b -> Stream m a -> m b
 {-# INLINE foldr #-}
 foldr f = foldrM (\a b -> return (f a b))
 
 -- | Right fold with a monadic operator
-foldrM :: (forall s a. m @ Step s a) => (a -> b -> m b) -> b -> Stream m a -> m b
+foldrM :: (a -> b -> m b) -> b -> Stream m a -> m b
 {-# INLINE_FUSED foldrM #-}
 foldrM f z (Stream step t) = foldrM_loop SPEC t
   where
@@ -1018,12 +1018,12 @@ foldrM f z (Stream step t) = foldrM_loop SPEC t
             Done       -> return z
 
 -- | Right fold over a non-empty stream
-foldr1 :: (forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> m a
+foldr1 :: (a -> a -> a) -> Stream m a -> m a
 {-# INLINE foldr1 #-}
 foldr1 f = foldr1M (\a b -> return (f a b))
 
 -- | Right fold over a non-empty stream with a monadic operator
-foldr1M :: (HasCallStack, Monad m) => (a -> a -> m a) -> Stream m a -> m a
+foldr1M :: (HasCallStack) => (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE_FUSED foldr1M #-}
 foldr1M f (Stream step t) = foldr1M_loop0 SPEC t
   where
@@ -1046,7 +1046,7 @@ foldr1M f (Stream step t) = foldr1M_loop0 SPEC t
 -- Specialised folds
 -- -----------------
 
-and :: (forall s. m @ Step s Bool) => Stream m Bool -> m Bool
+and :: Stream m Bool -> m Bool
 {-# INLINE_FUSED and #-}
 and (Stream step t) = and_loop SPEC t
   where
@@ -1059,7 +1059,7 @@ and (Stream step t) = and_loop SPEC t
             Skip        s' -> and_loop SPEC s'
             Done           -> return True
 
-or :: (forall s. m @ Step s Bool) => Stream m Bool -> m Bool
+or :: Stream m Bool -> m Bool
 {-# INLINE_FUSED or #-}
 or (Stream step t) = or_loop SPEC t
   where
