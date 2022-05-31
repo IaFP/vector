@@ -7,6 +7,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
 -- |
 -- Module      : Data.Stream.Monadic
 -- Copyright   : (c) Roman Leshchinskiy 2008-2010
@@ -115,6 +117,7 @@ import GHC.Types ( SPEC(..) )
 import Data.Int  ( Int64 )
 #endif
 
+import GHC.Types (type(@), Total)
 
 -- | Box monad
 data Box a = Box { unBox :: a }
@@ -122,7 +125,7 @@ data Box a = Box { unBox :: a }
 instance Functor Box where
   fmap f (Box x) = Box (f x)
 
-instance Applicative Box where
+instance Total Box => Applicative Box where
   pure = Box
   Box f <*> Box x = Box (f x)
 
@@ -155,18 +158,18 @@ instance Functor (Step s) where
   (<$) = fmap . const
 
 -- | Monadic streams
-data Stream m a = forall s. Stream (s -> m (Step s a)) s
+data Monad m => Stream m a = forall s. (m @ Step s a) => Stream (s -> m (Step s a)) s
 
 -- Length
 -- ------
 
 -- | Length of a 'Stream'
-length :: Monad m => Stream m a -> m Int
+length :: (forall s a. m @ Step s a) => Stream m a -> m Int
 {-# INLINE_FUSED length #-}
 length = foldl' (\n _ -> n+1) 0
 
 -- | Check if a 'Stream' is empty
-null :: Monad m => Stream m a -> m Bool
+null :: (forall s. m @ Step s Bool) => Stream m a -> m Bool
 {-# INLINE_FUSED null #-}
 null (Stream step t) = null_loop t
   where
@@ -181,12 +184,12 @@ null (Stream step t) = null_loop t
 -- ------------
 
 -- | Empty 'Stream'
-empty :: Monad m => Stream m a
+empty :: (forall s a. m @ Step s a) => Stream m a
 {-# INLINE_FUSED empty #-}
 empty = Stream (const (return Done)) ()
 
 -- | Singleton 'Stream'
-singleton :: Monad m => a -> Stream m a
+singleton :: (forall s a. m @ Step s a) => a -> Stream m a
 {-# INLINE_FUSED singleton #-}
 singleton x = Stream (return . step) True
   where
@@ -195,13 +198,13 @@ singleton x = Stream (return . step) True
     step False = Done
 
 -- | Replicate a value to a given length
-replicate :: Monad m => Int -> a -> Stream m a
+replicate :: (m @ a, forall s a. m @ Step s a) => Int -> a -> Stream m a
 {-# INLINE_FUSED replicate #-}
 replicate n x = replicateM n (return x)
 
 -- | Yield a 'Stream' of values obtained by performing the monadic action the
 -- given number of times
-replicateM :: Monad m => Int -> m a -> Stream m a
+replicateM :: (forall s a. m @ Step s a) => Int -> m a -> Stream m a
 {-# INLINE_FUSED replicateM #-}
 replicateM n p = Stream step n
   where
@@ -209,12 +212,12 @@ replicateM n p = Stream step n
     step i | i <= 0    = return Done
            | otherwise = do { x <- p; return $ Yield x (i-1) }
 
-generate :: Monad m => Int -> (Int -> a) -> Stream m a
+generate :: (m @ a, forall s a. m @ Step s a) => Int -> (Int -> a) -> Stream m a
 {-# INLINE generate #-}
 generate n f = generateM n (return . f)
 
 -- | Generate a stream from its indices
-generateM :: Monad m => Int -> (Int -> m a) -> Stream m a
+generateM :: (forall s a. m @ Step s a) => Int -> (Int -> m a) -> Stream m a
 {-# INLINE_FUSED generateM #-}
 generateM n f = n `seq` Stream step 0
   where
@@ -225,18 +228,18 @@ generateM n f = n `seq` Stream step 0
            | otherwise = return Done
 
 -- | Prepend an element
-cons :: Monad m => a -> Stream m a -> Stream m a
+cons :: (forall s a. m @ Step s a) => a -> Stream m a -> Stream m a
 {-# INLINE cons #-}
 cons x s = singleton x ++ s
 
 -- | Append an element
-snoc :: Monad m => Stream m a -> a -> Stream m a
+snoc :: (forall s a. m @ Step s a) => Stream m a -> a -> Stream m a
 {-# INLINE snoc #-}
 snoc s x = s ++ singleton x
 
 infixr 5 ++
 -- | Concatenate two 'Stream's
-(++) :: Monad m => Stream m a -> Stream m a -> Stream m a
+(++) :: (forall s a. m @ Step s a) => Stream m a -> Stream m a -> Stream m a
 {-# INLINE_FUSED (++) #-}
 Stream stepa ta ++ Stream stepb tb = Stream step (Left ta)
   where
@@ -312,7 +315,7 @@ Stream step t !! j | j < 0     = error $ "negative index (" Prelude.++ show j Pr
 
 infixl 9 !?
 -- | Element at the given position or 'Nothing' if out of bounds
-(!?) :: Monad m => Stream m a -> Int -> m (Maybe a)
+(!?) :: (forall s a. m @ Step s a) => Stream m a -> Int -> m (Maybe a)
 {-# INLINE (!?) #-}
 Stream step t !? j = index_loop SPEC t j
   where
@@ -330,7 +333,7 @@ Stream step t !? j = index_loop SPEC t j
 -- ----------
 
 -- | Extract a substream of the given length starting at the given position.
-slice :: Monad m => Int   -- ^ starting index
+slice :: (forall s a. m @ Step s a) => Int   -- ^ starting index
                  -> Int   -- ^ length
                  -> Stream m a
                  -> Stream m a
@@ -338,7 +341,7 @@ slice :: Monad m => Int   -- ^ starting index
 slice i n s = take n (drop i s)
 
 -- | All but the last element
-init :: (HasCallStack, Monad m) => Stream m a -> Stream m a
+init :: (forall s a. m @ Step s a, HasCallStack, Monad m) => Stream m a -> Stream m a
 {-# INLINE_FUSED init #-}
 init (Stream step t) = Stream step' (Nothing, t)
   where
@@ -358,7 +361,7 @@ init (Stream step t) = Stream step' (Nothing, t)
                          ) (step s)
 
 -- | All but the first element
-tail :: (HasCallStack, Monad m) => Stream m a -> Stream m a
+tail :: (forall s a. m @ Step s a, HasCallStack, Monad m) => Stream m a -> Stream m a
 {-# INLINE_FUSED tail #-}
 tail (Stream step t) = Stream step' (Left t)
   where
@@ -378,7 +381,7 @@ tail (Stream step t) = Stream step' (Left t)
                       ) (step s)
 
 -- | The first @n@ elements
-take :: Monad m => Int -> Stream m a -> Stream m a
+take :: (forall s a. m @ Step s a) => Int -> Stream m a -> Stream m a
 {-# INLINE_FUSED take #-}
 take n (Stream step t) = n `seq` Stream step' (t, 0)
   where
@@ -392,7 +395,7 @@ take n (Stream step t) = n `seq` Stream step' (t, 0)
     step' (_, _) = return Done
 
 -- | All but the first @n@ elements
-drop :: Monad m => Int -> Stream m a -> Stream m a
+drop :: (forall s a. m @ Step s a) => Int -> Stream m a -> Stream m a
 {-# INLINE_FUSED drop #-}
 drop n (Stream step t) = Stream step' (t, Just n)
   where
@@ -415,18 +418,18 @@ drop n (Stream step t) = Stream step' (t, Just n)
 -- Mapping
 -- -------
 
-instance Monad m => Functor (Stream m) where
+instance (Stream @ m, Total m, forall s a. m @ Step s a) => Functor (Stream m) where
   {-# INLINE fmap #-}
   fmap = map
 
 -- | Map a function over a 'Stream'
-map :: Monad m => (a -> b) -> Stream m a -> Stream m b
+map :: (m @ b, forall s a. m @ Step s a) => (a -> b) -> Stream m a -> Stream m b
 {-# INLINE map #-}
 map f = mapM (return . f)
 
 
 -- | Map a monadic function over a 'Stream'
-mapM :: Monad m => (a -> m b) -> Stream m a -> Stream m b
+mapM :: (forall s a. m @ Step s a) => (a -> m b) -> Stream m a -> Stream m b
 {-# INLINE_FUSED mapM #-}
 mapM f (Stream step t) = Stream step' t
   where
@@ -438,7 +441,7 @@ mapM f (Stream step t) = Stream step' t
                   Skip    s' -> return (Skip    s')
                   Done       -> return Done
 
-consume :: Monad m => Stream m a -> m ()
+consume :: (forall s a. m @ Step s a) => Stream m a -> m ()
 {-# INLINE_FUSED consume #-}
 consume (Stream step t) = consume_loop SPEC t
   where
@@ -451,17 +454,17 @@ consume (Stream step t) = consume_loop SPEC t
             Done       -> return ()
 
 -- | Execute a monadic action for each element of the 'Stream'
-mapM_ :: Monad m => (a -> m b) -> Stream m a -> m ()
+mapM_ :: (Stream m @ b, forall s a. m @ Step s a) => (a -> m b) -> Stream m a -> m ()
 {-# INLINE_FUSED mapM_ #-}
 mapM_ m = consume . mapM m
 
 -- | Transform a 'Stream' to use a different monad
-trans :: (Monad m, Monad m')
+trans :: (forall s a. m @ Step s a, forall s a. m' @ Step s a, Monad m, Monad m')
       => (forall z. m z -> m' z) -> Stream m a -> Stream m' a
 {-# INLINE_FUSED trans #-}
 trans f (Stream step s) = Stream (f . step) s
 
-unbox :: Monad m => Stream m (Box a) -> Stream m a
+unbox :: (forall s a. m @ Step s a) => Stream m (Box a) -> Stream m a
 {-# INLINE_FUSED unbox #-}
 unbox (Stream step t) = Stream step' t
   where
@@ -477,7 +480,7 @@ unbox (Stream step t) = Stream step' t
 -- -------
 
 -- | Pair each element in a 'Stream' with its index
-indexed :: Monad m => Stream m a -> Stream m (Int,a)
+indexed :: (forall s a. m @ Step s a) => Stream m a -> Stream m (Int,a)
 {-# INLINE_FUSED indexed #-}
 indexed (Stream step t) = Stream step' (t,0)
   where
@@ -492,7 +495,7 @@ indexed (Stream step t) = Stream step' (t,0)
 
 -- | Pair each element in a 'Stream' with its index, starting from the right
 -- and counting down
-indexedR :: Monad m => Int -> Stream m a -> Stream m (Int,a)
+indexedR :: (forall a s. m @ Step s a) => Int -> Stream m a -> Stream m (Int,a)
 {-# INLINE_FUSED indexedR #-}
 indexedR m (Stream step t) = Stream step' (t,m)
   where
@@ -508,7 +511,7 @@ indexedR m (Stream step t) = Stream step' (t,m)
                       Done       -> return Done
 
 -- | Zip two 'Stream's with the given monadic function
-zipWithM :: Monad m => (a -> b -> m c) -> Stream m a -> Stream m b -> Stream m c
+zipWithM :: (forall s a. m @ Step s a) => (a -> b -> m c) -> Stream m a -> Stream m b -> Stream m c
 {-# INLINE_FUSED zipWithM #-}
 zipWithM f (Stream stepa ta) (Stream stepb tb) = Stream step (ta, tb, Nothing)
   where
@@ -530,11 +533,11 @@ zipWithM f (Stream stepa ta) (Stream stepb tb) = Stream step (ta, tb, Nothing)
                                  Skip    sb' -> return $ Skip (sa, sb', Just x)
                                  Done        -> return Done
 
-zipWithM_ :: Monad m => (a -> b -> m c) -> Stream m a -> Stream m b -> m ()
+zipWithM_ :: (forall s a. m @ Step s a) => (a -> b -> m c) -> Stream m a -> Stream m b -> m ()
 {-# INLINE zipWithM_ #-}
 zipWithM_ f sa sb = consume (zipWithM f sa sb)
 
-zipWith3M :: Monad m => (a -> b -> c -> m d) -> Stream m a -> Stream m b -> Stream m c -> Stream m d
+zipWith3M :: (forall s a. m @ Step s a) => (a -> b -> c -> m d) -> Stream m a -> Stream m b -> Stream m c -> Stream m d
 {-# INLINE_FUSED zipWith3M #-}
 zipWith3M f (Stream stepa ta)
             (Stream stepb tb)
@@ -562,21 +565,21 @@ zipWith3M f (Stream stepa ta)
             Skip    sc' -> return $ Skip (sa, sb, sc', Just (x, Just y))
             Done        -> return $ Done
 
-zipWith4M :: Monad m => (a -> b -> c -> d -> m e)
+zipWith4M :: (forall s a. m @ Step s a, m @ (a, b), m @ (c, d)) => (a -> b -> c -> d -> m e)
                      -> Stream m a -> Stream m b -> Stream m c -> Stream m d
                      -> Stream m e
 {-# INLINE zipWith4M #-}
 zipWith4M f sa sb sc sd
   = zipWithM (\(a,b) (c,d) -> f a b c d) (zip sa sb) (zip sc sd)
 
-zipWith5M :: Monad m => (a -> b -> c -> d -> e -> m f)
+zipWith5M :: (m @ (a, b, c), m @ (d, e), forall s a. m @ Step s a) => (a -> b -> c -> d -> e -> m f)
                      -> Stream m a -> Stream m b -> Stream m c -> Stream m d
                      -> Stream m e -> Stream m f
 {-# INLINE zipWith5M #-}
 zipWith5M f sa sb sc sd se
   = zipWithM (\(a,b,c) (d,e) -> f a b c d e) (zip3 sa sb sc) (zip sd se)
 
-zipWith6M :: Monad m => (a -> b -> c -> d -> e -> f -> m g)
+zipWith6M :: (m @ (a, b, c), m @ (d, e, f), forall s a. m @ Step s a) => (a -> b -> c -> d -> e -> f -> m g)
                      -> Stream m a -> Stream m b -> Stream m c -> Stream m d
                      -> Stream m e -> Stream m f -> Stream m g
 {-# INLINE zipWith6M #-}
@@ -584,52 +587,52 @@ zipWith6M fn sa sb sc sd se sf
   = zipWithM (\(a,b,c) (d,e,f) -> fn a b c d e f) (zip3 sa sb sc)
                                                   (zip3 sd se sf)
 
-zipWith :: Monad m => (a -> b -> c) -> Stream m a -> Stream m b -> Stream m c
+zipWith :: (m @ c, forall s a. m @ Step s a) => (a -> b -> c) -> Stream m a -> Stream m b -> Stream m c
 {-# INLINE zipWith #-}
 zipWith f = zipWithM (\a b -> return (f a b))
 
-zipWith3 :: Monad m => (a -> b -> c -> d)
+zipWith3 :: (m @ d, forall s a. m @ Step s a) => (a -> b -> c -> d)
                     -> Stream m a -> Stream m b -> Stream m c -> Stream m d
 {-# INLINE zipWith3 #-}
 zipWith3 f = zipWith3M (\a b c -> return (f a b c))
 
-zipWith4 :: Monad m => (a -> b -> c -> d -> e)
+zipWith4 :: (m @ (a, b), m @ (c, d), m @ e, forall s a. m @ Step s a) => (a -> b -> c -> d -> e)
                     -> Stream m a -> Stream m b -> Stream m c -> Stream m d
                     -> Stream m e
 {-# INLINE zipWith4 #-}
 zipWith4 f = zipWith4M (\a b c d -> return (f a b c d))
 
-zipWith5 :: Monad m => (a -> b -> c -> d -> e -> f)
+zipWith5 :: (m @ (a, b, c), m @ (d, e), m @ f, forall s a. m @ Step s a) => (a -> b -> c -> d -> e -> f)
                     -> Stream m a -> Stream m b -> Stream m c -> Stream m d
                     -> Stream m e -> Stream m f
 {-# INLINE zipWith5 #-}
 zipWith5 f = zipWith5M (\a b c d e -> return (f a b c d e))
 
-zipWith6 :: Monad m => (a -> b -> c -> d -> e -> f -> g)
+zipWith6 :: (m @ (a, b, c), m @ (d, e, f), m @ g, forall s a. m @ Step s a) => (a -> b -> c -> d -> e -> f -> g)
                     -> Stream m a -> Stream m b -> Stream m c -> Stream m d
                     -> Stream m e -> Stream m f -> Stream m g
 {-# INLINE zipWith6 #-}
 zipWith6 fn = zipWith6M (\a b c d e f -> return (fn a b c d e f))
 
-zip :: Monad m => Stream m a -> Stream m b -> Stream m (a,b)
+zip :: (m @ (a, b), forall s a. m @ Step s a) => Stream m a -> Stream m b -> Stream m (a,b)
 {-# INLINE zip #-}
 zip = zipWith (,)
 
-zip3 :: Monad m => Stream m a -> Stream m b -> Stream m c -> Stream m (a,b,c)
+zip3 :: (m @ (a, b, c), forall s a. m @ Step s a) => Stream m a -> Stream m b -> Stream m c -> Stream m (a,b,c)
 {-# INLINE zip3 #-}
 zip3 = zipWith3 (,,)
 
-zip4 :: Monad m => Stream m a -> Stream m b -> Stream m c -> Stream m d
+zip4 :: (m @ (a, b), m @ (c, d), m @ (a, b, c, d), forall s a. m @ Step s a) => Stream m a -> Stream m b -> Stream m c -> Stream m d
                 -> Stream m (a,b,c,d)
 {-# INLINE zip4 #-}
 zip4 = zipWith4 (,,,)
 
-zip5 :: Monad m => Stream m a -> Stream m b -> Stream m c -> Stream m d
+zip5 :: (m @ (a, b, c), m @ (d, e), m @ (a, b, c, d, e), forall s a. m @ Step s a) => Stream m a -> Stream m b -> Stream m c -> Stream m d
                 -> Stream m e -> Stream m (a,b,c,d,e)
 {-# INLINE zip5 #-}
 zip5 = zipWith5 (,,,,)
 
-zip6 :: Monad m => Stream m a -> Stream m b -> Stream m c -> Stream m d
+zip6 :: (m @ (a, b, c), m @ (d, e, f), m @ (a,b,c,d,e,f), forall s a. m @ Step s a) => Stream m a -> Stream m b -> Stream m c -> Stream m d
                 -> Stream m e -> Stream m f -> Stream m (a,b,c,d,e,f)
 {-# INLINE zip6 #-}
 zip6 = zipWith6 (,,,,,)
@@ -697,11 +700,11 @@ cmpBy cmp (Stream step1 t1) (Stream step2 t2) = cmp_loop0 SPEC t1 t2
 -- ---------
 
 -- | Drop elements which do not satisfy the predicate
-filter :: Monad m => (a -> Bool) -> Stream m a -> Stream m a
+filter :: (m @ Bool, forall s a. m @ Step s a) => (a -> Bool) -> Stream m a -> Stream m a
 {-# INLINE filter #-}
 filter f = filterM (return . f)
 
-mapMaybe :: Monad m => (a -> Maybe b) -> Stream m a -> Stream m b
+mapMaybe :: (forall s a. m @ Step s a) => (a -> Maybe b) -> Stream m a -> Stream m b
 {-# INLINE_FUSED mapMaybe #-}
 mapMaybe f (Stream step t) = Stream step' t
   where
@@ -716,11 +719,11 @@ mapMaybe f (Stream step t) = Stream step' t
                   Skip    s' -> return $ Skip s'
                   Done       -> return $ Done
 
-catMaybes :: Monad m => Stream m (Maybe a) -> Stream m a
+catMaybes :: (forall s a. m @ Step s a) => Stream m (Maybe a) -> Stream m a
 catMaybes = mapMaybe id
 
 -- | Drop elements which do not satisfy the monadic predicate
-filterM :: Monad m => (a -> m Bool) -> Stream m a -> Stream m a
+filterM :: (forall s a. m @ Step s a) => (a -> m Bool) -> Stream m a -> Stream m a
 {-# INLINE_FUSED filterM #-}
 filterM f (Stream step t) = Stream step' t
   where
@@ -738,7 +741,7 @@ filterM f (Stream step t) = Stream step' t
 -- | Apply monadic function to each element and drop all Nothings
 --
 -- @since 0.12.2.0
-mapMaybeM :: Monad m => (a -> m (Maybe b)) -> Stream m a -> Stream m b
+mapMaybeM :: (forall s a. m @ Step s a) => (a -> m (Maybe b)) -> Stream m a -> Stream m b
 {-# INLINE_FUSED mapMaybeM #-}
 mapMaybeM f (Stream step t) = Stream step' t
   where
@@ -755,7 +758,7 @@ mapMaybeM f (Stream step t) = Stream step' t
                   Done       -> return $ Done
 
 -- | Drop repeated adjacent elements.
-uniq :: (Eq a, Monad m) => Stream m a -> Stream m a
+uniq :: (Eq a, Monad m, forall s a. m @ Step s a) => Stream m a -> Stream m a
 {-# INLINE_FUSED uniq #-}
 uniq (Stream step st) = Stream step' (Nothing,st)
   where
@@ -773,12 +776,12 @@ uniq (Stream step st) = Stream step' (Nothing,st)
                               Done       -> return   Done
 
 -- | Longest prefix of elements that satisfy the predicate
-takeWhile :: Monad m => (a -> Bool) -> Stream m a -> Stream m a
+takeWhile :: (m @ Bool, forall s a. m @ Step s a) => (a -> Bool) -> Stream m a -> Stream m a
 {-# INLINE takeWhile #-}
 takeWhile f = takeWhileM (return . f)
 
 -- | Longest prefix of elements that satisfy the monadic predicate
-takeWhileM :: Monad m => (a -> m Bool) -> Stream m a -> Stream m a
+takeWhileM :: (forall s a. m @ Step s a) => (a -> m Bool) -> Stream m a -> Stream m a
 {-# INLINE_FUSED takeWhileM #-}
 takeWhileM f (Stream step t) = Stream step' t
   where
@@ -793,14 +796,14 @@ takeWhileM f (Stream step t) = Stream step' t
                   Done       -> return $ Done
 
 -- | Drop the longest prefix of elements that satisfy the predicate
-dropWhile :: Monad m => (a -> Bool) -> Stream m a -> Stream m a
+dropWhile :: (m @ Bool, forall s a. m @ Step s a) => (a -> Bool) -> Stream m a -> Stream m a
 {-# INLINE dropWhile #-}
 dropWhile f = dropWhileM (return . f)
 
 data DropWhile s a = DropWhile_Drop s | DropWhile_Yield a s | DropWhile_Next s
 
 -- | Drop the longest prefix of elements that satisfy the monadic predicate
-dropWhileM :: Monad m => (a -> m Bool) -> Stream m a -> Stream m a
+dropWhileM :: (forall s a. m @ Step s a) => (a -> m Bool) -> Stream m a -> Stream m a
 {-# INLINE_FUSED dropWhileM #-}
 dropWhileM f (Stream step t) = Stream step' (DropWhile_Drop t)
   where
@@ -855,13 +858,13 @@ notElem x s = liftM not (elem x s)
 
 -- | Yield 'Just' the first element that satisfies the predicate or 'Nothing'
 -- if no such element exists.
-find :: Monad m => (a -> Bool) -> Stream m a -> m (Maybe a)
+find :: (m @ Bool, forall s a. m @ Step s a) => (a -> Bool) -> Stream m a -> m (Maybe a)
 {-# INLINE find #-}
 find f = findM (return . f)
 
 -- | Yield 'Just' the first element that satisfies the monadic predicate or
 -- 'Nothing' if no such element exists.
-findM :: Monad m => (a -> m Bool) -> Stream m a -> m (Maybe a)
+findM :: (forall s a. m @ Step s a) => (a -> m Bool) -> Stream m a -> m (Maybe a)
 {-# INLINE_FUSED findM #-}
 findM f (Stream step t) = find_loop SPEC t
   where
@@ -878,13 +881,13 @@ findM f (Stream step t) = find_loop SPEC t
 
 -- | Yield 'Just' the index of the first element that satisfies the predicate
 -- or 'Nothing' if no such element exists.
-findIndex :: Monad m => (a -> Bool) -> Stream m a -> m (Maybe Int)
+findIndex :: (m @ Bool, forall s a. m @ Step s a) => (a -> Bool) -> Stream m a -> m (Maybe Int)
 {-# INLINE_FUSED findIndex #-}
 findIndex f = findIndexM (return . f)
 
 -- | Yield 'Just' the index of the first element that satisfies the monadic
 -- predicate or 'Nothing' if no such element exists.
-findIndexM :: Monad m => (a -> m Bool) -> Stream m a -> m (Maybe Int)
+findIndexM :: (forall s a. m @ Step s a) => (a -> m Bool) -> Stream m a -> m (Maybe Int)
 {-# INLINE_FUSED findIndexM #-}
 findIndexM f (Stream step t) = findIndex_loop SPEC t 0
   where
@@ -903,12 +906,12 @@ findIndexM f (Stream step t) = findIndex_loop SPEC t 0
 -- -------
 
 -- | Left fold
-foldl :: Monad m => (a -> b -> a) -> a -> Stream m b -> m a
+foldl :: (forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> m a
 {-# INLINE foldl #-}
 foldl f = foldlM (\a b -> return (f a b))
 
 -- | Left fold with a monadic operator
-foldlM :: Monad m => (a -> b -> m a) -> a -> Stream m b -> m a
+foldlM :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> m a
 {-# INLINE_FUSED foldlM #-}
 foldlM m w (Stream step t) = foldlM_loop SPEC w t
   where
@@ -921,17 +924,17 @@ foldlM m w (Stream step t) = foldlM_loop SPEC w t
             Done       -> return z
 
 -- | Same as 'foldlM'
-foldM :: Monad m => (a -> b -> m a) -> a -> Stream m b -> m a
+foldM :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> m a
 {-# INLINE foldM #-}
 foldM = foldlM
 
 -- | Left fold over a non-empty 'Stream'
-foldl1 :: Monad m => (a -> a -> a) -> Stream m a -> m a
+foldl1 :: (forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> m a
 {-# INLINE foldl1 #-}
 foldl1 f = foldl1M (\a b -> return (f a b))
 
 -- | Left fold over a non-empty 'Stream' with a monadic operator
-foldl1M :: (HasCallStack, Monad m) => (a -> a -> m a) -> Stream m a -> m a
+foldl1M :: (forall s a. m @ Step s a, HasCallStack, Monad m) => (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE_FUSED foldl1M #-}
 foldl1M f (Stream step t) = foldl1M_loop SPEC t
   where
@@ -944,17 +947,17 @@ foldl1M f (Stream step t) = foldl1M_loop SPEC t
             Done       -> error emptyStream
 
 -- | Same as 'foldl1M'
-fold1M :: Monad m => (a -> a -> m a) -> Stream m a -> m a
+fold1M :: (forall s a. m @ Step s a) => (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE fold1M #-}
 fold1M = foldl1M
 
 -- | Left fold with a strict accumulator
-foldl' :: Monad m => (a -> b -> a) -> a -> Stream m b -> m a
+foldl' :: (forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> m a
 {-# INLINE foldl' #-}
 foldl' f = foldlM' (\a b -> return (f a b))
 
 -- | Left fold with a strict accumulator and a monadic operator
-foldlM' :: Monad m => (a -> b -> m a) -> a -> Stream m b -> m a
+foldlM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> m a
 {-# INLINE_FUSED foldlM' #-}
 foldlM' m w (Stream step t) = foldlM'_loop SPEC w t
   where
@@ -968,18 +971,18 @@ foldlM' m w (Stream step t) = foldlM'_loop SPEC w t
             Done       -> return z
 
 -- | Same as 'foldlM''
-foldM' :: Monad m => (a -> b -> m a) -> a -> Stream m b -> m a
+foldM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> m a
 {-# INLINE foldM' #-}
 foldM' = foldlM'
 
 -- | Left fold over a non-empty 'Stream' with a strict accumulator
-foldl1' :: Monad m => (a -> a -> a) -> Stream m a -> m a
+foldl1' :: (forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> m a
 {-# INLINE foldl1' #-}
 foldl1' f = foldl1M' (\a b -> return (f a b))
 
 -- | Left fold over a non-empty 'Stream' with a strict accumulator and a
 -- monadic operator
-foldl1M' :: (HasCallStack, Monad m) => (a -> a -> m a) -> Stream m a -> m a
+foldl1M' :: (forall s a. m @ Step s a, HasCallStack, Monad m) => (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE_FUSED foldl1M' #-}
 foldl1M' f (Stream step t) = foldl1M'_loop SPEC t
   where
@@ -992,17 +995,17 @@ foldl1M' f (Stream step t) = foldl1M'_loop SPEC t
             Done       -> error emptyStream
 
 -- | Same as 'foldl1M''
-fold1M' :: Monad m => (a -> a -> m a) -> Stream m a -> m a
+fold1M' :: (forall s a. m @ Step s a) => (a -> a -> m a) -> Stream m a -> m a
 {-# INLINE fold1M' #-}
 fold1M' = foldl1M'
 
 -- | Right fold
-foldr :: Monad m => (a -> b -> b) -> b -> Stream m a -> m b
+foldr :: (forall s a. m @ Step s a) => (a -> b -> b) -> b -> Stream m a -> m b
 {-# INLINE foldr #-}
 foldr f = foldrM (\a b -> return (f a b))
 
 -- | Right fold with a monadic operator
-foldrM :: Monad m => (a -> b -> m b) -> b -> Stream m a -> m b
+foldrM :: (forall s a. m @ Step s a) => (a -> b -> m b) -> b -> Stream m a -> m b
 {-# INLINE_FUSED foldrM #-}
 foldrM f z (Stream step t) = foldrM_loop SPEC t
   where
@@ -1015,7 +1018,7 @@ foldrM f z (Stream step t) = foldrM_loop SPEC t
             Done       -> return z
 
 -- | Right fold over a non-empty stream
-foldr1 :: Monad m => (a -> a -> a) -> Stream m a -> m a
+foldr1 :: (forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> m a
 {-# INLINE foldr1 #-}
 foldr1 f = foldr1M (\a b -> return (f a b))
 
@@ -1043,7 +1046,7 @@ foldr1M f (Stream step t) = foldr1M_loop0 SPEC t
 -- Specialised folds
 -- -----------------
 
-and :: Monad m => Stream m Bool -> m Bool
+and :: (forall s. m @ Step s Bool) => Stream m Bool -> m Bool
 {-# INLINE_FUSED and #-}
 and (Stream step t) = and_loop SPEC t
   where
@@ -1056,7 +1059,7 @@ and (Stream step t) = and_loop SPEC t
             Skip        s' -> and_loop SPEC s'
             Done           -> return True
 
-or :: Monad m => Stream m Bool -> m Bool
+or :: (forall s. m @ Step s Bool) => Stream m Bool -> m Bool
 {-# INLINE_FUSED or #-}
 or (Stream step t) = or_loop SPEC t
   where
@@ -1069,11 +1072,11 @@ or (Stream step t) = or_loop SPEC t
             Skip        s' -> or_loop SPEC s'
             Done           -> return False
 
-concatMap :: Monad m => (a -> Stream m b) -> Stream m a -> Stream m b
+concatMap :: (m @ Stream m b, forall s a. m @ Step s a) => (a -> Stream m b) -> Stream m a -> Stream m b
 {-# INLINE concatMap #-}
 concatMap f = concatMapM (return . f)
 
-concatMapM :: Monad m => (a -> m (Stream m b)) -> Stream m a -> Stream m b
+concatMapM :: (forall s a. m @ Step s a) => (a -> m (Stream m b)) -> Stream m a -> Stream m b
 {-# INLINE_FUSED concatMapM #-}
 concatMapM f (Stream step t) = Stream concatMap_go (Left t)
   where
@@ -1093,7 +1096,7 @@ concatMapM f (Stream step t) = Stream concatMap_go (Left t)
             Done             -> return $ Skip (Left s)
 
 -- | Create a 'Stream' of values from a 'Stream' of streamable things
-flatten :: Monad m => (a -> m s) -> (s -> m (Step s b)) -> Stream m a -> Stream m b
+flatten :: (forall s a. m @ Step s a) => (a -> m s) -> (s -> m (Step s b)) -> Stream m a -> Stream m b
 {-# INLINE_FUSED flatten #-}
 flatten mk istep (Stream ostep u) = Stream step (Left u)
   where
@@ -1119,12 +1122,14 @@ flatten mk istep (Stream ostep u) = Stream step (Left u)
 -- ---------
 
 -- | Unfold
-unfoldr :: Monad m => (s -> Maybe (a, s)) -> s -> Stream m a
+unfoldr :: (
+  forall s a. m @ (Maybe (a, s)),
+  forall s a. m @ Step s a) => (s -> Maybe (a, s)) -> s -> Stream m a
 {-# INLINE_FUSED unfoldr #-}
 unfoldr f = unfoldrM (return . f)
 
 -- | Unfold with a monadic function
-unfoldrM :: Monad m => (s -> m (Maybe (a, s))) -> s -> Stream m a
+unfoldrM :: (forall s a. m @ Step s a) => (s -> m (Maybe (a, s))) -> s -> Stream m a
 {-# INLINE_FUSED unfoldrM #-}
 unfoldrM f t = Stream step t
   where
@@ -1135,12 +1140,14 @@ unfoldrM f t = Stream step t
                  Nothing      -> Done
              ) (f s)
 
-unfoldrN :: Monad m => Int -> (s -> Maybe (a, s)) -> s -> Stream m a
+unfoldrN :: (
+  forall s a. m @ Maybe (a, s),
+  forall s a. m @ Step s a) => Int -> (s -> Maybe (a, s)) -> s -> Stream m a
 {-# INLINE_FUSED unfoldrN #-}
 unfoldrN n f = unfoldrNM n (return . f)
 
 -- | Unfold at most @n@ elements with a monadic function.
-unfoldrNM :: Monad m => Int -> (s -> m (Maybe (a, s))) -> s -> Stream m a
+unfoldrNM :: (forall s a. m @ Step s a) => Int -> (s -> m (Maybe (a, s))) -> s -> Stream m a
 {-# INLINE_FUSED unfoldrNM #-}
 unfoldrNM m f t = Stream step (t,m)
   where
@@ -1155,14 +1162,16 @@ unfoldrNM m f t = Stream step (t,m)
 -- | Unfold exactly @n@ elements
 --
 -- @since 0.12.2.0
-unfoldrExactN :: Monad m => Int -> (s -> (a, s)) -> s -> Stream m a
+unfoldrExactN :: (
+  forall s a. m @ (a,s),
+  forall s a. m @ Step s a) => Int -> (s -> (a, s)) -> s -> Stream m a
 {-# INLINE_FUSED unfoldrExactN #-}
 unfoldrExactN n f = unfoldrExactNM n (return . f)
 
 -- | Unfold exactly @n@ elements with a monadic function.
 --
 -- @since 0.12.2.0
-unfoldrExactNM :: Monad m => Int -> (s -> m (a, s)) -> s -> Stream m a
+unfoldrExactNM :: (forall s a. m @ Step s a) => Int -> (s -> m (a, s)) -> s -> Stream m a
 {-# INLINE_FUSED unfoldrExactNM #-}
 unfoldrExactNM m f t = Stream step (t,m)
   where
@@ -1173,7 +1182,7 @@ unfoldrExactNM m f t = Stream step (t,m)
 
 -- | /O(n)/ Apply monadic function \(\max(n - 1, 0)\) times to an initial value,
 -- producing a stream of \(\max(n, 0)\) values.
-iterateNM :: Monad m => Int -> (a -> m a) -> a -> Stream m a
+iterateNM :: (m @ a, forall s a. m @ Step s a) => Int -> (a -> m a) -> a -> Stream m a
 {-# INLINE_FUSED iterateNM #-}
 iterateNM n f x0 = Stream step (x0,n)
   where
@@ -1185,7 +1194,7 @@ iterateNM n f x0 = Stream step (x0,n)
 
 -- | /O(n)/ Apply function \(\max(n - 1, 0)\) times to an initial value,
 -- producing a stream of \(\max(n, 0)\) values.
-iterateN :: Monad m => Int -> (a -> a) -> a -> Stream m a
+iterateN :: (m @ a, forall s a. m @ Step s a) => Int -> (a -> a) -> a -> Stream m a
 {-# INLINE_FUSED iterateN #-}
 iterateN n f x0 = iterateNM n (return . f) x0
 
@@ -1193,12 +1202,12 @@ iterateN n f x0 = iterateNM n (return . f) x0
 -- -----
 
 -- | Prefix scan
-prescanl :: Monad m => (a -> b -> a) -> a -> Stream m b -> Stream m a
+prescanl :: (m @ a, forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> Stream m a
 {-# INLINE prescanl #-}
 prescanl f = prescanlM (\a b -> return (f a b))
 
 -- | Prefix scan with a monadic operator
-prescanlM :: Monad m => (a -> b -> m a) -> a -> Stream m b -> Stream m a
+prescanlM :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> Stream m a
 {-# INLINE_FUSED prescanlM #-}
 prescanlM f w (Stream step t) = Stream step' (t,w)
   where
@@ -1213,12 +1222,12 @@ prescanlM f w (Stream step t) = Stream step' (t,w)
                       Done       -> return Done
 
 -- | Prefix scan with strict accumulator
-prescanl' :: Monad m => (a -> b -> a) -> a -> Stream m b -> Stream m a
+prescanl' :: (m @ a, forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> Stream m a
 {-# INLINE prescanl' #-}
 prescanl' f = prescanlM' (\a b -> return (f a b))
 
 -- | Prefix scan with strict accumulator and a monadic operator
-prescanlM' :: Monad m => (a -> b -> m a) -> a -> Stream m b -> Stream m a
+prescanlM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> Stream m a
 {-# INLINE_FUSED prescanlM' #-}
 prescanlM' f w (Stream step t) = Stream step' (t,w)
   where
@@ -1234,12 +1243,12 @@ prescanlM' f w (Stream step t) = Stream step' (t,w)
                       Done       -> return Done
 
 -- | Suffix scan
-postscanl :: Monad m => (a -> b -> a) -> a -> Stream m b -> Stream m a
+postscanl :: (m @ a, forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> Stream m a
 {-# INLINE postscanl #-}
 postscanl f = postscanlM (\a b -> return (f a b))
 
 -- | Suffix scan with a monadic operator
-postscanlM :: Monad m => (a -> b -> m a) -> a -> Stream m b -> Stream m a
+postscanlM :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> Stream m a
 {-# INLINE_FUSED postscanlM #-}
 postscanlM f w (Stream step t) = Stream step' (t,w)
   where
@@ -1254,12 +1263,12 @@ postscanlM f w (Stream step t) = Stream step' (t,w)
                       Done       -> return Done
 
 -- | Suffix scan with strict accumulator
-postscanl' :: Monad m => (a -> b -> a) -> a -> Stream m b -> Stream m a
+postscanl' :: (m @ a, forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> Stream m a
 {-# INLINE postscanl' #-}
 postscanl' f = postscanlM' (\a b -> return (f a b))
 
 -- | Suffix scan with strict acccumulator and a monadic operator
-postscanlM' :: Monad m => (a -> b -> m a) -> a -> Stream m b -> Stream m a
+postscanlM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> Stream m a
 {-# INLINE_FUSED postscanlM' #-}
 postscanlM' f w (Stream step t) = w `seq` Stream step' (t,w)
   where
@@ -1275,32 +1284,32 @@ postscanlM' f w (Stream step t) = w `seq` Stream step' (t,w)
                       Done       -> return Done
 
 -- | Haskell-style scan
-scanl :: Monad m => (a -> b -> a) -> a -> Stream m b -> Stream m a
+scanl :: (m @ a, forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> Stream m a
 {-# INLINE scanl #-}
 scanl f = scanlM (\a b -> return (f a b))
 
 -- | Haskell-style scan with a monadic operator
-scanlM :: Monad m => (a -> b -> m a) -> a -> Stream m b -> Stream m a
+scanlM :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> Stream m a
 {-# INLINE scanlM #-}
 scanlM f z s = z `cons` postscanlM f z s
 
 -- | Haskell-style scan with strict accumulator
-scanl' :: Monad m => (a -> b -> a) -> a -> Stream m b -> Stream m a
+scanl' :: (m @ a, forall s a. m @ Step s a) => (a -> b -> a) -> a -> Stream m b -> Stream m a
 {-# INLINE scanl' #-}
 scanl' f = scanlM' (\a b -> return (f a b))
 
 -- | Haskell-style scan with strict accumulator and a monadic operator
-scanlM' :: Monad m => (a -> b -> m a) -> a -> Stream m b -> Stream m a
+scanlM' :: (forall s a. m @ Step s a) => (a -> b -> m a) -> a -> Stream m b -> Stream m a
 {-# INLINE scanlM' #-}
 scanlM' f z s = z `seq` (z `cons` postscanlM f z s)
 
 -- | Initial-value free scan over a 'Stream'
-scanl1 :: Monad m => (a -> a -> a) -> Stream m a -> Stream m a
+scanl1 :: (m @ a, forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> Stream m a
 {-# INLINE scanl1 #-}
 scanl1 f = scanl1M (\x y -> return (f x y))
 
 -- | Initial-value free scan over a 'Stream' with a monadic operator
-scanl1M :: Monad m => (a -> a -> m a) -> Stream m a -> Stream m a
+scanl1M :: (forall s a. m @ Step s a) => (a -> a -> m a) -> Stream m a -> Stream m a
 {-# INLINE_FUSED scanl1M #-}
 scanl1M f (Stream step t) = Stream step' (t, Nothing)
   where
@@ -1322,13 +1331,13 @@ scanl1M f (Stream step t) = Stream step' (t, Nothing)
                             Done       -> return Done
 
 -- | Initial-value free scan over a 'Stream' with a strict accumulator
-scanl1' :: Monad m => (a -> a -> a) -> Stream m a -> Stream m a
+scanl1' :: (m @ a, forall s a. m @ Step s a) => (a -> a -> a) -> Stream m a -> Stream m a
 {-# INLINE scanl1' #-}
 scanl1' f = scanl1M' (\x y -> return (f x y))
 
 -- | Initial-value free scan over a 'Stream' with a strict accumulator
 -- and a monadic operator
-scanl1M' :: Monad m => (a -> a -> m a) -> Stream m a -> Stream m a
+scanl1M' :: (forall s a. m @ Step s a) => (a -> a -> m a) -> Stream m a -> Stream m a
 {-# INLINE_FUSED scanl1M' #-}
 scanl1M' f (Stream step t) = Stream step' (t, Nothing)
   where
@@ -1359,7 +1368,7 @@ scanl1M' f (Stream step t) = Stream step' (t, Nothing)
 
 -- | Yield a 'Stream' of the given length containing the values @x@, @x+y@,
 -- @x+y+y@ etc.
-enumFromStepN :: (Num a, Monad m) => a -> a -> Int -> Stream m a
+enumFromStepN :: (forall s a. m @ Step s a, Num a, Monad m) => a -> a -> Int -> Stream m a
 {-# INLINE_FUSED enumFromStepN #-}
 enumFromStepN x y n = x `seq` y `seq` n `seq` Stream step (x,n)
   where
@@ -1371,7 +1380,7 @@ enumFromStepN x y n = x `seq` y `seq` n `seq` Stream step (x,n)
 --
 -- /WARNING:/ This operation can be very inefficient. If at all possible, use
 -- 'enumFromStepN' instead.
-enumFromTo :: (Enum a, Monad m) => a -> a -> Stream m a
+enumFromTo :: (forall s a. m @ Step s a, Enum a, Monad m) => a -> a -> Stream m a
 {-# INLINE_FUSED enumFromTo #-}
 enumFromTo x y = fromList [x .. y]
 
@@ -1379,7 +1388,7 @@ enumFromTo x y = fromList [x .. y]
 -- overflow which can't happen here.
 
 -- FIXME: add "too large" test for Int
-enumFromTo_small :: (Integral a, Monad m) => a -> a -> Stream m a
+enumFromTo_small :: (forall s a. m @ Step s a, Integral a, Monad m) => a -> a -> Stream m a
 {-# INLINE_FUSED enumFromTo_small #-}
 enumFromTo_small x y = x `seq` y `seq` Stream step (Just x)
   where
@@ -1392,16 +1401,16 @@ enumFromTo_small x y = x `seq` y `seq` Stream step (Just x)
 {-# RULES
 
 "enumFromTo<Int8> [Stream]"
-  enumFromTo = enumFromTo_small :: Monad m => Int8 -> Int8 -> Stream m Int8
+  enumFromTo = enumFromTo_small :: (forall s a. m @ Step s a) => Int8 -> Int8 -> Stream m Int8
 
 "enumFromTo<Int16> [Stream]"
-  enumFromTo = enumFromTo_small :: Monad m => Int16 -> Int16 -> Stream m Int16
+  enumFromTo = enumFromTo_small :: (forall s a. m @ Step s a) => Int16 -> Int16 -> Stream m Int16
 
 "enumFromTo<Word8> [Stream]"
-  enumFromTo = enumFromTo_small :: Monad m => Word8 -> Word8 -> Stream m Word8
+  enumFromTo = enumFromTo_small :: (forall s a. m @ Step s a) => Word8 -> Word8 -> Stream m Word8
 
 "enumFromTo<Word16> [Stream]"
-  enumFromTo = enumFromTo_small :: Monad m => Word16 -> Word16 -> Stream m Word16   #-}
+  enumFromTo = enumFromTo_small :: (forall s a. m @ Step s a) => Word16 -> Word16 -> Stream m Word16   #-}
 
 
 #if WORD_SIZE_IN_BITS > 32
@@ -1409,10 +1418,10 @@ enumFromTo_small x y = x `seq` y `seq` Stream step (Just x)
 {-# RULES
 
 "enumFromTo<Int32> [Stream]"
-  enumFromTo = enumFromTo_small :: Monad m => Int32 -> Int32 -> Stream m Int32
+  enumFromTo = enumFromTo_small :: (forall s a. m @ Step s a) => Int32 -> Int32 -> Stream m Int32
 
 "enumFromTo<Word32> [Stream]"
-  enumFromTo = enumFromTo_small :: Monad m => Word32 -> Word32 -> Stream m Word32   #-}
+  enumFromTo = enumFromTo_small :: (forall s a. m @ Step s a) => Word32 -> Word32 -> Stream m Word32   #-}
 
 
 #endif
@@ -1429,7 +1438,7 @@ enumFromTo_small x y = x `seq` y `seq` Stream step (Just x)
 -- unsigned types). See http://hackage.haskell.org/trac/ghc/ticket/3744
 --
 
-enumFromTo_int :: forall m. Monad m => Int -> Int -> Stream m Int
+enumFromTo_int :: forall m. (forall s. m @ Step s Int) => Int -> Int -> Stream m Int
 {-# INLINE_FUSED enumFromTo_int #-}
 enumFromTo_int x y = x `seq` y `seq` Stream step (Just x)
   where
@@ -1449,7 +1458,7 @@ enumFromTo_int x y = x `seq` y `seq` Stream step (Just x)
                   | otherwise = return $ Done
 
 
-enumFromTo_intlike :: (Integral a, Monad m) => a -> a -> Stream m a
+enumFromTo_intlike :: (forall s a. m @ Step s a, Integral a, Monad m) => a -> a -> Stream m a
 {-# INLINE_FUSED enumFromTo_intlike #-}
 enumFromTo_intlike x y = x `seq` y `seq` Stream step (Just x)
   where
@@ -1462,21 +1471,21 @@ enumFromTo_intlike x y = x `seq` y `seq` Stream step (Just x)
 {-# RULES
 
 "enumFromTo<Int> [Stream]"
-  enumFromTo = enumFromTo_int :: Monad m => Int -> Int -> Stream m Int
+  enumFromTo = enumFromTo_int :: (forall s a. m @ Step s a) => Int -> Int -> Stream m Int
 
 #if WORD_SIZE_IN_BITS > 32
 
 "enumFromTo<Int64> [Stream]"
-  enumFromTo = enumFromTo_intlike :: Monad m => Int64 -> Int64 -> Stream m Int64 #-}
+  enumFromTo = enumFromTo_intlike :: (forall s a. m @ Step s a) => Int64 -> Int64 -> Stream m Int64 #-}
 
 #else
 
 "enumFromTo<Int32> [Stream]"
-  enumFromTo = enumFromTo_intlike :: Monad m => Int32 -> Int32 -> Stream m Int32 #-}
+  enumFromTo = enumFromTo_intlike :: (forall s a. m @ Step s a) => Int32 -> Int32 -> Stream m Int32 #-}
 
 #endif
 
-enumFromTo_big_word :: (Integral a, Monad m) => a -> a -> Stream m a
+enumFromTo_big_word :: (forall s a. m @ Step s a, Integral a, Monad m) => a -> a -> Stream m a
 {-# INLINE_FUSED enumFromTo_big_word #-}
 enumFromTo_big_word x y = x `seq` y `seq` Stream step (Just x)
   where
@@ -1489,30 +1498,30 @@ enumFromTo_big_word x y = x `seq` y `seq` Stream step (Just x)
 {-# RULES
 
 "enumFromTo<Word> [Stream]"
-  enumFromTo = enumFromTo_big_word :: Monad m => Word -> Word -> Stream m Word
+  enumFromTo = enumFromTo_big_word :: (forall s a. m @ Step s a) => Word -> Word -> Stream m Word
 
 "enumFromTo<Word64> [Stream]"
   enumFromTo = enumFromTo_big_word
-                        :: Monad m => Word64 -> Word64 -> Stream m Word64
+                        :: (forall s a. m @ Step s a) => Word64 -> Word64 -> Stream m Word64
 
 #if WORD_SIZE_IN_BITS == 32
 
 "enumFromTo<Word32> [Stream]"
   enumFromTo = enumFromTo_big_word
-                        :: Monad m => Word32 -> Word32 -> Stream m Word32
+                        :: (forall s a. m @ Step s a) => Word32 -> Word32 -> Stream m Word32
 
 #endif
 
 "enumFromTo<Integer> [Stream]"
   enumFromTo = enumFromTo_big_word
-                        :: Monad m => Integer -> Integer -> Stream m Integer   #-}
+                        :: (forall s a. m @ Step s a) => Integer -> Integer -> Stream m Integer   #-}
 
 
 
 #if WORD_SIZE_IN_BITS > 32
 
 -- FIXME: the "too large" test is totally wrong
-enumFromTo_big_int :: (Integral a, Monad m) => a -> a -> Stream m a
+enumFromTo_big_int :: (forall s a. m @ Step s a, Integral a, Monad m) => a -> a -> Stream m a
 {-# INLINE_FUSED enumFromTo_big_int #-}
 enumFromTo_big_int x y = x `seq` y `seq` Stream step (Just x)
   where
@@ -1525,13 +1534,13 @@ enumFromTo_big_int x y = x `seq` y `seq` Stream step (Just x)
 {-# RULES
 
 "enumFromTo<Int64> [Stream]"
-  enumFromTo = enumFromTo_big_int :: Monad m => Int64 -> Int64 -> Stream m Int64   #-}
+  enumFromTo = enumFromTo_big_int :: (forall s a. m @ Step s a) => Int64 -> Int64 -> Stream m Int64   #-}
 
 
 
 #endif
 
-enumFromTo_char :: Monad m => Char -> Char -> Stream m Char
+enumFromTo_char :: (forall s. m @ Step s Char) => Char -> Char -> Stream m Char
 {-# INLINE_FUSED enumFromTo_char #-}
 enumFromTo_char x y = x `seq` y `seq` Stream step xn
   where
@@ -1554,7 +1563,7 @@ enumFromTo_char x y = x `seq` y `seq` Stream step xn
 -- Specialise enumFromTo for Float and Double.
 -- Also, try to do something about pairs?
 
-enumFromTo_double :: (Monad m, Ord a, RealFrac a) => a -> a -> Stream m a
+enumFromTo_double :: (forall s a. m @ Step s a, Monad m, Ord a, RealFrac a) => a -> a -> Stream m a
 {-# INLINE_FUSED enumFromTo_double #-}
 enumFromTo_double n m = n `seq` m `seq` Stream step ini
   where
@@ -1581,10 +1590,10 @@ enumFromTo_double n m = n `seq` m `seq` Stream step ini
 {-# RULES
 
 "enumFromTo<Double> [Stream]"
-  enumFromTo = enumFromTo_double :: Monad m => Double -> Double -> Stream m Double
+  enumFromTo = enumFromTo_double :: (forall s a. m @ Step s a) => Double -> Double -> Stream m Double
 
 "enumFromTo<Float> [Stream]"
-  enumFromTo = enumFromTo_double :: Monad m => Float -> Float -> Stream m Float   #-}
+  enumFromTo = enumFromTo_double :: (forall s a. m @ Step s a) => Float -> Float -> Stream m Float   #-}
 
 
 
@@ -1594,7 +1603,7 @@ enumFromTo_double n m = n `seq` m `seq` Stream step ini
 --
 -- /WARNING:/ This operation is very inefficient. If at all possible, use
 -- 'enumFromStepN' instead.
-enumFromThenTo :: (Enum a, Monad m) => a -> a -> a -> Stream m a
+enumFromThenTo :: (Enum a, forall s a. m @ Step s a, Monad m) => a -> a -> a -> Stream m a
 {-# INLINE_FUSED enumFromThenTo #-}
 enumFromThenTo x y z = fromList [x, y .. z]
 
@@ -1604,12 +1613,12 @@ enumFromThenTo x y z = fromList [x, y .. z]
 -- -----------
 
 -- | Convert a 'Stream' to a list
-toList :: Monad m => Stream m a -> m [a]
+toList :: (forall s a. m @ Step s a) => Stream m a -> m [a]
 {-# INLINE toList #-}
 toList = foldr (:) []
 
 -- | Convert a list to a 'Stream'
-fromList :: Monad m => [a] -> Stream m a
+fromList :: (forall s a. m @ Step s a) => [a] -> Stream m a
 {-# INLINE fromList #-}
 fromList zs = Stream step zs
   where
@@ -1617,7 +1626,7 @@ fromList zs = Stream step zs
     step []     = return Done
 
 -- | Convert the first @n@ elements of a list to a 'Bundle'
-fromListN :: Monad m => Int -> [a] -> Stream m a
+fromListN :: (forall s a. m @ Step s a) => Int -> [a] -> Stream m a
 {-# INLINE_FUSED fromListN #-}
 fromListN m zs = Stream step (zs,m)
   where
@@ -1703,7 +1712,7 @@ concatVectors (Stream step s}
         Skip    s' -> return (Skip s')
         Done       -> return Done
 
-reVector :: Monad m => Stream m a -> Stream m a
+reVector :: (forall s a. m @ Step s a) => Stream m a -> Stream m a
 {-# INLINE_FUSED reVector #-}
 reVector (Stream step s, sSize = n} = Stream step s n
 

@@ -80,6 +80,7 @@ Flag Wall
 
 Library
   Default-Language: Haskell2010
+
   Other-Extensions:
         BangPatterns
         CPP
@@ -96,6 +97,15 @@ Library
         StandaloneDeriving
         TypeFamilies
 
+  Default-Extensions:
+        PartialTypeConstructors
+        FlexibleContexts
+        -- Needed for PTC annotations
+        QuantifiedConstraints
+        TypeOperators
+        ExplicitNamespaces
+        UndecidableInstances
+        
   Exposed-Modules:
         Data.Vector.Internal.Check
 
@@ -141,6 +151,7 @@ Library
                , vector-stream >= 0.1 && < 0.2
 
   Ghc-Options: -O2 -Wall
+--  Ghc-Options: -ddump-types -ddump-tc-trace -fforce-recomp
 
   if !flag(Wall)
     Ghc-Options: -fno-warn-orphans
