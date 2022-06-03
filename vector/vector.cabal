@@ -80,6 +80,15 @@ Flag Wall
 
 Library
   Default-Language: Haskell2010
+  Default-extensions:
+        PartialTypeConstructors
+        -- Needed for PTC annotations
+        FlexibleContexts
+        ExplicitNamespaces
+        TypeOperators
+        QuantifiedConstraints
+        UndecidableInstances
+      
   Other-Extensions:
         BangPatterns
         CPP

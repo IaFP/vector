@@ -32,6 +32,13 @@ Extra-Source-Files:
 
 Library
   Default-Language: Haskell2010
+  Default-extensions:
+        PartialTypeConstructors
+        -- Needed for PTC annotations
+        FlexibleContexts
+        ExplicitNamespaces
+        TypeOperators
+        QuantifiedConstraints
 
   Exposed-Modules:
         Data.Stream.Monadic

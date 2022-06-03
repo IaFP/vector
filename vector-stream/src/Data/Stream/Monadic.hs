@@ -7,6 +7,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- |
 -- Module      : Data.Stream.Monadic
 -- Copyright   : (c) Roman Leshchinskiy 2008-2010
@@ -115,6 +116,7 @@ import GHC.Types ( SPEC(..) )
 import Data.Int  ( Int64 )
 #endif
 
+import GHC.Types (type (@), Total)
 
 -- | Box monad
 data Box a = Box { unBox :: a }
@@ -154,8 +156,11 @@ instance Functor (Step s) where
   {-# INLINE (<$) #-}
   (<$) = fmap . const
 
+class Total m => Streamable m
+instance Total m => Streamable m
+
 -- | Monadic streams
-data Stream m a = forall s. Stream (s -> m (Step s a)) s
+data Streamable m => Stream m a = forall s. Stream (s -> m (Step s a)) s
 
 -- Length
 -- ------
