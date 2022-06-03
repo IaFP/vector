@@ -85,6 +85,9 @@ import           Data.Vector.Fusion.Bundle.Size
 import           Data.Vector.Fusion.Util        ( delay_inline )
 import           Data.Vector.Internal.Check
 
+import Data.Vector.Generic.Base ( Mutable )
+import GHC.Types (type (@), Total, WDT)
+
 import Control.Monad.Primitive ( PrimMonad(..), RealWorld, stToPrim )
 
 import Prelude hiding ( length, null, replicate, reverse, map, read,
@@ -194,7 +197,7 @@ transformR f v = fillR v (f (mstreamR v))
 -- | Create a new mutable vector and fill it with elements from the 'Bundle'.
 -- The vector will grow exponentially if the maximum size of the 'Bundle' is
 -- unknown.
-unstream :: (PrimMonad m, MVector v a)
+unstream :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
          => Bundle u a -> m (v (PrimState m) a)
 -- NOTE: replace INLINE_FUSED by INLINE? (also in unstreamR)
 {-# INLINE_FUSED unstream #-}
@@ -203,14 +206,14 @@ unstream s = munstream (Bundle.lift s)
 -- | Create a new mutable vector and fill it with elements from the monadic
 -- stream. The vector will grow exponentially if the maximum size of the stream
 -- is unknown.
-munstream :: (PrimMonad m, MVector v a)
+munstream :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
           => MBundle m u a -> m (v (PrimState m) a)
 {-# INLINE_FUSED munstream #-}
 munstream s = case upperBound (MBundle.size s) of
                Just n  -> munstreamMax     s n
                Nothing -> munstreamUnknown s
 
-munstreamMax :: (PrimMonad m, MVector v a)
+munstreamMax :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
              => MBundle m u a -> Int -> m (v (PrimState m) a)
 {-# INLINE munstreamMax #-}
 munstreamMax s n
@@ -223,7 +226,7 @@ munstreamMax s n
       return $ checkSlice Internal 0 n' n
              $ unsafeSlice 0 n' v
 
-munstreamUnknown :: (PrimMonad m, MVector v a)
+munstreamUnknown :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
                  => MBundle m u a -> m (v (PrimState m) a)
 {-# INLINE munstreamUnknown #-}
 munstreamUnknown s
@@ -242,7 +245,7 @@ munstreamUnknown s
 -- | Create a new mutable vector and fill it with elements from the 'Bundle'.
 -- The vector will grow exponentially if the maximum size of the 'Bundle' is
 -- unknown.
-vunstream :: (PrimMonad m, V.Vector v a)
+vunstream :: (Total v, forall m1. Mutable v @ PrimState m1, forall m1 a1. Mutable v (PrimState m1) @ a1, PrimMonad m, V.Vector v a)
          => Bundle v a -> m (V.Mutable v (PrimState m) a)
 -- NOTE: replace INLINE_FUSED by INLINE? (also in unstreamR)
 {-# INLINE_FUSED vunstream #-}
@@ -251,14 +254,14 @@ vunstream s = vmunstream (Bundle.lift s)
 -- | Create a new mutable vector and fill it with elements from the monadic
 -- stream. The vector will grow exponentially if the maximum size of the stream
 -- is unknown.
-vmunstream :: (PrimMonad m, V.Vector v a)
+vmunstream :: (Total v, forall m1. Mutable v @ PrimState m1, forall m1 a1. Mutable v (PrimState m1) @ a1, PrimMonad m, V.Vector v a)
            => MBundle m v a -> m (V.Mutable v (PrimState m) a)
 {-# INLINE_FUSED vmunstream #-}
 vmunstream s = case upperBound (MBundle.size s) of
                Just n  -> vmunstreamMax     s n
                Nothing -> vmunstreamUnknown s
 
-vmunstreamMax :: (PrimMonad m, V.Vector v a)
+vmunstreamMax :: (Total v, forall m1. Mutable v @ PrimState m1, forall m1 a1. Mutable v (PrimState m1) @ a1, PrimMonad m, V.Vector v a)
               => MBundle m v a -> Int -> m (V.Mutable v (PrimState m) a)
 {-# INLINE vmunstreamMax #-}
 vmunstreamMax s n
@@ -274,7 +277,7 @@ vmunstreamMax s n
       return $ checkSlice Internal 0 n' n
              $ unsafeSlice 0 n' v
 
-vmunstreamUnknown :: (PrimMonad m, V.Vector v a)
+vmunstreamUnknown :: (Total v, forall m1. Mutable v @ PrimState m1, forall m1 a1. Mutable v (PrimState m1) @ a1, PrimMonad m, V.Vector v a)
                  => MBundle m v a -> m (V.Mutable v (PrimState m) a)
 {-# INLINE vmunstreamUnknown #-}
 vmunstreamUnknown s
@@ -298,7 +301,7 @@ vmunstreamUnknown s
 -- | Create a new mutable vector and fill it with elements from the 'Bundle'
 -- from right to left. The vector will grow exponentially if the maximum size
 -- of the 'Bundle' is unknown.
-unstreamR :: (PrimMonad m, MVector v a)
+unstreamR :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
           => Bundle u a -> m (v (PrimState m) a)
 -- NOTE: replace INLINE_FUSED by INLINE? (also in unstream)
 {-# INLINE_FUSED unstreamR #-}
@@ -307,14 +310,14 @@ unstreamR s = munstreamR (Bundle.lift s)
 -- | Create a new mutable vector and fill it with elements from the monadic
 -- stream from right to left. The vector will grow exponentially if the maximum
 -- size of the stream is unknown.
-munstreamR :: (PrimMonad m, MVector v a)
+munstreamR :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
            => MBundle m u a -> m (v (PrimState m) a)
 {-# INLINE_FUSED munstreamR #-}
 munstreamR s = case upperBound (MBundle.size s) of
                Just n  -> munstreamRMax     s n
                Nothing -> munstreamRUnknown s
 
-munstreamRMax :: (PrimMonad m, MVector v a)
+munstreamRMax :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
               => MBundle m u a -> Int -> m (v (PrimState m) a)
 {-# INLINE munstreamRMax #-}
 munstreamRMax s n
@@ -329,7 +332,7 @@ munstreamRMax s n
       return $ checkSlice Internal i (n-i) n
              $ unsafeSlice i (n-i) v
 
-munstreamRUnknown :: (HasCallStack, PrimMonad m, MVector v a)
+munstreamRUnknown :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, HasCallStack, PrimMonad m, MVector v a)
                   => MBundle m u a -> m (v (PrimState m) a)
 {-# INLINE munstreamRUnknown #-}
 munstreamRUnknown s
@@ -482,7 +485,7 @@ replicate n x = stToPrim $ basicUnsafeReplicate (delay_inline max 0 n) x
 
 -- | Create a mutable vector of the given length (0 if the length is negative)
 -- and fill it with values produced by repeatedly executing the monadic action.
-replicateM :: (PrimMonad m, MVector v a) => Int -> m a -> m (v (PrimState m) a)
+replicateM :: (forall m' u'. Mutable u' @ PrimState m', forall m' u' a'. Mutable u' (PrimState m') @ a', PrimMonad m, MVector v a) => Int -> m a -> m (v (PrimState m) a)
 {-# INLINE replicateM #-}
 replicateM n m = munstream (MBundle.replicateM n m)
 
@@ -986,7 +989,7 @@ unsafeMove dst src = check Unsafe "length mismatch" (length dst == length src)
                    $ dst `seq` src `seq` stToPrim (basicUnsafeMove dst src)
 
 
-accum :: forall m v a b u. (HasCallStack, PrimMonad m, MVector v a)
+accum :: forall m v a b u. (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, HasCallStack, PrimMonad m, MVector v a)
       => (a -> b -> a) -> v (PrimState m) a -> Bundle u (Int, b) -> m ()
 {-# INLINE accum #-}
 accum f !v s = Bundle.mapM_ upd s
@@ -998,7 +1001,7 @@ accum f !v s = Bundle.mapM_ upd s
                   unsafeWrite v i (f a b)
     !n = length v
 
-update :: forall m v a u. (HasCallStack, PrimMonad m, MVector v a)
+update :: forall m v a u. (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, HasCallStack, PrimMonad m, MVector v a)
        => v (PrimState m) a -> Bundle u (Int, a) -> m ()
 {-# INLINE update #-}
 update !v s = Bundle.mapM_ upd s
@@ -1009,7 +1012,7 @@ update !v s = Bundle.mapM_ upd s
 
     !n = length v
 
-unsafeAccum :: (PrimMonad m, MVector v a)
+unsafeAccum :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
             => (a -> b -> a) -> v (PrimState m) a -> Bundle u (Int, b) -> m ()
 {-# INLINE unsafeAccum #-}
 unsafeAccum f !v s = Bundle.mapM_ upd s
@@ -1020,7 +1023,7 @@ unsafeAccum f !v s = Bundle.mapM_ upd s
                   unsafeWrite v i (f a b)
     !n = length v
 
-unsafeUpdate :: (PrimMonad m, MVector v a)
+unsafeUpdate :: (Total m, forall m1. Mutable m @ PrimState m1, forall m1 a1. Mutable m (PrimState m1) @ a1, PrimMonad m, MVector v a)
                         => v (PrimState m) a -> Bundle u (Int, a) -> m ()
 {-# INLINE unsafeUpdate #-}
 unsafeUpdate !v s = Bundle.mapM_ upd s
@@ -1067,7 +1070,7 @@ unstablePartition f !v = from_left 0 (length v)
                                from_left (i+1) j
                         else from_right i (j-1)
 
-unstablePartitionBundle :: (PrimMonad m, MVector v a)
+unstablePartitionBundle :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
         => (a -> Bool) -> Bundle u a -> m (v (PrimState m) a, v (PrimState m) a)
 {-# INLINE unstablePartitionBundle #-}
 unstablePartitionBundle f s
@@ -1075,7 +1078,7 @@ unstablePartitionBundle f s
       Just n  -> unstablePartitionMax f s n
       Nothing -> partitionUnknown f s
 
-unstablePartitionMax :: (PrimMonad m, MVector v a)
+unstablePartitionMax :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
         => (a -> Bool) -> Bundle u a -> Int
         -> m (v (PrimState m) a, v (PrimState m) a)
 {-# INLINE unstablePartitionMax #-}
@@ -1094,7 +1097,7 @@ unstablePartitionMax f s n
       (i,j) <- Bundle.foldM' put (0, n) s
       return (unsafeSlice 0 i v, unsafeSlice j (n-j) v)
 
-partitionBundle :: (PrimMonad m, MVector v a)
+partitionBundle :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
         => (a -> Bool) -> Bundle u a -> m (v (PrimState m) a, v (PrimState m) a)
 {-# INLINE partitionBundle #-}
 partitionBundle f s
@@ -1102,7 +1105,7 @@ partitionBundle f s
       Just n  -> partitionMax f s n
       Nothing -> partitionUnknown f s
 
-partitionMax :: (PrimMonad m, MVector v a)
+partitionMax :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
   => (a -> Bool) -> Bundle u a -> Int -> m (v (PrimState m) a, v (PrimState m) a)
 {-# INLINE partitionMax #-}
 partitionMax f s n
@@ -1128,7 +1131,7 @@ partitionMax f s n
       reverse r
       return (l,r)
 
-partitionUnknown :: (PrimMonad m, MVector v a)
+partitionUnknown :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a)
         => (a -> Bool) -> Bundle u a -> m (v (PrimState m) a, v (PrimState m) a)
 {-# INLINE partitionUnknown #-}
 partitionUnknown f s
@@ -1154,7 +1157,7 @@ partitionUnknown f s
                       return (v1, i1, v2', i2+1)
 
 
-partitionWithBundle :: (PrimMonad m, MVector v a, MVector v b, MVector v c)
+partitionWithBundle :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a, MVector v b, MVector v c)
         => (a -> Either b c) -> Bundle u a -> m (v (PrimState m) b, v (PrimState m) c)
 {-# INLINE partitionWithBundle #-}
 partitionWithBundle f s
@@ -1162,7 +1165,7 @@ partitionWithBundle f s
       Just n  -> partitionWithMax f s n
       Nothing -> partitionWithUnknown f s
 
-partitionWithMax :: (PrimMonad m, MVector v a, MVector v b, MVector v c)
+partitionWithMax :: (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a, MVector v b, MVector v c)
   => (a -> Either b c) -> Bundle u a -> Int -> m (v (PrimState m) b, v (PrimState m) c)
 {-# INLINE partitionWithMax #-}
 partitionWithMax f s n
@@ -1183,7 +1186,7 @@ partitionWithMax f s n
         $ return (unsafeSlice 0 n1 v1, unsafeSlice 0 n2 v2)
 
 partitionWithUnknown :: forall m v u a b c.
-     (PrimMonad m, MVector v a, MVector v b, MVector v c)
+     (Total u, forall m1. Mutable u @ PrimState m1, forall m1 a1. Mutable u (PrimState m1) @ a1, PrimMonad m, MVector v a, MVector v b, MVector v c)
   => (a -> Either b c) -> Bundle u a -> m (v (PrimState m) b, v (PrimState m) c)
 {-# INLINE partitionWithUnknown #-}
 partitionWithUnknown f s
