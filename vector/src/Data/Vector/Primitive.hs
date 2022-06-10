@@ -194,6 +194,7 @@ import Data.Semigroup ( Semigroup(..) )
 import Data.Coerce
 import Unsafe.Coerce
 import qualified GHC.Exts as Exts
+import GHC.Types(Total, WDT)
 
 type role Vector nominal
 
@@ -595,7 +596,7 @@ unfoldrExactN = G.unfoldrExactN
 -- generator function to a seed. The generator function yields 'Just'
 -- the next element and the new seed or 'Nothing' if there are no more
 -- elements.
-unfoldrM :: (Monad m, Prim a) => (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+unfoldrM :: (Total m, WDT (PrimState m), Monad m, Prim a) => (b -> m (Maybe (a, b))) -> b -> m (Vector a)
 {-# INLINE unfoldrM #-}
 unfoldrM = G.unfoldrM
 
@@ -603,7 +604,7 @@ unfoldrM = G.unfoldrM
 -- generator function to a seed. The generator function yields 'Just'
 -- the next element and the new seed or 'Nothing' if there are no more
 -- elements.
-unfoldrNM :: (Monad m, Prim a) => Int -> (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+unfoldrNM :: (Total m, WDT (PrimState m), Monad m, Prim a) => Int -> (b -> m (Maybe (a, b))) -> b -> m (Vector a)
 {-# INLINE unfoldrNM #-}
 unfoldrNM = G.unfoldrNM
 
@@ -612,7 +613,7 @@ unfoldrNM = G.unfoldrNM
 -- function yields the next element and the new seed.
 --
 -- @since 0.12.2.0
-unfoldrExactNM :: (Monad m, Prim a) => Int -> (b -> m (a, b)) -> b -> m (Vector a)
+unfoldrExactNM :: (Total m, WDT (PrimState m), Monad m, Prim a) => Int -> (b -> m (a, b)) -> b -> m (Vector a)
 {-# INLINE unfoldrExactNM #-}
 unfoldrExactNM = G.unfoldrExactNM
 
@@ -697,13 +698,13 @@ concat = G.concat
 
 -- | /O(n)/ Execute the monadic action the given number of times and store the
 -- results in a vector.
-replicateM :: (Monad m, Prim a) => Int -> m a -> m (Vector a)
+replicateM :: (Total m, WDT (PrimState m), Monad m, Prim a) => Int -> m a -> m (Vector a)
 {-# INLINE replicateM #-}
 replicateM = G.replicateM
 
 -- | /O(n)/ Construct a vector of the given length by applying the monadic
 -- action to each index.
-generateM :: (Monad m, Prim a) => Int -> (Int -> m a) -> m (Vector a)
+generateM :: (Total m, WDT (PrimState m), Monad m, Prim a) => Int -> (Int -> m a) -> m (Vector a)
 {-# INLINE generateM #-}
 generateM = G.generateM
 
@@ -714,7 +715,7 @@ generateM = G.generateM
 -- For a non-monadic version, see `iterateN`.
 --
 -- @since 0.12.0.0
-iterateNM :: (Monad m, Prim a) => Int -> (a -> m a) -> a -> m (Vector a)
+iterateNM :: (Total m, WDT (PrimState m), Monad m, Prim a) => Int -> (a -> m a) -> a -> m (Vector a)
 {-# INLINE iterateNM #-}
 iterateNM = G.iterateNM
 
@@ -729,7 +730,7 @@ create :: Prim a => (forall s. ST s (MVector s a)) -> Vector a
 create p = G.create p
 
 -- | Execute the monadic action and freeze the resulting vectors.
-createT :: (Traversable f, Prim a) => (forall s. ST s (f (MVector s a))) -> f (Vector a)
+createT :: (Total f, Traversable f, Prim a) => (forall s. ST s (f (MVector s a))) -> f (Vector a)
 {-# INLINE createT #-}
 createT p = G.createT p
 
@@ -893,7 +894,7 @@ concatMap = G.concatMap
 
 -- | /O(n)/ Apply the monadic action to all elements of the vector, yielding a
 -- vector of results.
-mapM :: (Monad m, Prim a, Prim b) => (a -> m b) -> Vector a -> m (Vector b)
+mapM :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b) => (a -> m b) -> Vector a -> m (Vector b)
 {-# INLINE mapM #-}
 mapM = G.mapM
 
@@ -901,14 +902,14 @@ mapM = G.mapM
 -- index, yielding a vector of results.
 --
 -- @since 0.12.2.0
-imapM :: (Monad m, Prim a, Prim b)
+imapM :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b)
       => (Int -> a -> m b) -> Vector a -> m (Vector b)
 {-# INLINE imapM #-}
 imapM = G.imapM
 
 -- | /O(n)/ Apply the monadic action to all elements of a vector and ignore the
 -- results.
-mapM_ :: (Monad m, Prim a) => (a -> m b) -> Vector a -> m ()
+mapM_ :: (Total m, Monad m, Prim a) => (a -> m b) -> Vector a -> m ()
 {-# INLINE mapM_ #-}
 mapM_ = G.mapM_
 
@@ -916,19 +917,19 @@ mapM_ = G.mapM_
 -- index, ignoring the results.
 --
 -- @since 0.12.2.0
-imapM_ :: (Monad m, Prim a) => (Int -> a -> m b) -> Vector a -> m ()
+imapM_ :: (Total m, Monad m, Prim a) => (Int -> a -> m b) -> Vector a -> m ()
 {-# INLINE imapM_ #-}
 imapM_ = G.imapM_
 
 -- | /O(n)/ Apply the monadic action to all elements of the vector, yielding a
 -- vector of results. Equivalent to @flip 'mapM'@.
-forM :: (Monad m, Prim a, Prim b) => Vector a -> (a -> m b) -> m (Vector b)
+forM :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b) => Vector a -> (a -> m b) -> m (Vector b)
 {-# INLINE forM #-}
 forM = G.forM
 
 -- | /O(n)/ Apply the monadic action to all elements of a vector and ignore the
 -- results. Equivalent to @flip 'mapM_'@.
-forM_ :: (Monad m, Prim a) => Vector a -> (a -> m b) -> m ()
+forM_ :: (Total m, Monad m, Prim a) => Vector a -> (a -> m b) -> m ()
 {-# INLINE forM_ #-}
 forM_ = G.forM_
 
@@ -936,7 +937,7 @@ forM_ = G.forM_
 -- vector of results. Equivalent to @'flip' 'imapM'@.
 --
 -- @since 0.12.2.0
-iforM :: (Monad m, Prim a, Prim b) => Vector a -> (Int -> a -> m b) -> m (Vector b)
+iforM :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b) => Vector a -> (Int -> a -> m b) -> m (Vector b)
 {-# INLINE iforM #-}
 iforM = G.iforM
 
@@ -944,7 +945,7 @@ iforM = G.iforM
 -- and ignore the results. Equivalent to @'flip' 'imapM_'@.
 --
 -- @since 0.12.2.0
-iforM_ :: (Monad m, Prim a) => Vector a -> (Int -> a -> m b) -> m ()
+iforM_ :: (Total m, Monad m, Prim a) => Vector a -> (Int -> a -> m b) -> m ()
 {-# INLINE iforM_ #-}
 iforM_ = G.iforM_
 
@@ -1026,7 +1027,7 @@ izipWith6 = G.izipWith6
 
 -- | /O(min(m,n))/ Zip the two vectors with the monadic action and yield a
 -- vector of results.
-zipWithM :: (Monad m, Prim a, Prim b, Prim c)
+zipWithM :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b, Prim c)
          => (a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
 {-# INLINE zipWithM #-}
 zipWithM = G.zipWithM
@@ -1035,14 +1036,14 @@ zipWithM = G.zipWithM
 -- the element index and yield a vector of results.
 --
 -- @since 0.12.2.0
-izipWithM :: (Monad m, Prim a, Prim b, Prim c)
+izipWithM :: (Total m, WDT (PrimState m),  Monad m, Prim a, Prim b, Prim c)
           => (Int -> a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
 {-# INLINE izipWithM #-}
 izipWithM = G.izipWithM
 
 -- | /O(min(m,n))/ Zip the two vectors with the monadic action and ignore the
 -- results.
-zipWithM_ :: (Monad m, Prim a, Prim b)
+zipWithM_ :: (Total m, Monad m, Prim a, Prim b)
           => (a -> b -> m c) -> Vector a -> Vector b -> m ()
 {-# INLINE zipWithM_ #-}
 zipWithM_ = G.zipWithM_
@@ -1051,7 +1052,7 @@ zipWithM_ = G.zipWithM_
 -- the element index and ignore the results.
 --
 -- @since 0.12.2.0
-izipWithM_ :: (Monad m, Prim a, Prim b)
+izipWithM_ :: (Total m, Monad m, Prim a, Prim b)
            => (Int -> a -> b -> m c) -> Vector a -> Vector b -> m ()
 {-# INLINE izipWithM_ #-}
 izipWithM_ = G.izipWithM_
@@ -1092,7 +1093,7 @@ imapMaybe :: (Prim a, Prim b) => (Int -> a -> Maybe b) -> Vector a -> Vector b
 imapMaybe = G.imapMaybe
 
 -- | /O(n)/ Drop all elements that do not satisfy the monadic predicate.
-filterM :: (Monad m, Prim a) => (a -> m Bool) -> Vector a -> m (Vector a)
+filterM :: (Total m, WDT (PrimState m), Monad m, Prim a) => (a -> m Bool) -> Vector a -> m (Vector a)
 {-# INLINE filterM #-}
 filterM = G.filterM
 
@@ -1101,7 +1102,7 @@ filterM = G.filterM
 --
 -- @since 0.12.2.0
 mapMaybeM
-  :: (Monad m, Prim a, Prim b)
+  :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b)
   => (a -> m (Maybe b)) -> Vector a -> m (Vector b)
 {-# INLINE mapMaybeM #-}
 mapMaybeM = G.mapMaybeM
@@ -1111,7 +1112,7 @@ mapMaybeM = G.mapMaybeM
 --
 -- @since 0.12.2.0
 imapMaybeM
-  :: (Monad m, Prim a, Prim b)
+  :: (Total m, WDT (PrimState m), Monad m, Prim a, Prim b)
   => (Int -> a -> m (Maybe b)) -> Vector a -> m (Vector b)
 {-# INLINE imapMaybeM #-}
 imapMaybeM = G.imapMaybeM
@@ -1482,24 +1483,24 @@ minIndexBy = G.minIndexBy
 -- -------------
 
 -- | /O(n)/ Monadic fold.
-foldM :: (Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m a
+foldM :: (Total m, Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m a
 {-# INLINE foldM #-}
 foldM = G.foldM
 
 -- | /O(n)/ Monadic fold using a function applied to each element and its index.
 --
 -- @since 0.12.2.0
-ifoldM :: (Monad m, Prim b) => (a -> Int -> b -> m a) -> a -> Vector b -> m a
+ifoldM :: (Total m, Monad m, Prim b) => (a -> Int -> b -> m a) -> a -> Vector b -> m a
 {-# INLINE ifoldM #-}
 ifoldM = G.ifoldM
 
 -- | /O(n)/ Monadic fold over non-empty vectors.
-fold1M :: (Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m a
+fold1M :: (Total m, Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m a
 {-# INLINE fold1M #-}
 fold1M = G.fold1M
 
 -- | /O(n)/ Monadic fold with strict accumulator.
-foldM' :: (Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m a
+foldM' :: (Total m, Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m a
 {-# INLINE foldM' #-}
 foldM' = G.foldM'
 
@@ -1507,17 +1508,17 @@ foldM' = G.foldM'
 -- element and its index.
 --
 -- @since 0.12.2.0
-ifoldM' :: (Monad m, Prim b) => (a -> Int -> b -> m a) -> a -> Vector b -> m a
+ifoldM' :: (Total m, Monad m, Prim b) => (a -> Int -> b -> m a) -> a -> Vector b -> m a
 {-# INLINE ifoldM' #-}
 ifoldM' = G.ifoldM'
 
 -- | /O(n)/ Monadic fold over non-empty vectors with strict accumulator.
-fold1M' :: (Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m a
+fold1M' :: (Total m, Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m a
 {-# INLINE fold1M' #-}
 fold1M' = G.fold1M'
 
 -- | /O(n)/ Monadic fold that discards the result.
-foldM_ :: (Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m ()
+foldM_ :: (Total m, Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m ()
 {-# INLINE foldM_ #-}
 foldM_ = G.foldM_
 
@@ -1525,17 +1526,17 @@ foldM_ = G.foldM_
 -- each element and its index.
 --
 -- @since 0.12.2.0
-ifoldM_ :: (Monad m, Prim b) => (a -> Int -> b -> m a) -> a -> Vector b -> m ()
+ifoldM_ :: (Total m, Monad m, Prim b) => (a -> Int -> b -> m a) -> a -> Vector b -> m ()
 {-# INLINE ifoldM_ #-}
 ifoldM_ = G.ifoldM_
 
 -- | /O(n)/ Monadic fold over non-empty vectors that discards the result.
-fold1M_ :: (Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m ()
+fold1M_ :: (Total m, Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m ()
 {-# INLINE fold1M_ #-}
 fold1M_ = G.fold1M_
 
 -- | /O(n)/ Monadic fold with strict accumulator that discards the result.
-foldM'_ :: (Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m ()
+foldM'_ :: (Total m, Monad m, Prim b) => (a -> b -> m a) -> a -> Vector b -> m ()
 {-# INLINE foldM'_ #-}
 foldM'_ = G.foldM'_
 
@@ -1543,14 +1544,14 @@ foldM'_ = G.foldM'_
 -- using a function applied to each element and its index.
 --
 -- @since 0.12.2.0
-ifoldM'_ :: (Monad m, Prim b)
+ifoldM'_ :: (Total m, Monad m, Prim b)
          => (a -> Int -> b -> m a) -> a -> Vector b -> m ()
 {-# INLINE ifoldM'_ #-}
 ifoldM'_ = G.ifoldM'_
 
 -- | /O(n)/ Monadic fold over non-empty vectors with strict accumulator
 -- that discards the result.
-fold1M'_ :: (Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m ()
+fold1M'_ :: (Total m, Monad m, Prim a) => (a -> a -> m a) -> Vector a -> m ()
 {-# INLINE fold1M'_ #-}
 fold1M'_ = G.fold1M'_
 

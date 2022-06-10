@@ -85,7 +85,8 @@ import Data.Vector.Fusion.Stream.Monadic ( Stream(..), Step(..) )
 import Data.Vector.Fusion.Bundle.Monadic ( Chunk(..), lift )
 import qualified Data.Vector.Fusion.Bundle.Monadic as M
 import qualified Data.Vector.Fusion.Stream.Monadic as S
-
+import qualified Data.Vector.Generic.Mutable.Base as MB
+import qualified Data.Vector.Generic.Base as B
 import Prelude hiding ( length, null,
                         replicate, (++),
                         head, last, (!!),
@@ -102,6 +103,7 @@ import Prelude hiding ( length, null,
 
 import Data.Functor.Classes (Eq1 (..), Ord1 (..))
 import GHC.Base ( build )
+import GHC.Types ( Total, type (@) )
 
 -- Data.Vector.Internal.Check is unused
 #define NOT_VECTOR_MODULE
@@ -285,9 +287,9 @@ zipWith3 :: (a -> b -> c -> d) -> Bundle v a -> Bundle v b -> Bundle v c -> Bund
 {-# INLINE zipWith3 #-}
 zipWith3 = M.zipWith3
 
-zipWith4 :: (a -> b -> c -> d -> e)
-                    -> Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
-                    -> Bundle v e
+zipWith4 ::  (a -> b -> c -> d -> e)
+         -> Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
+         -> Bundle v e
 {-# INLINE zipWith4 #-}
 zipWith4 = M.zipWith4
 
@@ -298,8 +300,8 @@ zipWith5 :: (a -> b -> c -> d -> e -> f)
 zipWith5 = M.zipWith5
 
 zipWith6 :: (a -> b -> c -> d -> e -> f -> g)
-                    -> Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
-                    -> Bundle v e -> Bundle v f -> Bundle v g
+         -> Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
+         -> Bundle v e -> Bundle v f -> Bundle v g
 {-# INLINE zipWith6 #-}
 zipWith6 = M.zipWith6
 
@@ -312,17 +314,17 @@ zip3 :: Bundle v a -> Bundle v b -> Bundle v c -> Bundle v (a,b,c)
 zip3 = M.zip3
 
 zip4 :: Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
-                -> Bundle v (a,b,c,d)
+     -> Bundle v (a,b,c,d)
 {-# INLINE zip4 #-}
 zip4 = M.zip4
 
 zip5 :: Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
-                -> Bundle v e -> Bundle v (a,b,c,d,e)
+     -> Bundle v e -> Bundle v (a,b,c,d,e)
 {-# INLINE zip5 #-}
 zip5 = M.zip5
 
 zip6 :: Bundle v a -> Bundle v b -> Bundle v c -> Bundle v d
-                -> Bundle v e -> Bundle v f -> Bundle v (a,b,c,d,e,f)
+     -> Bundle v e -> Bundle v f -> Bundle v (a,b,c,d,e,f)
 {-# INLINE zip6 #-}
 zip6 = M.zip6
 
@@ -527,25 +529,25 @@ instance Ord1 (M.Bundle Id v) where
 
 -- | Apply a monadic action to each element of the stream, producing a monadic
 -- stream of results
-mapM :: Monad m => (a -> m b) -> Bundle v a -> M.Bundle m v b
+mapM :: (a -> m b) -> Bundle v a -> M.Bundle m v b
 {-# INLINE mapM #-}
 mapM f = M.mapM f . lift
 
 -- | Apply a monadic action to each element of the stream
-mapM_ :: Monad m => (a -> m b) -> Bundle v a -> m ()
+mapM_ :: (Total m, Monad m) => (a -> m b) -> Bundle v a -> m ()
 {-# INLINE mapM_ #-}
 mapM_ f = M.mapM_ f . lift
 
-zipWithM :: Monad m => (a -> b -> m c) -> Bundle v a -> Bundle v b -> M.Bundle m v c
+zipWithM :: (a -> b -> m c) -> Bundle v a -> Bundle v b -> M.Bundle m v c
 {-# INLINE zipWithM #-}
 zipWithM f as bs = M.zipWithM f (lift as) (lift bs)
 
-zipWithM_ :: Monad m => (a -> b -> m c) -> Bundle v a -> Bundle v b -> m ()
+zipWithM_ :: (Total m, Monad m) => (a -> b -> m c) -> Bundle v a -> Bundle v b -> m ()
 {-# INLINE zipWithM_ #-}
 zipWithM_ f as bs = M.zipWithM_ f (lift as) (lift bs)
 
 -- | Yield a monadic stream of elements that satisfy the monadic predicate
-filterM :: Monad m => (a -> m Bool) -> Bundle v a -> M.Bundle m v a
+filterM :: (a -> m Bool) -> Bundle v a -> M.Bundle m v a
 {-# INLINE filterM #-}
 filterM f = M.filterM f . lift
 
@@ -553,27 +555,27 @@ filterM f = M.filterM f . lift
 -- discard elements returning Nothing.
 --
 -- @since 0.12.2.0
-mapMaybeM :: Monad m => (a -> m (Maybe b)) -> Bundle v a -> M.Bundle m v b
+mapMaybeM :: (a -> m (Maybe b)) -> Bundle v a -> M.Bundle m v b
 {-# INLINE mapMaybeM #-}
 mapMaybeM f = M.mapMaybeM f . lift
 
 -- | Monadic fold
-foldM :: Monad m => (a -> b -> m a) -> a -> Bundle v b -> m a
+foldM :: (Total m, Monad m) => (a -> b -> m a) -> a -> Bundle v b -> m a
 {-# INLINE foldM #-}
 foldM m z = M.foldM m z . lift
 
 -- | Monadic fold over non-empty stream
-fold1M :: Monad m => (a -> a -> m a) -> Bundle v a -> m a
+fold1M :: (Total m, Monad m) => (a -> a -> m a) -> Bundle v a -> m a
 {-# INLINE fold1M #-}
 fold1M m = M.fold1M m . lift
 
 -- | Monadic fold with strict accumulator
-foldM' :: Monad m => (a -> b -> m a) -> a -> Bundle v b -> m a
+foldM' :: (Total m, Monad m) => (a -> b -> m a) -> a -> Bundle v b -> m a
 {-# INLINE foldM' #-}
 foldM' m z = M.foldM' m z . lift
 
 -- | Monad fold over non-empty stream with strict accumulator
-fold1M' :: Monad m => (a -> a -> m a) -> Bundle v a -> m a
+fold1M' :: (Total m, Monad m) => (a -> a -> m a) -> Bundle v a -> m a
 {-# INLINE fold1M' #-}
 fold1M' m = M.fold1M' m . lift
 

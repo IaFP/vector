@@ -1,0 +1,5 @@
+Preprocessing library for vector-0.13.0.1..
+Building library for vector-0.13.0.1..
+[19 of 21] Compiling Data.Vector.Unboxed.Base ( src/Data/Vector/Unboxed/Base.hs, dist/build/Data/Vector/Unboxed/Base.o, dist/build/Data/Vector/Unboxed/Base.dyn_o )
+[20 of 21] Compiling Data.Vector.Unboxed ( src/Data/Vector/Unboxed.hs, dist/build/Data/Vector/Unboxed.o, dist/build/Data/Vector/Unboxed.dyn_o )
+[21 of 21] Compiling Data.Vector.Unboxed.Mutable ( src/Data/Vector/Unboxed/Mutable.hs, dist/build/Data/Vector/Unboxed/Mutable.o, dist/build/Data/Vector/Unboxed/Mutable.dyn_o )

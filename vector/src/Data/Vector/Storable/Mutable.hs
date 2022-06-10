@@ -96,6 +96,7 @@ import qualified Data.Primitive.Types as DPT
 
 import GHC.Word (Word8, Word16, Word32, Word64)
 import GHC.Ptr (Ptr(..))
+import GHC.Types (WDT)
 
 import Prelude hiding ( length, null, replicate, reverse, map, read,
                         take, drop, splitAt, init, tail, foldr, foldl, mapM_ )
@@ -247,14 +248,14 @@ a confusing misnomer for whats often called memset (intialize)
 -}
 -- Fill a memory block with the given value. The length is in
 -- elements of type @a@ rather than in bytes.
-memsetPrimPtr_vector :: forall a c m. (Prim c, PrimMonad m) => Ptr a -> Int -> c -> m ()
+memsetPrimPtr_vector :: forall a c m. (WDT(PrimState m), Prim c, PrimMonad m) => Ptr a -> Int -> c -> m ()
 memsetPrimPtr_vector (Ptr addr#) (I# n#) x = primitive_ (DPT.setOffAddr# addr# 0# n# x)
 {-# INLINE memsetPrimPtr_vector #-}
 
 
 -- Read a value from a memory position given by an address and an offset.
 -- The offset is in elements of type @a@ rather than in bytes.
-peakPrimPtr_vector :: (Prim a, PrimMonad m) => Ptr a -> Int -> m a
+peakPrimPtr_vector :: (WDT(PrimState m), Prim a, PrimMonad m) => Ptr a -> Int -> m a
 peakPrimPtr_vector (Ptr addr#) (I# i#) = primitive (DPT.readOffAddr# addr# i#)
 {-# INLINE peakPrimPtr_vector #-}
 

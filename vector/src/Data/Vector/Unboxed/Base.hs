@@ -10,6 +10,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE PartialTypeConstructors #-}
 {-# OPTIONS_HADDOCK hide #-}
 -- |
 -- Module      : Data.Vector.Unboxed.Base
@@ -57,6 +58,7 @@ import GHC.Exts      ( Down(..) )
 import GHC.Generics
 import Data.Coerce
 import Data.Kind     (Type)
+import GHC.Types (type(@))
 
 -- Data.Vector.Internal.Check is unused
 #define NOT_VECTOR_MODULE
@@ -64,6 +66,7 @@ import Data.Kind     (Type)
 
 data family MVector s a
 data family Vector    a
+type instance Vector @ a = ()
 
 type IOVector = MVector RealWorld
 type STVector s = MVector s
@@ -370,7 +373,7 @@ instance (IsoUnbox a b, Unbox b) => M.MVector MVector (As a b) where
   basicUnsafeWrite (MV_UnboxAs v) i (As x) = M.basicUnsafeWrite v i (toURepr x)
   basicSet (MV_UnboxAs v) (As x) = M.basicSet v (toURepr x)
 
-instance (IsoUnbox a b, Unbox b) => G.Vector Vector (As a b) where
+instance (Vector @ b, IsoUnbox a b, Unbox b) => G.Vector Vector (As a b) where
   -- Method that just use underlying vector
   {-# INLINE basicUnsafeFreeze #-}
   {-# INLINE basicUnsafeThaw #-}

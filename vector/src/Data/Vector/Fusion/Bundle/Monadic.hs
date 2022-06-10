@@ -7,6 +7,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PartialTypeConstructors #-}
 -- |
 -- Module      : Data.Vector.Fusion.Bundle.Monadic
 -- Copyright   : (c) Roman Leshchinskiy 2008-2010
@@ -120,32 +121,26 @@ import Data.Word ( Word8, Word16, Word32, Word64 )
 import Data.Int  ( Int64 )
 #endif
 
-import GHC.Types (type(@))
+import GHC.Types (type(@), Total)
 
-data (
-  WD'Mutable v,
-  Vector v a) => Chunk v a = Chunk Int (forall m. (WD'PrimState m, PrimMonad m) => Mutable v (PrimState m) a -> m ())
+data Chunk v a = Chunk Int (forall m. (M.MVector (Mutable v) a, PrimMonad m) => Mutable v (PrimState m) a -> m ())
 
 -- | Monadic streams
-data (
-  WD'Mutable v,
-  Stream @ m,
-  Stream m @ a
-  ) => Bundle m v a =
+data (Total m, Monad m) => Bundle m v a =
   Bundle { sElems  :: Stream m a
          , sChunks :: Stream m (Chunk v a)
-         , sVector :: Maybe (v a)
+         , sVector :: v @ a => Maybe (v a)
          , sSize   :: Size
          }
 
 -- | Convert a pure stream to a monadic stream
-lift :: (forall s. m @ Step s a) => Bundle Id v a -> Bundle m v a
+lift :: Bundle Id v a -> Bundle m v a
 {-# INLINE_FUSED lift #-}
 lift (Bundle (Stream step s) (Stream vstep t) v sz)
     = Bundle (Stream (return . unId . step) s)
              (Stream (return . unId . vstep) t) v sz
 
-fromStream :: (forall s. m @ Step s a) => Stream m a -> Size -> Bundle m v a
+fromStream :: Stream m a -> Size -> Bundle m v a
 {-# INLINE fromStream #-}
 fromStream (Stream step t) sz = Bundle (Stream step t) (Stream step' t) Nothing sz
   where
@@ -174,32 +169,31 @@ sized s sz = s { sSize = sz }
 -- ------
 
 -- | Length of a 'Bundle'
-length :: (forall s. m @ Step s a) => Bundle m v a -> m Int
+length :: Bundle m v a -> m Int
 {-# INLINE_FUSED length #-}
 length Bundle{sSize = Exact n}  = return n
 length Bundle{sChunks = s} = S.foldl' (\n (Chunk k _) -> n+k) 0 s
 
 -- | Check if a 'Bundle' is empty
-null :: (forall s. m @ Step s a) => Bundle m v a -> m Bool
+null :: Bundle m v a -> m Bool
 {-# INLINE_FUSED null #-}
 null Bundle{sSize = Exact n} = return (n == 0)
 null Bundle{sChunks = s} = S.foldr (\(Chunk n _) z -> n == 0 && z) True s
 
 -- Construction
 -- ------------
-
 -- | Empty 'Bundle'
-empty :: (forall s. m @ Step s a) => Bundle m v a
+empty ::  Bundle m v a
 {-# INLINE_FUSED empty #-}
 empty = fromStream S.empty (Exact 0)
 
 -- | Singleton 'Bundle'
-singleton :: (forall s. m @ Step s a) => a -> Bundle m v a
+singleton :: a -> Bundle m v a
 {-# INLINE_FUSED singleton #-}
 singleton x = fromStream (S.singleton x) (Exact 1)
 
 -- | Replicate a value to a given length
-replicate :: (forall s. m @ Step s a) => Int -> a -> Bundle m v a
+replicate :: Int -> a -> Bundle m v a
 {-# INLINE_FUSED replicate #-}
 replicate n x = Bundle (S.replicate n x)
                        (S.singleton $ Chunk len (\v -> stToPrim $ M.basicSet v x))
@@ -210,34 +204,34 @@ replicate n x = Bundle (S.replicate n x)
 
 -- | Yield a 'Bundle' of values obtained by performing the monadic action the
 -- given number of times
-replicateM :: (forall s. m @ Step s a) => Int -> m a -> Bundle m v a
+replicateM :: forall m v a. Int -> m a -> Bundle m v a
 {-# INLINE_FUSED replicateM #-}
 -- NOTE: We delay inlining max here because GHC will create a join point for
 -- the call to newArray# otherwise which is not really nice.
 replicateM n p = fromStream (S.replicateM n p) (Exact (delay_inline max n 0))
 
-generate :: (forall s. m @ Step s a) => Int -> (Int -> a) -> Bundle m v a
+generate :: Int -> (Int -> a) -> Bundle m v a
 {-# INLINE generate #-}
 generate n f = generateM n (return . f)
 
 -- | Generate a stream from its indices
-generateM :: (forall s. m @ Step s a) => Int -> (Int -> m a) -> Bundle m v a
+generateM :: Int -> (Int -> m a) -> Bundle m v a
 {-# INLINE_FUSED generateM #-}
 generateM n f = fromStream (S.generateM n f) (Exact (delay_inline max n 0))
 
 -- | Prepend an element
-cons :: (forall s. m @ Step s a) => a -> Bundle m v a -> Bundle m v a
+cons :: a -> Bundle m v a -> Bundle m v a
 {-# INLINE cons #-}
 cons x s = singleton x ++ s
 
 -- | Append an element
-snoc :: (forall s. m @ Step s a) => Bundle m v a -> a -> Bundle m v a
+snoc :: Bundle m v a -> a -> Bundle m v a
 {-# INLINE snoc #-}
 snoc s x = s ++ singleton x
 
 infixr 5 ++
 -- | Concatenate two 'Bundle's
-(++) :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v a -> Bundle m v a
+(++) :: Bundle m v a -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED (++) #-}
 Bundle sa ta _ na ++ Bundle sb tb _ nb = Bundle (sa S.++ sb) (ta S.++ tb) Nothing (na + nb)
 
@@ -245,24 +239,24 @@ Bundle sa ta _ na ++ Bundle sb tb _ nb = Bundle (sa S.++ sb) (ta S.++ tb) Nothin
 -- ------------------
 
 -- | First element of the 'Bundle' or error if empty
-head :: (forall s. m @ Step s a) => Bundle m v a -> m a
+head :: Bundle m v a -> m a
 {-# INLINE_FUSED head #-}
 head = S.head . sElems
 
 -- | Last element of the 'Bundle' or error if empty
-last :: (forall s. m @ Step s a) => Bundle m v a -> m a
+last :: Bundle m v a -> m a
 {-# INLINE_FUSED last #-}
 last = S.last . sElems
 
 infixl 9 !!
 -- | Element at the given position
-(!!) :: (forall s. m @ Step s a) => Bundle m v a -> Int -> m a
+(!!) :: Bundle m v a -> Int -> m a
 {-# INLINE (!!) #-}
 b !! i = sElems b S.!! i
 
 infixl 9 !?
 -- | Element at the given position or 'Nothing' if out of bounds
-(!?) :: (forall s. m @ Step s a) => Bundle m v a -> Int -> m (Maybe a)
+(!?) :: Bundle m v a -> Int -> m (Maybe a)
 {-# INLINE (!?) #-}
 b !? i = sElems b S.!? i
 
@@ -270,30 +264,30 @@ b !? i = sElems b S.!? i
 -- ----------
 
 -- | Extract a substream of the given length starting at the given position.
-slice :: (forall s. m @ Step s a) => Int   -- ^ starting index
-                 -> Int   -- ^ length
-                 -> Bundle m v a
-                 -> Bundle m v a
+slice :: Int   -- ^ starting index
+      -> Int   -- ^ length
+      -> Bundle m v a
+      -> Bundle m v a
 {-# INLINE slice #-}
 slice i n s = take n (drop i s)
 
 -- | All but the last element
-init :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v a
+init :: Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED init #-}
 init Bundle{sElems = s, sSize = sz} = fromStream (S.init s) (sz-1)
 
 -- | All but the first element
-tail :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v a
+tail :: Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED tail #-}
 tail Bundle{sElems = s, sSize = sz} = fromStream (S.tail s) (sz-1)
 
 -- | The first @n@ elements
-take :: (forall s. m @ Step s a) => Int -> Bundle m v a -> Bundle m v a
+take :: Int -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED take #-}
 take n Bundle{sElems = s, sSize = sz} = fromStream (S.take n s) (smallerThan n sz)
 
 -- | All but the first @n@ elements
-drop :: (forall s. m @ Step s a) => Int -> Bundle m v a -> Bundle m v a
+drop :: Int -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED drop #-}
 drop n Bundle{sElems = s, sSize = sz} =
   fromStream (S.drop n s) (clampedSubtract sz (Exact n))
@@ -301,35 +295,35 @@ drop n Bundle{sElems = s, sSize = sz} =
 -- Mapping
 -- -------
 
-instance (forall s a. m @ Step s a) => Functor (Bundle m v) where
+instance Functor (Bundle m v) where
   {-# INLINE fmap #-}
   fmap = map
   {-# INLINE (<$) #-}
   (<$) = map . const
 
 -- | Map a function over a 'Bundle'
-map :: (forall s. m @ Step s a) => (a -> b) -> Bundle m v a -> Bundle m v b
+map :: (a -> b) -> Bundle m v a -> Bundle m v b
 {-# INLINE map #-}
 map f = mapM (return . f)
 
 -- | Map a monadic function over a 'Bundle'
-mapM :: (forall s. m @ Step s a) => (a -> m b) -> Bundle m v a -> Bundle m v b
+mapM :: (a -> m b) -> Bundle m v a -> Bundle m v b
 {-# INLINE_FUSED mapM #-}
 mapM f Bundle{sElems = s, sSize = n} = fromStream (S.mapM f s) n
 
 -- | Execute a monadic action for each element of the 'Bundle'
-mapM_ :: (forall s. m @ Step s a) => (a -> m b) -> Bundle m v a -> m ()
+mapM_ :: (a -> m b) -> Bundle m v a -> m ()
 {-# INLINE_FUSED mapM_ #-}
 mapM_ m = S.mapM_ m . sElems
 
 -- | Transform a 'Bundle' to use a different monad
-trans :: (Monad m, Monad m') => (forall z. m z -> m' z)
-                             -> Bundle m v a -> Bundle m' v a
+trans :: (forall z. m z -> m' z)
+      -> Bundle m v a -> Bundle m' v a
 {-# INLINE_FUSED trans #-}
 trans f Bundle{sElems = s, sChunks = cs, sVector = v, sSize = n}
   = Bundle { sElems = S.trans f s, sChunks = S.trans f cs, sVector = v, sSize = n }
 
-unbox :: (forall s. m @ Step s a) => Bundle m v (Box a) -> Bundle m v a
+unbox :: Bundle m v (Box a) -> Bundle m v a
 {-# INLINE_FUSED unbox #-}
 unbox Bundle{sElems = s, sSize = n} = fromStream (S.unbox s) n
 
@@ -337,18 +331,18 @@ unbox Bundle{sElems = s, sSize = n} = fromStream (S.unbox s) n
 -- -------
 
 -- | Pair each element in a 'Bundle' with its index
-indexed :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v (Int,a)
+indexed :: Bundle m v a -> Bundle m v (Int,a)
 {-# INLINE_FUSED indexed #-}
 indexed Bundle{sElems = s, sSize = n} = fromStream (S.indexed s) n
 
 -- | Pair each element in a 'Bundle' with its index, starting from the right
 -- and counting down
-indexedR :: (forall s. m @ Step s a) => Int -> Bundle m v a -> Bundle m v (Int,a)
+indexedR :: Int -> Bundle m v a -> Bundle m v (Int,a)
 {-# INLINE_FUSED indexedR #-}
 indexedR m Bundle{sElems = s, sSize = n} = fromStream (S.indexedR m s) n
 
 -- | Zip two 'Bundle's with the given monadic function
-zipWithM :: (forall s. m @ Step s a) => (a -> b -> m c) -> Bundle m v a -> Bundle m v b -> Bundle m v c
+zipWithM :: (a -> b -> m c) -> Bundle m v a -> Bundle m v b -> Bundle m v c
 {-# INLINE_FUSED zipWithM #-}
 zipWithM f Bundle{sElems = sa, sSize = na}
            Bundle{sElems = sb, sSize = nb} = fromStream (S.zipWithM f sa sb) (smaller na nb)
@@ -360,86 +354,86 @@ zipWithM f Bundle{sElems = sa, sSize = na}
   zipWithM f (lift xs) (lift xs) = mapM (\x -> f x x) (lift xs) #-}
 
 
-zipWithM_ :: (forall s. m @ Step s a) => (a -> b -> m c) -> Bundle m v a -> Bundle m v b -> m ()
+zipWithM_ :: (a -> b -> m c) -> Bundle m v a -> Bundle m v b -> m ()
 {-# INLINE zipWithM_ #-}
 zipWithM_ f sa sb = S.zipWithM_ f (sElems sa) (sElems sb)
 
-zipWith3M :: (forall s. m @ Step s a) => (a -> b -> c -> m d) -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+zipWith3M :: (a -> b -> c -> m d) -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
 {-# INLINE_FUSED zipWith3M #-}
 zipWith3M f Bundle{sElems = sa, sSize = na}
             Bundle{sElems = sb, sSize = nb}
             Bundle{sElems = sc, sSize = nc}
   = fromStream (S.zipWith3M f sa sb sc) (smaller na (smaller nb nc))
 
-zipWith4M :: (forall s. m @ Step s a) => (a -> b -> c -> d -> m e)
-                     -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                     -> Bundle m v e
+zipWith4M :: (a -> b -> c -> d -> m e)
+          -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+          -> Bundle m v e
 {-# INLINE zipWith4M #-}
 zipWith4M f sa sb sc sd
   = zipWithM (\(a,b) (c,d) -> f a b c d) (zip sa sb) (zip sc sd)
 
-zipWith5M :: (forall s. m @ Step s a) => (a -> b -> c -> d -> e -> m f)
-                     -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                     -> Bundle m v e -> Bundle m v f
+zipWith5M :: (a -> b -> c -> d -> e -> m f)
+          -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+          -> Bundle m v e -> Bundle m v f
 {-# INLINE zipWith5M #-}
 zipWith5M f sa sb sc sd se
   = zipWithM (\(a,b,c) (d,e) -> f a b c d e) (zip3 sa sb sc) (zip sd se)
 
-zipWith6M :: (forall s. m @ Step s a) => (a -> b -> c -> d -> e -> f -> m g)
-                     -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                     -> Bundle m v e -> Bundle m v f -> Bundle m v g
+zipWith6M :: (a -> b -> c -> d -> e -> f -> m g)
+          -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+          -> Bundle m v e -> Bundle m v f -> Bundle m v g
 {-# INLINE zipWith6M #-}
 zipWith6M fn sa sb sc sd se sf
   = zipWithM (\(a,b,c) (d,e,f) -> fn a b c d e f) (zip3 sa sb sc)
                                                   (zip3 sd se sf)
 
-zipWith :: (forall s. m @ Step s a) => (a -> b -> c) -> Bundle m v a -> Bundle m v b -> Bundle m v c
+zipWith :: (a -> b -> c) -> Bundle m v a -> Bundle m v b -> Bundle m v c
 {-# INLINE zipWith #-}
 zipWith f = zipWithM (\a b -> return (f a b))
 
-zipWith3 :: (forall s. m @ Step s a) => (a -> b -> c -> d)
-                    -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+zipWith3 :: (a -> b -> c -> d)
+         -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
 {-# INLINE zipWith3 #-}
 zipWith3 f = zipWith3M (\a b c -> return (f a b c))
 
-zipWith4 :: (forall s. m @ Step s a) => (a -> b -> c -> d -> e)
-                    -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                    -> Bundle m v e
+zipWith4 :: (a -> b -> c -> d -> e)
+         -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+         -> Bundle m v e
 {-# INLINE zipWith4 #-}
 zipWith4 f = zipWith4M (\a b c d -> return (f a b c d))
 
-zipWith5 :: (forall s. m @ Step s a) => (a -> b -> c -> d -> e -> f)
-                    -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                    -> Bundle m v e -> Bundle m v f
+zipWith5 :: (a -> b -> c -> d -> e -> f)
+         -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+         -> Bundle m v e -> Bundle m v f
 {-# INLINE zipWith5 #-}
 zipWith5 f = zipWith5M (\a b c d e -> return (f a b c d e))
 
-zipWith6 :: (forall s. m @ Step s a) => (a -> b -> c -> d -> e -> f -> g)
-                    -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                    -> Bundle m v e -> Bundle m v f -> Bundle m v g
+zipWith6 :: (a -> b -> c -> d -> e -> f -> g)
+         -> Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+         -> Bundle m v e -> Bundle m v f -> Bundle m v g
 {-# INLINE zipWith6 #-}
 zipWith6 fn = zipWith6M (\a b c d e f -> return (fn a b c d e f))
 
-zip :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v b -> Bundle m v (a,b)
+zip :: Bundle m v a -> Bundle m v b -> Bundle m v (a,b)
 {-# INLINE zip #-}
 zip = zipWith (,)
 
-zip3 :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v (a,b,c)
+zip3 :: Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v (a,b,c)
 {-# INLINE zip3 #-}
 zip3 = zipWith3 (,,)
 
-zip4 :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                -> Bundle m v (a,b,c,d)
+zip4 :: Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+     -> Bundle m v (a,b,c,d)
 {-# INLINE zip4 #-}
 zip4 = zipWith4 (,,,)
 
-zip5 :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                -> Bundle m v e -> Bundle m v (a,b,c,d,e)
+zip5 :: Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+     -> Bundle m v e -> Bundle m v (a,b,c,d,e)
 {-# INLINE zip5 #-}
 zip5 = zipWith5 (,,,,)
 
-zip6 :: (forall s. m @ Step s a) => Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
-                -> Bundle m v e -> Bundle m v f -> Bundle m v (a,b,c,d,e,f)
+zip6 :: Bundle m v a -> Bundle m v b -> Bundle m v c -> Bundle m v d
+     -> Bundle m v e -> Bundle m v f -> Bundle m v (a,b,c,d,e,f)
 {-# INLINE zip6 #-}
 zip6 = zipWith6 (,,,,,)
 
@@ -447,7 +441,7 @@ zip6 = zipWith6 (,,,,,)
 -- -----------
 
 -- | Check if two 'Bundle's are equal
-eqBy :: (Monad m) => (a -> b -> Bool) -> Bundle m v a -> Bundle m v b -> m Bool
+eqBy :: (a -> b -> Bool) -> Bundle m v a -> Bundle m v b -> m Bool
 {-# INLINE_FUSED eqBy #-}
 eqBy eq x y
   | sizesAreDifferent (sSize x) (sSize y) = return False
@@ -460,7 +454,7 @@ eqBy eq x y
     sizesAreDifferent _         _         = False
 
 -- | Lexicographically compare two 'Bundle's
-cmpBy :: (Monad m) => (a -> b -> Ordering) -> Bundle m v a -> Bundle m v b -> m Ordering
+cmpBy :: (a -> b -> Ordering) -> Bundle m v a -> Bundle m v b -> m Ordering
 {-# INLINE_FUSED cmpBy #-}
 cmpBy cmp x y = S.cmpBy cmp (sElems x) (sElems y)
 
@@ -468,39 +462,39 @@ cmpBy cmp x y = S.cmpBy cmp (sElems x) (sElems y)
 -- ---------
 
 -- | Drop elements which do not satisfy the predicate
-filter :: (forall s. m @ Step s a) => (a -> Bool) -> Bundle m v a -> Bundle m v a
+filter :: (a -> Bool) -> Bundle m v a -> Bundle m v a
 {-# INLINE filter #-}
 filter f = filterM (return . f)
 
 -- | Drop elements which do not satisfy the monadic predicate
-filterM :: (forall s. m @ Step s a) => (a -> m Bool) -> Bundle m v a -> Bundle m v a
+filterM :: (a -> m Bool) -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED filterM #-}
 filterM f Bundle{sElems = s, sSize = n} = fromStream (S.filterM f s) (toMax n)
 
 -- | Apply monadic function to each element and drop all Nothings
 --
 -- @since 0.12.2.0
-mapMaybeM :: (forall s. m @ Step s a) => (a -> m (Maybe b)) -> Bundle m v a -> Bundle m v b
+mapMaybeM :: (a -> m (Maybe b)) -> Bundle m v a -> Bundle m v b
 {-# INLINE_FUSED mapMaybeM #-}
 mapMaybeM f Bundle{sElems = s, sSize = n} = fromStream (S.mapMaybeM f s) (toMax n)
 
 -- | Longest prefix of elements that satisfy the predicate
-takeWhile :: (forall s. m @ Step s a) => (a -> Bool) -> Bundle m v a -> Bundle m v a
+takeWhile :: (a -> Bool) -> Bundle m v a -> Bundle m v a
 {-# INLINE takeWhile #-}
 takeWhile f = takeWhileM (return . f)
 
 -- | Longest prefix of elements that satisfy the monadic predicate
-takeWhileM :: (forall s. m @ Step s a) => (a -> m Bool) -> Bundle m v a -> Bundle m v a
+takeWhileM :: (a -> m Bool) -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED takeWhileM #-}
 takeWhileM f Bundle{sElems = s, sSize = n} = fromStream (S.takeWhileM f s) (toMax n)
 
 -- | Drop the longest prefix of elements that satisfy the predicate
-dropWhile :: (forall s. m @ Step s a) => (a -> Bool) -> Bundle m v a -> Bundle m v a
+dropWhile :: (a -> Bool) -> Bundle m v a -> Bundle m v a
 {-# INLINE dropWhile #-}
 dropWhile f = dropWhileM (return . f)
 
 -- | Drop the longest prefix of elements that satisfy the monadic predicate
-dropWhileM :: (forall s. m @ Step s a) => (a -> m Bool) -> Bundle m v a -> Bundle m v a
+dropWhileM :: (a -> m Bool) -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED dropWhileM #-}
 dropWhileM f Bundle{sElems = s, sSize = n} = fromStream (S.dropWhileM f s) (toMax n)
 
@@ -509,37 +503,37 @@ dropWhileM f Bundle{sElems = s, sSize = n} = fromStream (S.dropWhileM f s) (toMa
 
 infix 4 `elem`
 -- | Check whether the 'Bundle' contains an element
-elem :: (Monad m, Eq a) => a -> Bundle m v a -> m Bool
+elem :: (Eq a) => a -> Bundle m v a -> m Bool
 {-# INLINE_FUSED elem #-}
 elem x = S.elem x . sElems
 
 infix 4 `notElem`
 -- | Inverse of `elem`
-notElem :: (Monad m, Eq a) => a -> Bundle m v a -> m Bool
+notElem :: (Eq a) => a -> Bundle m v a -> m Bool
 {-# INLINE notElem #-}
 notElem x = S.notElem x . sElems
 
 -- | Yield 'Just' the first element that satisfies the predicate or 'Nothing'
 -- if no such element exists.
-find :: (forall s. m @ Step s a) => (a -> Bool) -> Bundle m v a -> m (Maybe a)
+find :: (a -> Bool) -> Bundle m v a -> m (Maybe a)
 {-# INLINE find #-}
 find f = findM (return . f)
 
 -- | Yield 'Just' the first element that satisfies the monadic predicate or
 -- 'Nothing' if no such element exists.
-findM :: (forall s. m @ Step s a) => (a -> m Bool) -> Bundle m v a -> m (Maybe a)
+findM :: (a -> m Bool) -> Bundle m v a -> m (Maybe a)
 {-# INLINE_FUSED findM #-}
 findM f = S.findM f . sElems
 
 -- | Yield 'Just' the index of the first element that satisfies the predicate
 -- or 'Nothing' if no such element exists.
-findIndex :: (forall s. m @ Step s a) => (a -> Bool) -> Bundle m v a -> m (Maybe Int)
+findIndex :: (a -> Bool) -> Bundle m v a -> m (Maybe Int)
 {-# INLINE_FUSED findIndex #-}
 findIndex f = findIndexM (return . f)
 
 -- | Yield 'Just' the index of the first element that satisfies the monadic
 -- predicate or 'Nothing' if no such element exists.
-findIndexM :: (forall s. m @ Step s a) => (a -> m Bool) -> Bundle m v a -> m (Maybe Int)
+findIndexM :: (a -> m Bool) -> Bundle m v a -> m (Maybe Int)
 {-# INLINE_FUSED findIndexM #-}
 findIndexM f = S.findIndexM f . sElems
 
@@ -547,107 +541,107 @@ findIndexM f = S.findIndexM f . sElems
 -- -------
 
 -- | Left fold
-foldl :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> m a
+foldl :: (a -> b -> a) -> a -> Bundle m v b -> m a
 {-# INLINE foldl #-}
 foldl f = foldlM (\a b -> return (f a b))
 
 -- | Left fold with a monadic operator
-foldlM :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> m a
+foldlM :: (a -> b -> m a) -> a -> Bundle m v b -> m a
 {-# INLINE_FUSED foldlM #-}
 foldlM m z = S.foldlM m z . sElems
 
 -- | Same as 'foldlM'
-foldM :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> m a
+foldM :: (a -> b -> m a) -> a -> Bundle m v b -> m a
 {-# INLINE foldM #-}
 foldM = foldlM
 
 -- | Left fold over a non-empty 'Bundle'
-foldl1 :: (forall s. m @ Step s a) => (a -> a -> a) -> Bundle m v a -> m a
+foldl1 :: (a -> a -> a) -> Bundle m v a -> m a
 {-# INLINE foldl1 #-}
 foldl1 f = foldl1M (\a b -> return (f a b))
 
 -- | Left fold over a non-empty 'Bundle' with a monadic operator
-foldl1M :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> m a
+foldl1M :: (a -> a -> m a) -> Bundle m v a -> m a
 {-# INLINE_FUSED foldl1M #-}
 foldl1M f = S.foldl1M f . sElems
 
 -- | Same as 'foldl1M'
-fold1M :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> m a
+fold1M :: (a -> a -> m a) -> Bundle m v a -> m a
 {-# INLINE fold1M #-}
 fold1M = foldl1M
 
 -- | Left fold with a strict accumulator
-foldl' :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> m a
+foldl' :: (a -> b -> a) -> a -> Bundle m v b -> m a
 {-# INLINE foldl' #-}
 foldl' f = foldlM' (\a b -> return (f a b))
 
 -- | Left fold with a strict accumulator and a monadic operator
-foldlM' :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> m a
+foldlM' :: (a -> b -> m a) -> a -> Bundle m v b -> m a
 {-# INLINE_FUSED foldlM' #-}
 foldlM' m z = S.foldlM' m z . sElems
 
 -- | Same as 'foldlM''
-foldM' :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> m a
+foldM' :: (a -> b -> m a) -> a -> Bundle m v b -> m a
 {-# INLINE foldM' #-}
 foldM' = foldlM'
 
 -- | Left fold over a non-empty 'Bundle' with a strict accumulator
-foldl1' :: (forall s. m @ Step s a) => (a -> a -> a) -> Bundle m v a -> m a
+foldl1' :: (a -> a -> a) -> Bundle m v a -> m a
 {-# INLINE foldl1' #-}
 foldl1' f = foldl1M' (\a b -> return (f a b))
 
 -- | Left fold over a non-empty 'Bundle' with a strict accumulator and a
 -- monadic operator
-foldl1M' :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> m a
+foldl1M' ::  (a -> a -> m a) -> Bundle m v a -> m a
 {-# INLINE_FUSED foldl1M' #-}
 foldl1M' f = S.foldl1M' f . sElems
 
 -- | Same as 'foldl1M''
-fold1M' :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> m a
+fold1M' :: (a -> a -> m a) -> Bundle m v a -> m a
 {-# INLINE fold1M' #-}
 fold1M' = foldl1M'
 
 -- | Right fold
-foldr :: (forall s. m @ Step s a) => (a -> b -> b) -> b -> Bundle m v a -> m b
+foldr :: (a -> b -> b) -> b -> Bundle m v a -> m b
 {-# INLINE foldr #-}
 foldr f = foldrM (\a b -> return (f a b))
 
 -- | Right fold with a monadic operator
-foldrM :: (forall s. m @ Step s a) => (a -> b -> m b) -> b -> Bundle m v a -> m b
+foldrM :: (a -> b -> m b) -> b -> Bundle m v a -> m b
 {-# INLINE_FUSED foldrM #-}
 foldrM f z = S.foldrM f z . sElems
 
 -- | Right fold over a non-empty stream
-foldr1 :: (forall s. m @ Step s a) => (a -> a -> a) -> Bundle m v a -> m a
+foldr1 :: (a -> a -> a) -> Bundle m v a -> m a
 {-# INLINE foldr1 #-}
 foldr1 f = foldr1M (\a b -> return (f a b))
 
 -- | Right fold over a non-empty stream with a monadic operator
-foldr1M :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> m a
+foldr1M :: (a -> a -> m a) -> Bundle m v a -> m a
 {-# INLINE_FUSED foldr1M #-}
 foldr1M f = S.foldr1M f . sElems
 
 -- Specialised folds
 -- -----------------
 
-and :: (forall s a. m @ Step s a) => Bundle m v Bool -> m Bool
+and :: Bundle m v Bool -> m Bool
 {-# INLINE_FUSED and #-}
 and = S.and . sElems
 
-or :: (forall s a. m @ Step s a) => Bundle m v Bool -> m Bool
+or :: Bundle m v Bool -> m Bool
 {-# INLINE_FUSED or #-}
 or = S.or . sElems
 
-concatMap :: (forall s. m @ Step s a) => (a -> Bundle m v b) -> Bundle m v a -> Bundle m v b
+concatMap :: (a -> Bundle m v b) -> Bundle m v a -> Bundle m v b
 {-# INLINE concatMap #-}
 concatMap f = concatMapM (return . f)
 
-concatMapM :: (forall s. m @ Step s a) => (a -> m (Bundle m v b)) -> Bundle m v a -> Bundle m v b
+concatMapM :: (a -> m (Bundle m v b)) -> Bundle m v a -> Bundle m v b
 {-# INLINE_FUSED concatMapM #-}
 concatMapM f Bundle{sElems = s} = fromStream (S.concatMapM (liftM sElems . f) s) Unknown
 
 -- | Create a 'Bundle' of values from a 'Bundle' of streamable things
-flatten :: (forall s. m @ Step s a) => (a -> m s) -> (s -> m (Step s b)) -> Size
+flatten :: (a -> m s) -> (s -> m (Step s b)) -> Size
                    -> Bundle m v a -> Bundle m v b
 {-# INLINE_FUSED flatten #-}
 flatten mk istep sz Bundle{sElems = s} = fromStream (S.flatten mk istep s) sz
@@ -656,50 +650,50 @@ flatten mk istep sz Bundle{sElems = s} = fromStream (S.flatten mk istep s) sz
 -- ---------
 
 -- | Unfold
-unfoldr :: (forall s. m @ Step s a) => (s -> Maybe (a, s)) -> s -> Bundle m u a
+unfoldr :: (s -> Maybe (a, s)) -> s -> Bundle m u a
 {-# INLINE_FUSED unfoldr #-}
 unfoldr f = unfoldrM (return . f)
 
 -- | Unfold with a monadic function
-unfoldrM :: (forall s. m @ Step s a) => (s -> m (Maybe (a, s))) -> s -> Bundle m u a
+unfoldrM :: (s -> m (Maybe (a, s))) -> s -> Bundle m u a
 {-# INLINE_FUSED unfoldrM #-}
 unfoldrM f s = fromStream (S.unfoldrM f s) Unknown
 
 -- | Unfold at most @n@ elements
-unfoldrN :: (forall s. m @ Step s a) => Int -> (s -> Maybe (a, s)) -> s -> Bundle m u a
+unfoldrN :: Int -> (s -> Maybe (a, s)) -> s -> Bundle m u a
 {-# INLINE_FUSED unfoldrN #-}
 unfoldrN n f = unfoldrNM n (return . f)
 
 -- | Unfold at most @n@ elements with a monadic function.
-unfoldrNM :: (forall s. m @ Step s a) => Int -> (s -> m (Maybe (a, s))) -> s -> Bundle m u a
+unfoldrNM :: Int -> (s -> m (Maybe (a, s))) -> s -> Bundle m u a
 {-# INLINE_FUSED unfoldrNM #-}
 unfoldrNM n f s = fromStream (S.unfoldrNM n f s) (Max (delay_inline max n 0))
 
 -- | Unfold exactly @n@ elements
 --
 -- @since 0.12.2.0
-unfoldrExactN :: (forall s. m @ Step s a) => Int -> (s -> (a, s)) -> s -> Bundle m u a
+unfoldrExactN :: Int -> (s -> (a, s)) -> s -> Bundle m u a
 {-# INLINE_FUSED unfoldrExactN #-}
 unfoldrExactN n f = unfoldrExactNM n (return . f)
 
 -- | Unfold exactly @n@ elements with a monadic function.
 --
 -- @since 0.12.2.0
-unfoldrExactNM :: (forall s. m @ Step s a) => Int -> (s -> m (a, s)) -> s -> Bundle m u a
+unfoldrExactNM :: Int -> (s -> m (a, s)) -> s -> Bundle m u a
 {-# INLINE_FUSED unfoldrExactNM #-}
 unfoldrExactNM n f s = fromStream (S.unfoldrExactNM n f s) (Max (delay_inline max n 0))
 
 -- | /O(n)/ Apply monadic function \(\max(n - 1, 0)\) times to an initial value, producing
 -- a monadic bundle of exact length \(\max(n, 0)\). Zeroth element will contain the initial
 -- value.
-iterateNM :: (forall s. m @ Step s a) => Int -> (a -> m a) -> a -> Bundle m u a
+iterateNM :: Int -> (a -> m a) -> a -> Bundle m u a
 {-# INLINE_FUSED iterateNM #-}
 iterateNM n f x0 = fromStream (S.iterateNM n f x0) (Exact (delay_inline max n 0))
 
 -- | /O(n)/ Apply function \(\max(n - 1, 0)\) times to an initial value, producing a
 -- monadic bundle of exact length \(\max(n, 0)\). Zeroth element will contain the initial
 -- value.
-iterateN :: (forall s. m @ Step s a) => Int -> (a -> a) -> a -> Bundle m u a
+iterateN :: Int -> (a -> a) -> a -> Bundle m u a
 {-# INLINE_FUSED iterateN #-}
 iterateN n f x0 = iterateNM n (return . f) x0
 
@@ -707,83 +701,83 @@ iterateN n f x0 = iterateNM n (return . f) x0
 -- -----
 
 -- | Prefix scan
-prescanl :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
+prescanl :: (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE prescanl #-}
 prescanl f = prescanlM (\a b -> return (f a b))
 
 -- | Prefix scan with a monadic operator
-prescanlM :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
+prescanlM :: (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE_FUSED prescanlM #-}
 prescanlM f z Bundle{sElems = s, sSize = sz} = fromStream (S.prescanlM f z s) sz
 
 -- | Prefix scan with strict accumulator
-prescanl' :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
+prescanl' :: (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE prescanl' #-}
 prescanl' f = prescanlM' (\a b -> return (f a b))
 
 -- | Prefix scan with strict accumulator and a monadic operator
-prescanlM' :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
+prescanlM' :: (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE_FUSED prescanlM' #-}
 prescanlM' f z Bundle{sElems = s, sSize = sz} = fromStream (S.prescanlM' f z s) sz
 
 -- | Suffix scan
-postscanl :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
+postscanl :: (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE postscanl #-}
 postscanl f = postscanlM (\a b -> return (f a b))
 
 -- | Suffix scan with a monadic operator
-postscanlM :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
+postscanlM :: (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE_FUSED postscanlM #-}
 postscanlM f z Bundle{sElems = s, sSize = sz} = fromStream (S.postscanlM f z s) sz
 
 -- | Suffix scan with strict accumulator
-postscanl' :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
+postscanl' :: (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE postscanl' #-}
 postscanl' f = postscanlM' (\a b -> return (f a b))
 
 -- | Suffix scan with strict accumulator and a monadic operator
-postscanlM' :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
+postscanlM' :: (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE_FUSED postscanlM' #-}
 postscanlM' f z Bundle{sElems = s, sSize = sz} = fromStream (S.postscanlM' f z s) sz
 
 -- | Haskell-style scan
-scanl :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
+scanl :: (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE scanl #-}
 scanl f = scanlM (\a b -> return (f a b))
 
 -- | Haskell-style scan with a monadic operator
-scanlM :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
+scanlM :: (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE scanlM #-}
 scanlM f z s = z `cons` postscanlM f z s
 
 -- | Haskell-style scan with strict accumulator
-scanl' :: (forall s. m @ Step s a) => (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
+scanl' :: (a -> b -> a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE scanl' #-}
 scanl' f = scanlM' (\a b -> return (f a b))
 
 -- | Haskell-style scan with strict accumulator and a monadic operator
-scanlM' :: (forall s. m @ Step s a) => (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
+scanlM' :: (a -> b -> m a) -> a -> Bundle m v b -> Bundle m v a
 {-# INLINE scanlM' #-}
 scanlM' f z s = z `seq` (z `cons` postscanlM f z s)
 
 -- | Initial-value free scan over a 'Bundle'
-scanl1 :: (forall s. m @ Step s a) => (a -> a -> a) -> Bundle m v a -> Bundle m v a
+scanl1 :: (a -> a -> a) -> Bundle m v a -> Bundle m v a
 {-# INLINE scanl1 #-}
 scanl1 f = scanl1M (\x y -> return (f x y))
 
 -- | Initial-value free scan over a 'Bundle' with a monadic operator
-scanl1M :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> Bundle m v a
+scanl1M :: (a -> a -> m a) -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED scanl1M #-}
 scanl1M f Bundle{sElems = s, sSize = sz} = fromStream (S.scanl1M f s) sz
 
 -- | Initial-value free scan over a 'Bundle' with a strict accumulator
-scanl1' :: (forall s. m @ Step s a) => (a -> a -> a) -> Bundle m v a -> Bundle m v a
+scanl1' :: (a -> a -> a) -> Bundle m v a -> Bundle m v a
 {-# INLINE scanl1' #-}
 scanl1' f = scanl1M' (\x y -> return (f x y))
 
 -- | Initial-value free scan over a 'Bundle' with a strict accumulator
 -- and a monadic operator
-scanl1M' :: (forall s. m @ Step s a) => (a -> a -> m a) -> Bundle m v a -> Bundle m v a
+scanl1M' :: (a -> a -> m a) -> Bundle m v a -> Bundle m v a
 {-# INLINE_FUSED scanl1M' #-}
 scanl1M' f Bundle{sElems = s, sSize = sz} = fromStream (S.scanl1M' f s) sz
 
@@ -827,16 +821,16 @@ enumFromTo_small x y = x `seq` y `seq` fromStream (Stream step (Just x)) (Exact 
 {-# RULES
 
 "enumFromTo<Int8> [Bundle]"
-  enumFromTo = enumFromTo_small :: (forall s. m @ Step s a) => Int8 -> Int8 -> Bundle m v Int8
+  enumFromTo = enumFromTo_small :: Int8 -> Int8 -> Bundle m v Int8
 
 "enumFromTo<Int16> [Bundle]"
-  enumFromTo = enumFromTo_small :: (forall s. m @ Step s a) => Int16 -> Int16 -> Bundle m v Int16
+  enumFromTo = enumFromTo_small :: Int16 -> Int16 -> Bundle m v Int16
 
 "enumFromTo<Word8> [Bundle]"
-  enumFromTo = enumFromTo_small :: (forall s. m @ Step s a) => Word8 -> Word8 -> Bundle m v Word8
+  enumFromTo = enumFromTo_small :: Word8 -> Word8 -> Bundle m v Word8
 
 "enumFromTo<Word16> [Bundle]"
-  enumFromTo = enumFromTo_small :: (forall s. m @ Step s a) => Word16 -> Word16 -> Bundle m v Word16   #-}
+  enumFromTo = enumFromTo_small :: Word16 -> Word16 -> Bundle m v Word16   #-}
 
 
 
@@ -845,10 +839,10 @@ enumFromTo_small x y = x `seq` y `seq` fromStream (Stream step (Just x)) (Exact 
 {-# RULES
 
 "enumFromTo<Int32> [Bundle]"
-  enumFromTo = enumFromTo_small :: (forall s. m @ Step s a) => Int32 -> Int32 -> Bundle m v Int32
+  enumFromTo = enumFromTo_small :: Int32 -> Int32 -> Bundle m v Int32
 
 "enumFromTo<Word32> [Bundle]"
-  enumFromTo = enumFromTo_small :: (forall s. m @ Step s a) => Word32 -> Word32 -> Bundle m v Word32   #-}
+  enumFromTo = enumFromTo_small :: Word32 -> Word32 -> Bundle m v Word32   #-}
 
 #endif
 
@@ -903,17 +897,17 @@ enumFromTo_intlike x y = x `seq` y `seq` fromStream (Stream step (Just x)) (Exac
 {-# RULES
 
 "enumFromTo<Int> [Bundle]"
-  enumFromTo = enumFromTo_int :: (forall s. m @ Step s a) => Int -> Int -> Bundle m v Int
+  enumFromTo = enumFromTo_int :: Int -> Int -> Bundle m v Int
 
 #if WORD_SIZE_IN_BITS > 32
 
 "enumFromTo<Int64> [Bundle]"
-  enumFromTo = enumFromTo_intlike :: (forall s. m @ Step s a) => Int64 -> Int64 -> Bundle m v Int64    #-}
+  enumFromTo = enumFromTo_intlike :: Int64 -> Int64 -> Bundle m v Int64    #-}
 
 #else
 
 "enumFromTo<Int32> [Bundle]"
-  enumFromTo = enumFromTo_intlike :: (forall s. m @ Step s a) => Int32 -> Int32 -> Bundle m v Int32    #-}
+  enumFromTo = enumFromTo_intlike :: Int32 -> Int32 -> Bundle m v Int32    #-}
 
 #endif
 
@@ -941,23 +935,23 @@ enumFromTo_big_word x y = x `seq` y `seq` fromStream (Stream step (Just x)) (Exa
 {-# RULES
 
 "enumFromTo<Word> [Bundle]"
-  enumFromTo = enumFromTo_big_word :: (forall s. m @ Step s a) => Word -> Word -> Bundle m v Word
+  enumFromTo = enumFromTo_big_word :: Word -> Word -> Bundle m v Word
 
 "enumFromTo<Word64> [Bundle]"
   enumFromTo = enumFromTo_big_word
-                        :: (forall s. m @ Step s a) => Word64 -> Word64 -> Bundle m v Word64
+                        :: Word64 -> Word64 -> Bundle m v Word64
 
 #if WORD_SIZE_IN_BITS == 32
 
 "enumFromTo<Word32> [Bundle]"
   enumFromTo = enumFromTo_big_word
-                        :: (forall s. m @ Step s a) => Word32 -> Word32 -> Bundle m v Word32
+                        :: Word32 -> Word32 -> Bundle m v Word32
 
 #endif
 
 "enumFromTo<Integer> [Bundle]"
   enumFromTo = enumFromTo_big_word
-                        :: (forall s. m @ Step s a) => Integer -> Integer -> Bundle m v Integer   #-}
+                        :: Integer -> Integer -> Bundle m v Integer   #-}
 
 
 #if WORD_SIZE_IN_BITS > 32
@@ -986,7 +980,7 @@ enumFromTo_big_int x y = x `seq` y `seq` fromStream (Stream step (Just x)) (Exac
 {-# RULES
 
 "enumFromTo<Int64> [Bundle]"
-  enumFromTo = enumFromTo_big_int :: (forall s. m @ Step s a) => Int64 -> Int64 -> Bundle m v Int64   #-}
+  enumFromTo = enumFromTo_big_int :: Int64 -> Int64 -> Bundle m v Int64   #-}
 
 
 
@@ -1053,10 +1047,10 @@ enumFromTo_double n m = n `seq` m `seq` fromStream (Stream step ini) (Max (len n
 {-# RULES
 
 "enumFromTo<Double> [Bundle]"
-  enumFromTo = enumFromTo_double :: (forall s. m @ Step s a) => Double -> Double -> Bundle m v Double
+  enumFromTo = enumFromTo_double :: Double -> Double -> Bundle m v Double
 
 "enumFromTo<Float> [Bundle]"
-  enumFromTo = enumFromTo_double :: (forall s. m @ Step s a) => Float -> Float -> Bundle m v Float   #-}
+  enumFromTo = enumFromTo_double :: Float -> Float -> Bundle m v Float   #-}
 
 
 
@@ -1076,22 +1070,22 @@ enumFromThenTo x y z = fromList [x, y .. z]
 -- -----------
 
 -- | Convert a 'Bundle' to a list
-toList :: (forall s. m @ Step s a) => Bundle m v a -> m [a]
+toList :: Bundle m v a -> m [a]
 {-# INLINE toList #-}
 toList = foldr (:) []
 
 -- | Convert a list to a 'Bundle'
-fromList :: (forall s. m @ Step s a) => [a] -> Bundle m v a
+fromList :: [a] -> Bundle m v a
 {-# INLINE fromList #-}
 fromList xs = unsafeFromList Unknown xs
 
 -- | Convert the first @n@ elements of a list to a 'Bundle'
-fromListN :: (forall s. m @ Step s a) => Int -> [a] -> Bundle m v a
+fromListN :: Int -> [a] -> Bundle m v a
 {-# INLINE_FUSED fromListN #-}
 fromListN n xs = fromStream (S.fromListN n xs) (Max (delay_inline max n 0))
 
 -- | Convert a list to a 'Bundle' with the given 'Size' hint.
-unsafeFromList :: (forall s. m @ Step s a) => Size -> [a] -> Bundle m v a
+unsafeFromList :: Size -> [a] -> Bundle m v a
 {-# INLINE_FUSED unsafeFromList #-}
 unsafeFromList sz xs = fromStream (S.fromList xs) sz
 
@@ -1175,7 +1169,7 @@ concatVectors Bundle{sElems = Stream step t}
         Skip    s' -> return (Skip s')
         Done       -> return Done
 
-reVector :: (forall s. m @ Step s a) => Bundle m u a -> Bundle m v a
+reVector :: Bundle m u a -> Bundle m v a
 {-# INLINE_FUSED reVector #-}
 reVector Bundle{sElems = s, sSize = n} = fromStream s n
 

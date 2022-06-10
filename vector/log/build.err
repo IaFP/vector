@@ -1,0 +1,913 @@
+
+src/Data/Vector/Unboxed.hs:567:12: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.unfoldrM’
+      from the context: (Monad m, Unbox a, m @ Maybe (a, b),
+                         m @ Vector a, Vector @ a)
+        bound by the type signature for:
+                   unfoldrM :: forall (m :: * -> *) a b.
+                               (Monad m, Unbox a, m @ Maybe (a, b), m @ Vector a, Vector @ a) =>
+                               (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:565:1-78
+    • In the expression: G.unfoldrM
+      In an equation for ‘unfoldrM’: unfoldrM = G.unfoldrM
+    • Relevant bindings include
+        unfoldrM :: (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:567:1)
+    |
+567 | unfoldrM = G.unfoldrM
+    |            ^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:567:12: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.unfoldrM’
+      from the context: (Monad m, Unbox a, m @ Maybe (a, b),
+                         m @ Vector a, Vector @ a)
+        bound by the type signature for:
+                   unfoldrM :: forall (m :: * -> *) a b.
+                               (Monad m, Unbox a, m @ Maybe (a, b), m @ Vector a, Vector @ a) =>
+                               (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:565:1-78
+    • In the expression: G.unfoldrM
+      In an equation for ‘unfoldrM’: unfoldrM = G.unfoldrM
+    • Relevant bindings include
+        unfoldrM :: (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:567:1)
+    |
+567 | unfoldrM = G.unfoldrM
+    |            ^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:575:13: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.unfoldrNM’
+      from the context: (Monad m, Unbox a, m @ Maybe (a, b),
+                         m @ Vector a, Vector @ a)
+        bound by the type signature for:
+                   unfoldrNM :: forall (m :: * -> *) a b.
+                                (Monad m, Unbox a, m @ Maybe (a, b), m @ Vector a, Vector @ a) =>
+                                Int -> (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:573:1-86
+    • In the expression: G.unfoldrNM
+      In an equation for ‘unfoldrNM’: unfoldrNM = G.unfoldrNM
+    • Relevant bindings include
+        unfoldrNM :: Int -> (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:575:1)
+    |
+575 | unfoldrNM = G.unfoldrNM
+    |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:575:13: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.unfoldrNM’
+      from the context: (Monad m, Unbox a, m @ Maybe (a, b),
+                         m @ Vector a, Vector @ a)
+        bound by the type signature for:
+                   unfoldrNM :: forall (m :: * -> *) a b.
+                                (Monad m, Unbox a, m @ Maybe (a, b), m @ Vector a, Vector @ a) =>
+                                Int -> (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:573:1-86
+    • In the expression: G.unfoldrNM
+      In an equation for ‘unfoldrNM’: unfoldrNM = G.unfoldrNM
+    • Relevant bindings include
+        unfoldrNM :: Int -> (b -> m (Maybe (a, b))) -> b -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:575:1)
+    |
+575 | unfoldrNM = G.unfoldrNM
+    |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:584:18: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.unfoldrExactNM’
+      from the context: (Monad m, Unbox a, m @ (a, b), m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   unfoldrExactNM :: forall (m :: * -> *) a b.
+                                     (Monad m, Unbox a, m @ (a, b), m @ Vector a, Vector @ a) =>
+                                     Int -> (b -> m (a, b)) -> b -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:582:1-83
+    • In the expression: G.unfoldrExactNM
+      In an equation for ‘unfoldrExactNM’:
+          unfoldrExactNM = G.unfoldrExactNM
+    • Relevant bindings include
+        unfoldrExactNM :: Int -> (b -> m (a, b)) -> b -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:584:1)
+    |
+584 | unfoldrExactNM = G.unfoldrExactNM
+    |                  ^^^^^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:584:18: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.unfoldrExactNM’
+      from the context: (Monad m, Unbox a, m @ (a, b), m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   unfoldrExactNM :: forall (m :: * -> *) a b.
+                                     (Monad m, Unbox a, m @ (a, b), m @ Vector a, Vector @ a) =>
+                                     Int -> (b -> m (a, b)) -> b -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:582:1-83
+    • In the expression: G.unfoldrExactNM
+      In an equation for ‘unfoldrExactNM’:
+          unfoldrExactNM = G.unfoldrExactNM
+    • Relevant bindings include
+        unfoldrExactNM :: Int -> (b -> m (a, b)) -> b -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:584:1)
+    |
+584 | unfoldrExactNM = G.unfoldrExactNM
+    |                  ^^^^^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:669:14: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.replicateM’
+      from the context: (Monad m, Unbox a, m @ a, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   replicateM :: forall (m :: * -> *) a.
+                                 (Monad m, Unbox a, m @ a, m @ Vector a, Vector @ a) =>
+                                 Int -> m a -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:667:1-62
+    • In the expression: G.replicateM
+      In an equation for ‘replicateM’: replicateM = G.replicateM
+    • Relevant bindings include
+        replicateM :: Int -> m a -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:669:1)
+    |
+669 | replicateM = G.replicateM
+    |              ^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:669:14: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.replicateM’
+      from the context: (Monad m, Unbox a, m @ a, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   replicateM :: forall (m :: * -> *) a.
+                                 (Monad m, Unbox a, m @ a, m @ Vector a, Vector @ a) =>
+                                 Int -> m a -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:667:1-62
+    • In the expression: G.replicateM
+      In an equation for ‘replicateM’: replicateM = G.replicateM
+    • Relevant bindings include
+        replicateM :: Int -> m a -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:669:1)
+    |
+669 | replicateM = G.replicateM
+    |              ^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:675:13: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.generateM’
+      from the context: (Monad m, Unbox a, m @ a, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   generateM :: forall (m :: * -> *) a.
+                                (Monad m, Unbox a, m @ a, m @ Vector a, Vector @ a) =>
+                                Int -> (Int -> m a) -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:673:1-70
+    • In the expression: G.generateM
+      In an equation for ‘generateM’: generateM = G.generateM
+    • Relevant bindings include
+        generateM :: Int -> (Int -> m a) -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:675:1)
+    |
+675 | generateM = G.generateM
+    |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:675:13: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.generateM’
+      from the context: (Monad m, Unbox a, m @ a, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   generateM :: forall (m :: * -> *) a.
+                                (Monad m, Unbox a, m @ a, m @ Vector a, Vector @ a) =>
+                                Int -> (Int -> m a) -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:673:1-70
+    • In the expression: G.generateM
+      In an equation for ‘generateM’: generateM = G.generateM
+    • Relevant bindings include
+        generateM :: Int -> (Int -> m a) -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:675:1)
+    |
+675 | generateM = G.generateM
+    |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:686:13: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.iterateNM’
+      from the context: (Monad m, Unbox a, m @ a, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   iterateNM :: forall (m :: * -> *) a.
+                                (Monad m, Unbox a, m @ a, m @ Vector a, Vector @ a) =>
+                                Int -> (a -> m a) -> a -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:684:1-73
+    • In the expression: G.iterateNM
+      In an equation for ‘iterateNM’: iterateNM = G.iterateNM
+    • Relevant bindings include
+        iterateNM :: Int -> (a -> m a) -> a -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:686:1)
+    |
+686 | iterateNM = G.iterateNM
+    |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:686:13: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.iterateNM’
+      from the context: (Monad m, Unbox a, m @ a, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   iterateNM :: forall (m :: * -> *) a.
+                                (Monad m, Unbox a, m @ a, m @ Vector a, Vector @ a) =>
+                                Int -> (a -> m a) -> a -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:684:1-73
+    • In the expression: G.iterateNM
+      In an equation for ‘iterateNM’: iterateNM = G.iterateNM
+    • Relevant bindings include
+        iterateNM :: Int -> (a -> m a) -> a -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:686:1)
+    |
+686 | iterateNM = G.iterateNM
+    |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:701:13: error:
+    • Could not deduce: f @ a1 arising from a use of ‘G.createT’
+      from the context: (Traversable f, Unbox a, f @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   createT :: forall (f :: * -> *) a.
+                              (Traversable f, Unbox a, f @ Vector a, Vector @ a) =>
+                              (forall s.
+                               (ST s @ f (MVector s a), ST @ s, f @ MVector s a, MVector s @ a,
+                                MVector @ s) =>
+                               ST s (f (MVector s a)))
+                              -> f (Vector a)
+        at src/Data/Vector/Unboxed.hs:699:1-89
+    • In the expression: G.createT p
+      In an equation for ‘createT’: createT p = G.createT p
+    • Relevant bindings include
+        p :: forall s.
+             (ST s @ f (MVector s a), ST @ s, f @ MVector s a, MVector s @ a,
+              MVector @ s) =>
+             ST s (f (MVector s a))
+          (bound at src/Data/Vector/Unboxed.hs:701:9)
+        createT :: (forall s.
+                    (ST s @ f (MVector s a), ST @ s, f @ MVector s a, MVector s @ a,
+                     MVector @ s) =>
+                    ST s (f (MVector s a)))
+                   -> f (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:701:1)
+    |
+701 | createT p = G.createT p
+    |             ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:924:8: error:
+    • Could not deduce: WD'PrimState m arising from a use of ‘G.mapM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ b, Vector @ a,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   mapM :: forall (m :: * -> *) a b.
+                           (Monad m, Unbox a, Unbox b, m @ b, Vector @ a, m @ Vector b,
+                            Vector @ b) =>
+                           (a -> m b) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:922:1-77
+    • In the expression: G.mapM
+      In an equation for ‘mapM’: mapM = G.mapM
+    • Relevant bindings include
+        mapM :: (a -> m b) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:924:1)
+    |
+924 | mapM = G.mapM
+    |        ^^^^^^
+
+src/Data/Vector/Unboxed.hs:924:8: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.mapM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ b, Vector @ a,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   mapM :: forall (m :: * -> *) a b.
+                           (Monad m, Unbox a, Unbox b, m @ b, Vector @ a, m @ Vector b,
+                            Vector @ b) =>
+                           (a -> m b) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:922:1-77
+    • In the expression: G.mapM
+      In an equation for ‘mapM’: mapM = G.mapM
+    • Relevant bindings include
+        mapM :: (a -> m b) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:924:1)
+    |
+924 | mapM = G.mapM
+    |        ^^^^^^
+
+src/Data/Vector/Unboxed.hs:931:9: error:
+    • Could not deduce: WD'PrimState m arising from a use of ‘G.imapM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ b, Vector @ a,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   imapM :: forall (m :: * -> *) a b.
+                            (Monad m, Unbox a, Unbox b, m @ b, Vector @ a, m @ Vector b,
+                             Vector @ b) =>
+                            (Int -> a -> m b) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:(928,1)-(929,54)
+    • In the expression: G.imapM
+      In an equation for ‘imapM’: imapM = G.imapM
+    • Relevant bindings include
+        imapM :: (Int -> a -> m b) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:931:1)
+    |
+931 | imapM = G.imapM
+    |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:931:9: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.imapM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ b, Vector @ a,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   imapM :: forall (m :: * -> *) a b.
+                            (Monad m, Unbox a, Unbox b, m @ b, Vector @ a, m @ Vector b,
+                             Vector @ b) =>
+                            (Int -> a -> m b) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:(928,1)-(929,54)
+    • In the expression: G.imapM
+      In an equation for ‘imapM’: imapM = G.imapM
+    • Relevant bindings include
+        imapM :: (Int -> a -> m b) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:931:1)
+    |
+931 | imapM = G.imapM
+    |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:937:9: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.mapM_’
+      from the context: (Monad m, Unbox a, m @ b, Vector @ a, m @ ())
+        bound by the type signature for:
+                   mapM_ :: forall (m :: * -> *) a b.
+                            (Monad m, Unbox a, m @ b, Vector @ a, m @ ()) =>
+                            (a -> m b) -> Vector a -> m ()
+        at src/Data/Vector/Unboxed.hs:935:1-61
+    • In the expression: G.mapM_
+      In an equation for ‘mapM_’: mapM_ = G.mapM_
+    • Relevant bindings include
+        mapM_ :: (a -> m b) -> Vector a -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:937:1)
+    |
+937 | mapM_ = G.mapM_
+    |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:943:10: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.imapM_’
+      from the context: (Monad m, Unbox a, m @ b, Vector @ a, m @ ())
+        bound by the type signature for:
+                   imapM_ :: forall (m :: * -> *) a b.
+                             (Monad m, Unbox a, m @ b, Vector @ a, m @ ()) =>
+                             (Int -> a -> m b) -> Vector a -> m ()
+        at src/Data/Vector/Unboxed.hs:941:1-69
+    • In the expression: G.imapM_
+      In an equation for ‘imapM_’: imapM_ = G.imapM_
+    • Relevant bindings include
+        imapM_ :: (Int -> a -> m b) -> Vector a -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:943:1)
+    |
+943 | imapM_ = G.imapM_
+    |          ^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:949:8: error:
+    • Could not deduce: WD'PrimState m arising from a use of ‘G.forM’
+      from the context: (Monad m, Unbox a, Unbox b, Vector @ a, m @ b,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   forM :: forall (m :: * -> *) a b.
+                           (Monad m, Unbox a, Unbox b, Vector @ a, m @ b, m @ Vector b,
+                            Vector @ b) =>
+                           Vector a -> (a -> m b) -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:947:1-77
+    • In the expression: G.forM
+      In an equation for ‘forM’: forM = G.forM
+    • Relevant bindings include
+        forM :: Vector a -> (a -> m b) -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:949:1)
+    |
+949 | forM = G.forM
+    |        ^^^^^^
+
+src/Data/Vector/Unboxed.hs:949:8: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.forM’
+      from the context: (Monad m, Unbox a, Unbox b, Vector @ a, m @ b,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   forM :: forall (m :: * -> *) a b.
+                           (Monad m, Unbox a, Unbox b, Vector @ a, m @ b, m @ Vector b,
+                            Vector @ b) =>
+                           Vector a -> (a -> m b) -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:947:1-77
+    • In the expression: G.forM
+      In an equation for ‘forM’: forM = G.forM
+    • Relevant bindings include
+        forM :: Vector a -> (a -> m b) -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:949:1)
+    |
+949 | forM = G.forM
+    |        ^^^^^^
+
+src/Data/Vector/Unboxed.hs:955:9: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.forM_’
+      from the context: (Monad m, Unbox a, Vector @ a, m @ b, m @ ())
+        bound by the type signature for:
+                   forM_ :: forall (m :: * -> *) a b.
+                            (Monad m, Unbox a, Vector @ a, m @ b, m @ ()) =>
+                            Vector a -> (a -> m b) -> m ()
+        at src/Data/Vector/Unboxed.hs:953:1-61
+    • In the expression: G.forM_
+      In an equation for ‘forM_’: forM_ = G.forM_
+    • Relevant bindings include
+        forM_ :: Vector a -> (a -> m b) -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:955:1)
+    |
+955 | forM_ = G.forM_
+    |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:963:9: error:
+    • Could not deduce: WD'PrimState m arising from a use of ‘G.iforM’
+      from the context: (Monad m, Unbox a, Unbox b, Vector @ a, m @ b,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   iforM :: forall (m :: * -> *) a b.
+                            (Monad m, Unbox a, Unbox b, Vector @ a, m @ b, m @ Vector b,
+                             Vector @ b) =>
+                            Vector a -> (Int -> a -> m b) -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:961:1-85
+    • In the expression: G.iforM
+      In an equation for ‘iforM’: iforM = G.iforM
+    • Relevant bindings include
+        iforM :: Vector a -> (Int -> a -> m b) -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:963:1)
+    |
+963 | iforM = G.iforM
+    |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:963:9: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.iforM’
+      from the context: (Monad m, Unbox a, Unbox b, Vector @ a, m @ b,
+                         m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   iforM :: forall (m :: * -> *) a b.
+                            (Monad m, Unbox a, Unbox b, Vector @ a, m @ b, m @ Vector b,
+                             Vector @ b) =>
+                            Vector a -> (Int -> a -> m b) -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:961:1-85
+    • In the expression: G.iforM
+      In an equation for ‘iforM’: iforM = G.iforM
+    • Relevant bindings include
+        iforM :: Vector a -> (Int -> a -> m b) -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:963:1)
+    |
+963 | iforM = G.iforM
+    |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:971:10: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.iforM_’
+      from the context: (Monad m, Unbox a, Vector @ a, m @ b, m @ ())
+        bound by the type signature for:
+                   iforM_ :: forall (m :: * -> *) a b.
+                             (Monad m, Unbox a, Vector @ a, m @ b, m @ ()) =>
+                             Vector a -> (Int -> a -> m b) -> m ()
+        at src/Data/Vector/Unboxed.hs:969:1-69
+    • In the expression: G.iforM_
+      In an equation for ‘iforM_’: iforM_ = G.iforM_
+    • Relevant bindings include
+        iforM_ :: Vector a -> (Int -> a -> m b) -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:971:1)
+    |
+971 | iforM_ = G.iforM_
+    |          ^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1050:12: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.zipWithM’
+      from the context: (Monad m, Unbox a, Unbox b, Unbox c, m @ c,
+                         Vector @ a, Vector @ b, m @ Vector c, Vector @ c)
+        bound by the type signature for:
+                   zipWithM :: forall (m :: * -> *) a b c.
+                               (Monad m, Unbox a, Unbox b, Unbox c, m @ c, Vector @ a, Vector @ b,
+                                m @ Vector c, Vector @ c) =>
+                               (a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
+        at src/Data/Vector/Unboxed.hs:(1047,1)-(1048,67)
+    • In the expression: G.zipWithM
+      In an equation for ‘zipWithM’: zipWithM = G.zipWithM
+    • Relevant bindings include
+        zipWithM :: (a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
+          (bound at src/Data/Vector/Unboxed.hs:1050:1)
+     |
+1050 | zipWithM = G.zipWithM
+     |            ^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1050:12: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.zipWithM’
+      from the context: (Monad m, Unbox a, Unbox b, Unbox c, m @ c,
+                         Vector @ a, Vector @ b, m @ Vector c, Vector @ c)
+        bound by the type signature for:
+                   zipWithM :: forall (m :: * -> *) a b c.
+                               (Monad m, Unbox a, Unbox b, Unbox c, m @ c, Vector @ a, Vector @ b,
+                                m @ Vector c, Vector @ c) =>
+                               (a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
+        at src/Data/Vector/Unboxed.hs:(1047,1)-(1048,67)
+    • In the expression: G.zipWithM
+      In an equation for ‘zipWithM’: zipWithM = G.zipWithM
+    • Relevant bindings include
+        zipWithM :: (a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
+          (bound at src/Data/Vector/Unboxed.hs:1050:1)
+     |
+1050 | zipWithM = G.zipWithM
+     |            ^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1057:13: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.izipWithM’
+      from the context: (Monad m, Unbox a, Unbox b, Unbox c, m @ c,
+                         Vector @ a, Vector @ b, m @ Vector c, Vector @ c)
+        bound by the type signature for:
+                   izipWithM :: forall (m :: * -> *) a b c.
+                                (Monad m, Unbox a, Unbox b, Unbox c, m @ c, Vector @ a, Vector @ b,
+                                 m @ Vector c, Vector @ c) =>
+                                (Int -> a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
+        at src/Data/Vector/Unboxed.hs:(1054,1)-(1055,75)
+    • In the expression: G.izipWithM
+      In an equation for ‘izipWithM’: izipWithM = G.izipWithM
+    • Relevant bindings include
+        izipWithM :: (Int -> a -> b -> m c)
+                     -> Vector a -> Vector b -> m (Vector c)
+          (bound at src/Data/Vector/Unboxed.hs:1057:1)
+     |
+1057 | izipWithM = G.izipWithM
+     |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1057:13: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.izipWithM’
+      from the context: (Monad m, Unbox a, Unbox b, Unbox c, m @ c,
+                         Vector @ a, Vector @ b, m @ Vector c, Vector @ c)
+        bound by the type signature for:
+                   izipWithM :: forall (m :: * -> *) a b c.
+                                (Monad m, Unbox a, Unbox b, Unbox c, m @ c, Vector @ a, Vector @ b,
+                                 m @ Vector c, Vector @ c) =>
+                                (Int -> a -> b -> m c) -> Vector a -> Vector b -> m (Vector c)
+        at src/Data/Vector/Unboxed.hs:(1054,1)-(1055,75)
+    • In the expression: G.izipWithM
+      In an equation for ‘izipWithM’: izipWithM = G.izipWithM
+    • Relevant bindings include
+        izipWithM :: (Int -> a -> b -> m c)
+                     -> Vector a -> Vector b -> m (Vector c)
+          (bound at src/Data/Vector/Unboxed.hs:1057:1)
+     |
+1057 | izipWithM = G.izipWithM
+     |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1064:13: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.zipWithM_’
+      from the context: (Monad m, Unbox a, Unbox b, m @ c, Vector @ a,
+                         Vector @ b, m @ ())
+        bound by the type signature for:
+                   zipWithM_ :: forall (m :: * -> *) a b c.
+                                (Monad m, Unbox a, Unbox b, m @ c, Vector @ a, Vector @ b,
+                                 m @ ()) =>
+                                (a -> b -> m c) -> Vector a -> Vector b -> m ()
+        at src/Data/Vector/Unboxed.hs:(1061,1)-(1062,60)
+    • In the expression: G.zipWithM_
+      In an equation for ‘zipWithM_’: zipWithM_ = G.zipWithM_
+    • Relevant bindings include
+        zipWithM_ :: (a -> b -> m c) -> Vector a -> Vector b -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1064:1)
+     |
+1064 | zipWithM_ = G.zipWithM_
+     |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1071:14: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.izipWithM_’
+      from the context: (Monad m, Unbox a, Unbox b, m @ c, Vector @ a,
+                         Vector @ b, m @ ())
+        bound by the type signature for:
+                   izipWithM_ :: forall (m :: * -> *) a b c.
+                                 (Monad m, Unbox a, Unbox b, m @ c, Vector @ a, Vector @ b,
+                                  m @ ()) =>
+                                 (Int -> a -> b -> m c) -> Vector a -> Vector b -> m ()
+        at src/Data/Vector/Unboxed.hs:(1068,1)-(1069,68)
+    • In the expression: G.izipWithM_
+      In an equation for ‘izipWithM_’: izipWithM_ = G.izipWithM_
+    • Relevant bindings include
+        izipWithM_ :: (Int -> a -> b -> m c)
+                      -> Vector a -> Vector b -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1071:1)
+     |
+1071 | izipWithM_ = G.izipWithM_
+     |              ^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1114:11: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.filterM’
+      from the context: (Monad m, Unbox a, m @ Bool, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   filterM :: forall (m :: * -> *) a.
+                              (Monad m, Unbox a, m @ Bool, m @ Vector a, Vector @ a) =>
+                              (a -> m Bool) -> Vector a -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:1112:1-74
+    • In the expression: G.filterM
+      In an equation for ‘filterM’: filterM = G.filterM
+    • Relevant bindings include
+        filterM :: (a -> m Bool) -> Vector a -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:1114:1)
+     |
+1114 | filterM = G.filterM
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1114:11: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.filterM’
+      from the context: (Monad m, Unbox a, m @ Bool, m @ Vector a,
+                         Vector @ a)
+        bound by the type signature for:
+                   filterM :: forall (m :: * -> *) a.
+                              (Monad m, Unbox a, m @ Bool, m @ Vector a, Vector @ a) =>
+                              (a -> m Bool) -> Vector a -> m (Vector a)
+        at src/Data/Vector/Unboxed.hs:1112:1-74
+    • In the expression: G.filterM
+      In an equation for ‘filterM’: filterM = G.filterM
+    • Relevant bindings include
+        filterM :: (a -> m Bool) -> Vector a -> m (Vector a)
+          (bound at src/Data/Vector/Unboxed.hs:1114:1)
+     |
+1114 | filterM = G.filterM
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1122:13: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.mapMaybeM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ Maybe b,
+                         Vector @ a, m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   mapMaybeM :: forall (m :: * -> *) a b.
+                                (Monad m, Unbox a, Unbox b, m @ Maybe b, Vector @ a, m @ Vector b,
+                                 Vector @ b) =>
+                                (a -> m (Maybe b)) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:1120:1-90
+    • In the expression: G.mapMaybeM
+      In an equation for ‘mapMaybeM’: mapMaybeM = G.mapMaybeM
+    • Relevant bindings include
+        mapMaybeM :: (a -> m (Maybe b)) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:1122:1)
+     |
+1122 | mapMaybeM = G.mapMaybeM
+     |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1122:13: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.mapMaybeM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ Maybe b,
+                         Vector @ a, m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   mapMaybeM :: forall (m :: * -> *) a b.
+                                (Monad m, Unbox a, Unbox b, m @ Maybe b, Vector @ a, m @ Vector b,
+                                 Vector @ b) =>
+                                (a -> m (Maybe b)) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:1120:1-90
+    • In the expression: G.mapMaybeM
+      In an equation for ‘mapMaybeM’: mapMaybeM = G.mapMaybeM
+    • Relevant bindings include
+        mapMaybeM :: (a -> m (Maybe b)) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:1122:1)
+     |
+1122 | mapMaybeM = G.mapMaybeM
+     |             ^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1130:14: error:
+    • Could not deduce: WD'PrimState m
+        arising from a use of ‘G.imapMaybeM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ Maybe b,
+                         Vector @ a, m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   imapMaybeM :: forall (m :: * -> *) a b.
+                                 (Monad m, Unbox a, Unbox b, m @ Maybe b, Vector @ a, m @ Vector b,
+                                  Vector @ b) =>
+                                 (Int -> a -> m (Maybe b)) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:1128:1-98
+    • In the expression: G.imapMaybeM
+      In an equation for ‘imapMaybeM’: imapMaybeM = G.imapMaybeM
+    • Relevant bindings include
+        imapMaybeM :: (Int -> a -> m (Maybe b)) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:1130:1)
+     |
+1130 | imapMaybeM = G.imapMaybeM
+     |              ^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1130:14: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.imapMaybeM’
+      from the context: (Monad m, Unbox a, Unbox b, m @ Maybe b,
+                         Vector @ a, m @ Vector b, Vector @ b)
+        bound by the type signature for:
+                   imapMaybeM :: forall (m :: * -> *) a b.
+                                 (Monad m, Unbox a, Unbox b, m @ Maybe b, Vector @ a, m @ Vector b,
+                                  Vector @ b) =>
+                                 (Int -> a -> m (Maybe b)) -> Vector a -> m (Vector b)
+        at src/Data/Vector/Unboxed.hs:1128:1-98
+    • In the expression: G.imapMaybeM
+      In an equation for ‘imapMaybeM’: imapMaybeM = G.imapMaybeM
+    • Relevant bindings include
+        imapMaybeM :: (Int -> a -> m (Maybe b)) -> Vector a -> m (Vector b)
+          (bound at src/Data/Vector/Unboxed.hs:1130:1)
+     |
+1130 | imapMaybeM = G.imapMaybeM
+     |              ^^^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1588:9: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.foldM’
+      from the context: (Monad m, Unbox b, Vector @ b, m @ a)
+        bound by the type signature for:
+                   foldM :: forall (m :: * -> *) b a.
+                            (Monad m, Unbox b, Vector @ b, m @ a) =>
+                            (a -> b -> m a) -> a -> Vector b -> m a
+        at src/Data/Vector/Unboxed.hs:1586:1-70
+    • In the expression: G.foldM
+      In an equation for ‘foldM’: foldM = G.foldM
+    • Relevant bindings include
+        foldM :: (a -> b -> m a) -> a -> Vector b -> m a
+          (bound at src/Data/Vector/Unboxed.hs:1588:1)
+     |
+1588 | foldM = G.foldM
+     |         ^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1593:10: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.ifoldM’
+      from the context: (Monad m, Unbox b, Vector @ b, m @ a)
+        bound by the type signature for:
+                   ifoldM :: forall (m :: * -> *) b a.
+                             (Monad m, Unbox b, Vector @ b, m @ a) =>
+                             (a -> Int -> b -> m a) -> a -> Vector b -> m a
+        at src/Data/Vector/Unboxed.hs:1591:1-78
+    • In the expression: G.ifoldM
+      In an equation for ‘ifoldM’: ifoldM = G.ifoldM
+    • Relevant bindings include
+        ifoldM :: (a -> Int -> b -> m a) -> a -> Vector b -> m a
+          (bound at src/Data/Vector/Unboxed.hs:1593:1)
+     |
+1593 | ifoldM = G.ifoldM
+     |          ^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1598:10: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.fold1M’
+      from the context: (Monad m, Unbox a, Vector @ a, m @ a)
+        bound by the type signature for:
+                   fold1M :: forall (m :: * -> *) a.
+                             (Monad m, Unbox a, Vector @ a, m @ a) =>
+                             (a -> a -> m a) -> Vector a -> m a
+        at src/Data/Vector/Unboxed.hs:1596:1-66
+    • In the expression: G.fold1M
+      In an equation for ‘fold1M’: fold1M = G.fold1M
+    • Relevant bindings include
+        fold1M :: (a -> a -> m a) -> Vector a -> m a
+          (bound at src/Data/Vector/Unboxed.hs:1598:1)
+     |
+1598 | fold1M = G.fold1M
+     |          ^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1603:10: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.foldM'’
+      from the context: (Monad m, Unbox b, Vector @ b, m @ a)
+        bound by the type signature for:
+                   foldM' :: forall (m :: * -> *) b a.
+                             (Monad m, Unbox b, Vector @ b, m @ a) =>
+                             (a -> b -> m a) -> a -> Vector b -> m a
+        at src/Data/Vector/Unboxed.hs:1601:1-71
+    • In the expression: G.foldM'
+      In an equation for ‘foldM'’: foldM' = G.foldM'
+    • Relevant bindings include
+        foldM' :: (a -> b -> m a) -> a -> Vector b -> m a
+          (bound at src/Data/Vector/Unboxed.hs:1603:1)
+     |
+1603 | foldM' = G.foldM'
+     |          ^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1609:11: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.ifoldM'’
+      from the context: (Monad m, Unbox b, Vector @ b, m @ a)
+        bound by the type signature for:
+                   ifoldM' :: forall (m :: * -> *) b a.
+                              (Monad m, Unbox b, Vector @ b, m @ a) =>
+                              (a -> Int -> b -> m a) -> a -> Vector b -> m a
+        at src/Data/Vector/Unboxed.hs:1607:1-79
+    • In the expression: G.ifoldM'
+      In an equation for ‘ifoldM'’: ifoldM' = G.ifoldM'
+    • Relevant bindings include
+        ifoldM' :: (a -> Int -> b -> m a) -> a -> Vector b -> m a
+          (bound at src/Data/Vector/Unboxed.hs:1609:1)
+     |
+1609 | ifoldM' = G.ifoldM'
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1614:11: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.fold1M'’
+      from the context: (Monad m, Unbox a, Vector @ a, m @ a)
+        bound by the type signature for:
+                   fold1M' :: forall (m :: * -> *) a.
+                              (Monad m, Unbox a, Vector @ a, m @ a) =>
+                              (a -> a -> m a) -> Vector a -> m a
+        at src/Data/Vector/Unboxed.hs:1612:1-67
+    • In the expression: G.fold1M'
+      In an equation for ‘fold1M'’: fold1M' = G.fold1M'
+    • Relevant bindings include
+        fold1M' :: (a -> a -> m a) -> Vector a -> m a
+          (bound at src/Data/Vector/Unboxed.hs:1614:1)
+     |
+1614 | fold1M' = G.fold1M'
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1619:10: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.foldM_’
+      from the context: (Monad m, Unbox b, m @ a, Vector @ b, m @ ())
+        bound by the type signature for:
+                   foldM_ :: forall (m :: * -> *) b a.
+                             (Monad m, Unbox b, m @ a, Vector @ b, m @ ()) =>
+                             (a -> b -> m a) -> a -> Vector b -> m ()
+        at src/Data/Vector/Unboxed.hs:1617:1-72
+    • In the expression: G.foldM_
+      In an equation for ‘foldM_’: foldM_ = G.foldM_
+    • Relevant bindings include
+        foldM_ :: (a -> b -> m a) -> a -> Vector b -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1619:1)
+     |
+1619 | foldM_ = G.foldM_
+     |          ^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1625:11: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.ifoldM_’
+      from the context: (Monad m, Unbox b, m @ a, Vector @ b, m @ ())
+        bound by the type signature for:
+                   ifoldM_ :: forall (m :: * -> *) b a.
+                              (Monad m, Unbox b, m @ a, Vector @ b, m @ ()) =>
+                              (a -> Int -> b -> m a) -> a -> Vector b -> m ()
+        at src/Data/Vector/Unboxed.hs:1623:1-80
+    • In the expression: G.ifoldM_
+      In an equation for ‘ifoldM_’: ifoldM_ = G.ifoldM_
+    • Relevant bindings include
+        ifoldM_ :: (a -> Int -> b -> m a) -> a -> Vector b -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1625:1)
+     |
+1625 | ifoldM_ = G.ifoldM_
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1630:11: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.fold1M_’
+      from the context: (Monad m, Unbox a, m @ a, Vector @ a, m @ ())
+        bound by the type signature for:
+                   fold1M_ :: forall (m :: * -> *) a.
+                              (Monad m, Unbox a, m @ a, Vector @ a, m @ ()) =>
+                              (a -> a -> m a) -> Vector a -> m ()
+        at src/Data/Vector/Unboxed.hs:1628:1-68
+    • In the expression: G.fold1M_
+      In an equation for ‘fold1M_’: fold1M_ = G.fold1M_
+    • Relevant bindings include
+        fold1M_ :: (a -> a -> m a) -> Vector a -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1630:1)
+     |
+1630 | fold1M_ = G.fold1M_
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1635:11: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.foldM'_’
+      from the context: (Monad m, Unbox b, m @ a, Vector @ b, m @ ())
+        bound by the type signature for:
+                   foldM'_ :: forall (m :: * -> *) b a.
+                              (Monad m, Unbox b, m @ a, Vector @ b, m @ ()) =>
+                              (a -> b -> m a) -> a -> Vector b -> m ()
+        at src/Data/Vector/Unboxed.hs:1633:1-73
+    • In the expression: G.foldM'_
+      In an equation for ‘foldM'_’: foldM'_ = G.foldM'_
+    • Relevant bindings include
+        foldM'_ :: (a -> b -> m a) -> a -> Vector b -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1635:1)
+     |
+1635 | foldM'_ = G.foldM'_
+     |           ^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1642:12: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.ifoldM'_’
+      from the context: (Monad m, Unbox b, m @ a, Vector @ b, m @ ())
+        bound by the type signature for:
+                   ifoldM'_ :: forall (m :: * -> *) b a.
+                               (Monad m, Unbox b, m @ a, Vector @ b, m @ ()) =>
+                               (a -> Int -> b -> m a) -> a -> Vector b -> m ()
+        at src/Data/Vector/Unboxed.hs:(1639,1)-(1640,59)
+    • In the expression: G.ifoldM'_
+      In an equation for ‘ifoldM'_’: ifoldM'_ = G.ifoldM'_
+    • Relevant bindings include
+        ifoldM'_ :: (a -> Int -> b -> m a) -> a -> Vector b -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1642:1)
+     |
+1642 | ifoldM'_ = G.ifoldM'_
+     |            ^^^^^^^^^^
+
+src/Data/Vector/Unboxed.hs:1648:12: error:
+    • Could not deduce: m @ a1 arising from a use of ‘G.fold1M'_’
+      from the context: (Monad m, Unbox a, m @ a, Vector @ a, m @ ())
+        bound by the type signature for:
+                   fold1M'_ :: forall (m :: * -> *) a.
+                               (Monad m, Unbox a, m @ a, Vector @ a, m @ ()) =>
+                               (a -> a -> m a) -> Vector a -> m ()
+        at src/Data/Vector/Unboxed.hs:1646:1-69
+    • In the expression: G.fold1M'_
+      In an equation for ‘fold1M'_’: fold1M'_ = G.fold1M'_
+    • Relevant bindings include
+        fold1M'_ :: (a -> a -> m a) -> Vector a -> m ()
+          (bound at src/Data/Vector/Unboxed.hs:1648:1)
+     |
+1648 | fold1M'_ = G.fold1M'_
+     |            ^^^^^^^^^^

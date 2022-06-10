@@ -218,7 +218,7 @@ import Data.Typeable ( Typeable, gcast1 )
 import Data.Data ( Data, DataType, Constr, Fixity(Prefix),
                    mkDataType, mkConstr, constrIndex, mkNoRepType )
 import qualified Data.Traversable as T (Traversable(mapM))
-
+import GHC.Types (Total, WDT )
 -- Length information
 -- ------------------
 
@@ -357,6 +357,7 @@ unsafeLastM :: (Vector v a, Monad m) => v a -> m a
 {-# INLINE_FUSED unsafeLastM #-}
 unsafeLastM v = unsafeIndexM v (length v - 1)
 
+{-
 {-# RULES
 
 "indexM/unstream [Vector]" forall s i.
@@ -376,7 +377,7 @@ unsafeLastM v = unsafeIndexM v (length v - 1)
 
 "unsafeLastM/unstream [Vector]" forall s.
   unsafeLastM (new (New.unstream s)) = MBundle.last (lift s)   #-}
-
+-}
 
 
 -- Extracting subvectors (slicing)
@@ -519,18 +520,18 @@ unsafeDrop n v = unsafeSlice n (length v - n) v
 -- --------------
 
 -- | /O(1)/ The empty vector.
-empty :: Vector v a => v a
+empty :: (WDT(Mutable v), Vector v a) => v a
 {-# INLINE empty #-}
 empty = unstream Bundle.empty
 
 -- | /O(1)/ A vector with exactly one element.
-singleton :: forall v a. Vector v a => a -> v a
+singleton :: forall v a. (WDT(Mutable v), Vector v a) => a -> v a
 {-# INLINE singleton #-}
 singleton x = elemseq (undefined :: v a) x
             $ unstream (Bundle.singleton x)
 
 -- | /O(n)/ A vector of the given length with the same value in each position.
-replicate :: forall v a. Vector v a => Int -> a -> v a
+replicate :: forall v a. (WDT(Mutable v), Vector v a) => Int -> a -> v a
 {-# INLINE replicate #-}
 replicate n x = elemseq (undefined :: v a) x
               $ unstream
@@ -538,7 +539,7 @@ replicate n x = elemseq (undefined :: v a) x
 
 -- | /O(n)/ Construct a vector of the given length by applying the function to
 -- each index.
-generate :: Vector v a => Int -> (Int -> a) -> v a
+generate :: (WDT(Mutable v), Vector v a) => Int -> (Int -> a) -> v a
 {-# INLINE generate #-}
 generate n f = unstream (Bundle.generate n f)
 
@@ -549,7 +550,7 @@ generate n f = unstream (Bundle.generate n f)
 -- \( \underbrace{x, f (x), f (f (x)), \ldots}_{\max(0,n)\rm{~elements}} \)
 --
 -- @since 0.7.1
-iterateN :: Vector v a => Int -> (a -> a) -> a -> v a
+iterateN :: (WDT(Mutable v), Vector v a) => Int -> (a -> a) -> a -> v a
 {-# INLINE iterateN #-}
 iterateN n f x = unstream (Bundle.iterateN n f x)
 
@@ -562,7 +563,7 @@ iterateN n f x = unstream (Bundle.iterateN n f x)
 --
 -- > unfoldr (\n -> if n == 0 then Nothing else Just (n,n-1)) 10
 -- >  = <10,9,8,7,6,5,4,3,2,1>
-unfoldr :: Vector v a => (b -> Maybe (a, b)) -> b -> v a
+unfoldr :: (WDT(Mutable v), Vector v a) => (b -> Maybe (a, b)) -> b -> v a
 {-# INLINE unfoldr #-}
 unfoldr f = unstream . Bundle.unfoldr f
 
@@ -571,7 +572,7 @@ unfoldr f = unstream . Bundle.unfoldr f
 -- next element and the new seed or 'Nothing' if there are no more elements.
 --
 -- > unfoldrN 3 (\n -> Just (n,n-1)) 10 = <10,9,8>
-unfoldrN  :: Vector v a => Int -> (b -> Maybe (a, b)) -> b -> v a
+unfoldrN  :: (WDT(Mutable v), Vector v a) => Int -> (b -> Maybe (a, b)) -> b -> v a
 {-# INLINE unfoldrN #-}
 unfoldrN n f = unstream . Bundle.unfoldrN n f
 
@@ -582,7 +583,7 @@ unfoldrN n f = unstream . Bundle.unfoldrN n f
 -- > unfoldrExactN 3 (\n -> (n,n-1)) 10 = <10,9,8>
 --
 -- @since 0.12.2.0
-unfoldrExactN  :: Vector v a => Int -> (b -> (a, b)) -> b -> v a
+unfoldrExactN  :: (WDT(Mutable v), Vector v a) => Int -> (b -> (a, b)) -> b -> v a
 {-# INLINE unfoldrExactN #-}
 unfoldrExactN n f = unstream . Bundle.unfoldrExactN n f
 
@@ -590,7 +591,7 @@ unfoldrExactN n f = unstream . Bundle.unfoldrExactN n f
 -- generator function to a seed. The generator function yields 'Just'
 -- the next element and the new seed or 'Nothing' if there are no more
 -- elements.
-unfoldrM :: (Monad m, Vector v a) => (b -> m (Maybe (a, b))) -> b -> m (v a)
+unfoldrM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => (b -> m (Maybe (a, b))) -> b -> m (v a)
 {-# INLINE unfoldrM #-}
 unfoldrM f = unstreamM . MBundle.unfoldrM f
 
@@ -598,7 +599,7 @@ unfoldrM f = unstreamM . MBundle.unfoldrM f
 -- generator function to a seed. The generator function yields 'Just'
 -- the next element and the new seed or 'Nothing' if there are no more
 -- elements.
-unfoldrNM :: (Monad m, Vector v a) => Int -> (b -> m (Maybe (a, b))) -> b -> m (v a)
+unfoldrNM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> (b -> m (Maybe (a, b))) -> b -> m (v a)
 {-# INLINE unfoldrNM #-}
 unfoldrNM n f = unstreamM . MBundle.unfoldrNM n f
 
@@ -607,7 +608,7 @@ unfoldrNM n f = unstreamM . MBundle.unfoldrNM n f
 -- function yields the next element and the new seed.
 --
 -- @since 0.12.2.0
-unfoldrExactNM :: (Monad m, Vector v a) => Int -> (b -> m (a, b)) -> b -> m (v a)
+unfoldrExactNM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> (b -> m (a, b)) -> b -> m (v a)
 {-# INLINE unfoldrExactNM #-}
 unfoldrExactNM n f = unstreamM . MBundle.unfoldrExactNM n f
 
@@ -615,7 +616,7 @@ unfoldrExactNM n f = unstreamM . MBundle.unfoldrExactNM n f
 -- generator function to the already constructed part of the vector.
 --
 -- > constructN 3 f = let a = f <> ; b = f <a> ; c = f <a,b> in <a,b,c>
-constructN :: forall v a. Vector v a => Int -> (v a -> a) -> v a
+constructN :: forall v a. (WDT (Mutable v), Vector v a) => Int -> (v a -> a) -> v a
 {-# INLINE constructN #-}
 -- NOTE: We *CANNOT* wrap this in New and then fuse because the elements
 -- might contain references to the immutable vector!
@@ -640,7 +641,7 @@ constructN !n f = runST (
 -- of the vector.
 --
 -- > constructrN 3 f = let a = f <> ; b = f<a> ; c = f <b,a> in <c,b,a>
-constructrN :: forall v a. Vector v a => Int -> (v a -> a) -> v a
+constructrN :: forall v a. (WDT (Mutable v), Vector v a) => Int -> (v a -> a) -> v a
 {-# INLINE constructrN #-}
 -- NOTE: We *CANNOT* wrap this in New and then fuse because the elements
 -- might contain references to the immutable vector!
@@ -668,7 +669,7 @@ constructrN !n f = runST (
 -- etc. This operation is usually more efficient than 'enumFromTo'.
 --
 -- > enumFromN 5 3 = <5,6,7>
-enumFromN :: (Vector v a, Num a) => a -> Int -> v a
+enumFromN :: (WDT(Mutable v), Vector v a, Num a) => a -> Int -> v a
 {-# INLINE enumFromN #-}
 enumFromN x n = enumFromStepN x 1 n
 
@@ -676,7 +677,7 @@ enumFromN x n = enumFromStepN x 1 n
 -- @x+y+y@ etc. This operations is usually more efficient than 'enumFromThenTo'.
 --
 -- > enumFromStepN 1 2 5 = <1,3,5,7,9>
-enumFromStepN :: forall v a. (Vector v a, Num a) => a -> a -> Int -> v a
+enumFromStepN :: forall v a. (WDT(Mutable v), Vector v a, Num a) => a -> a -> Int -> v a
 {-# INLINE enumFromStepN #-}
 enumFromStepN x y n = elemseq (undefined :: v a) x
                     $ elemseq (undefined :: v a) y
@@ -687,7 +688,7 @@ enumFromStepN x y n = elemseq (undefined :: v a) x
 --
 -- /WARNING:/ This operation can be very inefficient. If possible, use
 -- 'enumFromN' instead.
-enumFromTo :: (Vector v a, Enum a) => a -> a -> v a
+enumFromTo :: (WDT(Mutable v), Vector v a, Enum a) => a -> a -> v a
 {-# INLINE enumFromTo #-}
 enumFromTo x y = unstream (Bundle.enumFromTo x y)
 
@@ -695,7 +696,7 @@ enumFromTo x y = unstream (Bundle.enumFromTo x y)
 --
 -- /WARNING:/ This operation can be very inefficient. If possible, use
 -- 'enumFromStepN' instead.
-enumFromThenTo :: (Vector v a, Enum a) => a -> a -> a -> v a
+enumFromThenTo :: (WDT(Mutable v), Vector v a, Enum a) => a -> a -> a -> v a
 {-# INLINE enumFromThenTo #-}
 enumFromThenTo x y z = unstream (Bundle.enumFromThenTo x y z)
 
@@ -703,7 +704,7 @@ enumFromThenTo x y z = unstream (Bundle.enumFromThenTo x y z)
 -- -------------
 
 -- | /O(n)/ Prepend an element.
-cons :: forall v a. Vector v a => a -> v a -> v a
+cons :: forall v a. (WDT(Mutable v), Vector v a) => a -> v a -> v a
 {-# INLINE cons #-}
 cons x v = elemseq (undefined :: v a) x
          $ unstream
@@ -711,7 +712,7 @@ cons x v = elemseq (undefined :: v a) x
          $ stream v
 
 -- | /O(n)/ Append an element.
-snoc :: forall v a. Vector v a => v a -> a -> v a
+snoc :: forall v a. (WDT(Mutable v), Vector v a) => v a -> a -> v a
 {-# INLINE snoc #-}
 snoc v x = elemseq (undefined :: v a) x
          $ unstream
@@ -719,12 +720,12 @@ snoc v x = elemseq (undefined :: v a) x
 
 infixr 5 ++
 -- | /O(m+n)/ Concatenate two vectors.
-(++) :: Vector v a => v a -> v a -> v a
+(++) :: (WDT(Mutable v), Vector v a) => v a -> v a -> v a
 {-# INLINE (++) #-}
 v ++ w = unstream (stream v Bundle.++ stream w)
 
 -- | /O(n)/ Concatenate all vectors in the list.
-concat :: Vector v a => [v a] -> v a
+concat :: (WDT(Mutable v), Vector v a) => [v a] -> v a
 {-# INLINE concat #-}
 concat = unstream . Bundle.fromVectors
 {-
@@ -745,7 +746,7 @@ concat vs = unstream (Bundle.flatten mk step (Exact n) (Bundle.fromList vs))
 -}
 
 -- | /O(n)/ Concatenate all vectors in the non-empty list.
-concatNE :: Vector v a => NonEmpty.NonEmpty (v a) -> v a
+concatNE :: (WDT(Mutable v), Vector v a) => NonEmpty.NonEmpty (v a) -> v a
 concatNE = concat . NonEmpty.toList
 
 -- Monadic initialisation
@@ -753,13 +754,13 @@ concatNE = concat . NonEmpty.toList
 
 -- | /O(n)/ Execute the monadic action the given number of times and store the
 -- results in a vector.
-replicateM :: (Monad m, Vector v a) => Int -> m a -> m (v a)
+replicateM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> m a -> m (v a)
 {-# INLINE replicateM #-}
 replicateM n m = unstreamM (MBundle.replicateM n m)
 
 -- | /O(n)/ Construct a vector of the given length by applying the monadic
 -- action to each index.
-generateM :: (Monad m, Vector v a) => Int -> (Int -> m a) -> m (v a)
+generateM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> (Int -> m a) -> m (v a)
 {-# INLINE generateM #-}
 generateM n f = unstreamM (MBundle.generateM n f)
 
@@ -770,7 +771,7 @@ generateM n f = unstreamM (MBundle.generateM n f)
 -- For a non-monadic version, see `iterateN`.
 --
 -- @since 0.12.0.0
-iterateNM :: (Monad m, Vector v a) => Int -> (a -> m a) -> a -> m (v a)
+iterateNM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> (a -> m a) -> a -> m (v a)
 {-# INLINE iterateNM #-}
 iterateNM n f x = unstreamM (MBundle.iterateNM n f x)
 
@@ -779,13 +780,13 @@ iterateNM n f x = unstreamM (MBundle.iterateNM n f x)
 -- @
 -- create (do { v \<- 'M.new' 2; 'M.write' v 0 \'a\'; 'M.write' v 1 \'b\'; return v }) = \<'a','b'\>
 -- @
-create :: Vector v a => (forall s. ST s (Mutable v s a)) -> v a
+create :: (WDT(Mutable v), Vector v a) => (forall s. ST s (Mutable v s a)) -> v a
 {-# INLINE create #-}
 create p = new (New.create p)
 
 -- | Execute the monadic action and freeze the resulting vectors.
 createT
-  :: (T.Traversable f, Vector v a)
+  :: (Total f, WDT (Mutable v), T.Traversable f, Vector v a)
   => (forall s. ST s (f (Mutable v s a))) -> f (v a)
 {-# INLINE createT #-}
 createT p = runST (p >>= T.mapM unsafeFreeze)
@@ -803,7 +804,7 @@ createT p = runST (p >>= T.mapM unsafeFreeze)
 -- Here, the slice retains a reference to the huge vector. Forcing it creates
 -- a copy of just the elements that belong to the slice and allows the huge
 -- vector to be garbage collected.
-force :: Vector v a => v a -> v a
+force :: (WDT(Mutable v), Vector v a) => v a -> v a
 -- FIXME: we probably ought to inline this later as the rules still might fire
 -- otherwise
 {-# INLINE_FUSED force #-}
@@ -817,7 +818,7 @@ force v = new (clone v)
 --
 -- > <5,9,2,7> // [(2,1),(0,3),(2,8)] = <3,9,8,7>
 --
-(//) :: Vector v a => v a        -- ^ initial vector (of length @m@)
+(//) :: (WDT(Mutable v), Vector v a) => v a        -- ^ initial vector (of length @m@)
                    -> [(Int, a)] -- ^ list of index/value pairs (of length @n@)
                    -> v a
 {-# INLINE (//) #-}
@@ -828,7 +829,7 @@ v // us = update_stream v (Bundle.fromList us)
 --
 -- > update <5,9,2,7> <(2,1),(0,3),(2,8)> = <3,9,8,7>
 --
-update :: (Vector v a, Vector v (Int, a))
+update :: (WDT(Mutable v), Vector v a, Vector v (Int, a))
         => v a        -- ^ initial vector (of length @m@)
         -> v (Int, a) -- ^ vector of index/value pairs (of length @n@)
         -> v a
@@ -847,7 +848,7 @@ update v w = update_stream v (stream w)
 -- @
 -- update_ xs is ys = 'update' xs ('zip' is ys)
 -- @
-update_ :: (Vector v a, Vector v Int)
+update_ :: (WDT(Mutable v), Vector v a, Vector v Int)
         => v a   -- ^ initial vector (of length @m@)
         -> v Int -- ^ index vector (of length @n1@)
         -> v a   -- ^ value vector (of length @n2@)
@@ -855,27 +856,27 @@ update_ :: (Vector v a, Vector v Int)
 {-# INLINE update_ #-}
 update_ v is w = update_stream v (Bundle.zipWith (,) (stream is) (stream w))
 
-update_stream :: Vector v a => v a -> Bundle u (Int,a) -> v a
+update_stream :: (WDT(Mutable v), Vector v a) => v a -> Bundle u (Int,a) -> v a
 {-# INLINE update_stream #-}
 update_stream = modifyWithBundle M.update
 
 -- | Same as ('//'), but without bounds checking.
-unsafeUpd :: Vector v a => v a -> [(Int, a)] -> v a
+unsafeUpd :: (WDT(Mutable v), Vector v a) => v a -> [(Int, a)] -> v a
 {-# INLINE unsafeUpd #-}
 unsafeUpd v us = unsafeUpdate_stream v (Bundle.fromList us)
 
 -- | Same as 'update', but without bounds checking.
-unsafeUpdate :: (Vector v a, Vector v (Int, a)) => v a -> v (Int, a) -> v a
+unsafeUpdate :: (WDT(Mutable v), Vector v a, Vector v (Int, a)) => v a -> v (Int, a) -> v a
 {-# INLINE unsafeUpdate #-}
 unsafeUpdate v w = unsafeUpdate_stream v (stream w)
 
 -- | Same as 'update_', but without bounds checking.
-unsafeUpdate_ :: (Vector v a, Vector v Int) => v a -> v Int -> v a -> v a
+unsafeUpdate_ :: (WDT(Mutable v), Vector v a, Vector v Int) => v a -> v Int -> v a -> v a
 {-# INLINE unsafeUpdate_ #-}
 unsafeUpdate_ v is w
   = unsafeUpdate_stream v (Bundle.zipWith (,) (stream is) (stream w))
 
-unsafeUpdate_stream :: Vector v a => v a -> Bundle u (Int,a) -> v a
+unsafeUpdate_stream :: (WDT(Mutable v), Vector v a) => v a -> Bundle u (Int,a) -> v a
 {-# INLINE unsafeUpdate_stream #-}
 unsafeUpdate_stream = modifyWithBundle M.unsafeUpdate
 
@@ -890,7 +891,7 @@ unsafeUpdate_stream = modifyWithBundle M.unsafeUpdate
 -- >>> import qualified Data.Vector as V
 -- >>> V.accum (+) (V.fromList [1000,2000,3000]) [(2,4),(1,6),(0,3),(1,10)]
 -- [1003,2016,3004]
-accum :: Vector v a
+accum :: (WDT(Mutable v), Vector v a)
       => (a -> b -> a) -- ^ accumulating function @f@
       -> v a           -- ^ initial vector (of length @m@)
       -> [(Int,b)]     -- ^ list of index/value pairs (of length @n@)
@@ -906,7 +907,7 @@ accum f v us = accum_stream f v (Bundle.fromList us)
 -- >>> import qualified Data.Vector as V
 -- >>> V.accumulate (+) (V.fromList [1000,2000,3000]) (V.fromList [(2,4),(1,6),(0,3),(1,10)])
 -- [1003,2016,3004]
-accumulate :: (Vector v a, Vector v (Int, b))
+accumulate :: (WDT(Mutable v), Vector v a, Vector v (Int, b))
            => (a -> b -> a) -- ^ accumulating function @f@
            -> v a           -- ^ initial vector (of length @m@)
            -> v (Int,b)     -- ^ vector of index/value pairs (of length @n@)
@@ -927,7 +928,7 @@ accumulate f v us = accum_stream f v (stream us)
 -- @
 -- accumulate_ f as is bs = 'accumulate' f as ('zip' is bs)
 -- @
-accumulate_ :: (Vector v a, Vector v Int, Vector v b)
+accumulate_ :: (WDT(Mutable v), Vector v a, Vector v Int, Vector v b)
                 => (a -> b -> a) -- ^ accumulating function @f@
                 -> v a           -- ^ initial vector (of length @m@)
                 -> v Int         -- ^ index vector (of length @n1@)
@@ -938,30 +939,30 @@ accumulate_ f v is xs = accum_stream f v (Bundle.zipWith (,) (stream is)
                                                              (stream xs))
 
 
-accum_stream :: Vector v a => (a -> b -> a) -> v a -> Bundle u (Int,b) -> v a
+accum_stream :: (WDT(Mutable v), Vector v a) => (a -> b -> a) -> v a -> Bundle u (Int,b) -> v a
 {-# INLINE accum_stream #-}
 accum_stream f = modifyWithBundle (M.accum f)
 
 -- | Same as 'accum', but without bounds checking.
-unsafeAccum :: Vector v a => (a -> b -> a) -> v a -> [(Int,b)] -> v a
+unsafeAccum :: (WDT(Mutable v), Vector v a) => (a -> b -> a) -> v a -> [(Int,b)] -> v a
 {-# INLINE unsafeAccum #-}
 unsafeAccum f v us = unsafeAccum_stream f v (Bundle.fromList us)
 
 -- | Same as 'accumulate', but without bounds checking.
-unsafeAccumulate :: (Vector v a, Vector v (Int, b))
+unsafeAccumulate :: (WDT(Mutable v), Vector v a, Vector v (Int, b))
                 => (a -> b -> a) -> v a -> v (Int,b) -> v a
 {-# INLINE unsafeAccumulate #-}
 unsafeAccumulate f v us = unsafeAccum_stream f v (stream us)
 
 -- | Same as 'accumulate_', but without bounds checking.
-unsafeAccumulate_ :: (Vector v a, Vector v Int, Vector v b)
+unsafeAccumulate_ :: (WDT(Mutable v), Vector v a, Vector v Int, Vector v b)
                 => (a -> b -> a) -> v a -> v Int -> v b -> v a
 {-# INLINE unsafeAccumulate_ #-}
 unsafeAccumulate_ f v is xs
   = unsafeAccum_stream f v (Bundle.zipWith (,) (stream is) (stream xs))
 
 unsafeAccum_stream
-  :: Vector v a => (a -> b -> a) -> v a -> Bundle u (Int,b) -> v a
+  :: (WDT(Mutable v), Vector v a) => (a -> b -> a) -> v a -> Bundle u (Int,b) -> v a
 {-# INLINE unsafeAccum_stream #-}
 unsafeAccum_stream f = modifyWithBundle (M.unsafeAccum f)
 
@@ -969,7 +970,7 @@ unsafeAccum_stream f = modifyWithBundle (M.unsafeAccum f)
 -- ------------
 
 -- | /O(n)/ Reverse a vector.
-reverse :: (Vector v a) => v a -> v a
+reverse :: (WDT(Mutable v), Vector v a) => v a -> v a
 {-# INLINE reverse #-}
 -- FIXME: make this fuse better, add support for recycling
 reverse = unstream . streamR
@@ -979,7 +980,7 @@ reverse = unstream . streamR
 -- often much more efficient.
 --
 -- > backpermute <a,b,c,d> <0,3,2,3,1,0> = <a,d,c,d,b,a>
-backpermute :: forall v a. (HasCallStack, Vector v a, Vector v Int)
+backpermute :: forall v a. (WDT(Mutable v), HasCallStack, Vector v a, Vector v Int)
             => v a   -- ^ @xs@ value vector
             -> v Int -- ^ @is@ index vector (of length @n@)
             -> v a
@@ -1003,7 +1004,7 @@ backpermute v is = seq v
     index i = checkIndex Bounds i n $ basicUnsafeIndexM v i
 
 -- | Same as 'backpermute', but without bounds checking.
-unsafeBackpermute :: (Vector v a, Vector v Int) => v a -> v Int -> v a
+unsafeBackpermute :: (WDT(Mutable v), Vector v a, Vector v Int) => v a -> v Int -> v a
 {-# INLINE unsafeBackpermute #-}
 unsafeBackpermute v is = seq v
                        $ seq n
@@ -1029,13 +1030,13 @@ unsafeBackpermute v is = seq v
 -- @
 -- modify (\\v -> 'M.write' v 0 \'x\') ('replicate' 3 \'a\') = \<\'x\',\'a\',\'a\'\>
 -- @
-modify :: Vector v a => (forall s. Mutable v s a -> ST s ()) -> v a -> v a
+modify :: (WDT(Mutable v), Vector v a) => (forall s. Mutable v s a -> ST s ()) -> v a -> v a
 {-# INLINE modify #-}
 modify p = new . New.modify p . clone
 
 -- We have to make sure that this is strict in the stream but we can't seq on
 -- it while fusion is happening. Hence this ugliness.
-modifyWithBundle :: Vector v a
+modifyWithBundle :: (WDT(Mutable v), Vector v a)
                  => (forall s. Mutable v s a -> Bundle u b -> ST s ())
                  -> v a -> Bundle u b -> v a
 {-# INLINE modifyWithBundle #-}
@@ -1045,7 +1046,7 @@ modifyWithBundle p v s = new (New.modifyWithBundle p (clone v) s)
 -- --------
 
 -- | /O(n)/ Pair each element in a vector with its index.
-indexed :: (Vector v a, Vector v (Int,a)) => v a -> v (Int,a)
+indexed :: (WDT(Mutable v), Vector v a, Vector v (Int,a)) => v a -> v (Int,a)
 {-# INLINE indexed #-}
 indexed = unstream . Bundle.indexed . stream
 
@@ -1053,18 +1054,18 @@ indexed = unstream . Bundle.indexed . stream
 -- -------
 
 -- | /O(n)/ Map a function over a vector.
-map :: (Vector v a, Vector v b) => (a -> b) -> v a -> v b
+map :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b) -> v a -> v b
 {-# INLINE map #-}
 map f = unstream . inplace (S.map f) id . stream
 
 -- | /O(n)/ Apply a function to every element of a vector and its index.
-imap :: (Vector v a, Vector v b) => (Int -> a -> b) -> v a -> v b
+imap :: (WDT(Mutable v), Vector v a, Vector v b) => (Int -> a -> b) -> v a -> v b
 {-# INLINE imap #-}
 imap f = unstream . inplace (S.map (uncurry f) . S.indexed) id
                   . stream
 
 -- | Map a function over a vector and concatenate the results.
-concatMap :: (Vector v a, Vector v b) => (a -> v b) -> v a -> v b
+concatMap :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> v b) -> v a -> v b
 {-# INLINE concatMap #-}
 -- NOTE: We can't fuse concatMap anyway so don't pretend we do.
 -- This seems to be slightly slower
@@ -1103,37 +1104,37 @@ concatMap f = unstream
 
 -- | /O(n)/ Apply the monadic action to all elements of the vector, yielding a
 -- vector of results.
-mapM :: (Monad m, Vector v a, Vector v b) => (a -> m b) -> v a -> m (v b)
+mapM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b) => (a -> m b) -> v a -> m (v b)
 {-# INLINE mapM #-}
 mapM f = unstreamM . Bundle.mapM f . stream
 
 -- | /O(n)/ Apply the monadic action to every element of a vector and its
 -- index, yielding a vector of results.
-imapM :: (Monad m, Vector v a, Vector v b)
+imapM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b)
       => (Int -> a -> m b) -> v a -> m (v b)
 imapM f = unstreamM . Bundle.mapM (uncurry f) . Bundle.indexed . stream
 
 -- | /O(n)/ Apply the monadic action to all elements of a vector and ignore the
 -- results.
-mapM_ :: (Monad m, Vector v a) => (a -> m b) -> v a -> m ()
+mapM_ :: (Total m, Monad m, Vector v a) => (a -> m b) -> v a -> m ()
 {-# INLINE mapM_ #-}
 mapM_ f = Bundle.mapM_ f . stream
 
 -- | /O(n)/ Apply the monadic action to every element of a vector and its
 -- index, ignoring the results.
-imapM_ :: (Monad m, Vector v a) => (Int -> a -> m b) -> v a -> m ()
+imapM_ :: (Total m, Monad m, Vector v a) => (Int -> a -> m b) -> v a -> m ()
 {-# INLINE imapM_ #-}
 imapM_ f = Bundle.mapM_ (uncurry f) . Bundle.indexed . stream
 
 -- | /O(n)/ Apply the monadic action to all elements of the vector, yielding a
 -- vector of results. Equivalent to @flip 'mapM'@.
-forM :: (Monad m, Vector v a, Vector v b) => v a -> (a -> m b) -> m (v b)
+forM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b) => v a -> (a -> m b) -> m (v b)
 {-# INLINE forM #-}
 forM as f = mapM f as
 
 -- | /O(n)/ Apply the monadic action to all elements of a vector and ignore the
 -- results. Equivalent to @flip 'mapM_'@.
-forM_ :: (Monad m, Vector v a) => v a -> (a -> m b) -> m ()
+forM_ :: (Total m, Monad m, Vector v a) => v a -> (a -> m b) -> m ()
 {-# INLINE forM_ #-}
 forM_ as f = mapM_ f as
 
@@ -1141,7 +1142,7 @@ forM_ as f = mapM_ f as
 -- vector of results. Equivalent to @'flip' 'imapM'@.
 --
 -- @since 0.12.2.0
-iforM :: (Monad m, Vector v a, Vector v b) => v a -> (Int -> a -> m b) -> m (v b)
+iforM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b) => v a -> (Int -> a -> m b) -> m (v b)
 {-# INLINE iforM #-}
 iforM as f = imapM f as
 
@@ -1149,7 +1150,7 @@ iforM as f = imapM f as
 -- and ignore the results. Equivalent to @'flip' 'imapM_'@.
 --
 -- @since 0.12.2.0
-iforM_ :: (Monad m, Vector v a) => v a -> (Int -> a -> m b) -> m ()
+iforM_ :: (Total m, Monad m, Vector v a) => v a -> (Int -> a -> m b) -> m ()
 {-# INLINE iforM_ #-}
 iforM_ as f = imapM_ f as
 
@@ -1157,20 +1158,20 @@ iforM_ as f = imapM_ f as
 -- -------
 
 -- | /O(min(m,n))/ Zip two vectors with the given function.
-zipWith :: (Vector v a, Vector v b, Vector v c)
+zipWith :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c)
         => (a -> b -> c) -> v a -> v b -> v c
 {-# INLINE zipWith #-}
 zipWith f = \xs ys -> unstream (Bundle.zipWith f (stream xs) (stream ys))
 
 -- | Zip three vectors with the given function.
-zipWith3 :: (Vector v a, Vector v b, Vector v c, Vector v d)
+zipWith3 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d)
          => (a -> b -> c -> d) -> v a -> v b -> v c -> v d
 {-# INLINE zipWith3 #-}
 zipWith3 f = \as bs cs -> unstream (Bundle.zipWith3 f (stream as)
                                                   (stream bs)
                                                   (stream cs))
 
-zipWith4 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e)
+zipWith4 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e)
          => (a -> b -> c -> d -> e) -> v a -> v b -> v c -> v d -> v e
 {-# INLINE zipWith4 #-}
 zipWith4 f = \as bs cs ds ->
@@ -1179,7 +1180,7 @@ zipWith4 f = \as bs cs ds ->
                                 (stream cs)
                                 (stream ds))
 
-zipWith5 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+zipWith5 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
              Vector v f)
          => (a -> b -> c -> d -> e -> f) -> v a -> v b -> v c -> v d -> v e
                                          -> v f
@@ -1191,7 +1192,7 @@ zipWith5 f = \as bs cs ds es ->
                                 (stream ds)
                                 (stream es))
 
-zipWith6 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+zipWith6 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
              Vector v f, Vector v g)
          => (a -> b -> c -> d -> e -> f -> g)
          -> v a -> v b -> v c -> v d -> v e -> v f -> v g
@@ -1206,7 +1207,7 @@ zipWith6 f = \as bs cs ds es fs ->
 
 -- | /O(min(m,n))/ Zip two vectors with a function that also takes the
 -- elements' indices.
-izipWith :: (Vector v a, Vector v b, Vector v c)
+izipWith :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c)
         => (Int -> a -> b -> c) -> v a -> v b -> v c
 {-# INLINE izipWith #-}
 izipWith f = \xs ys ->
@@ -1214,7 +1215,7 @@ izipWith f = \xs ys ->
                                                          (stream ys))
 
 -- | Zip three vectors and their indices with the given function.
-izipWith3 :: (Vector v a, Vector v b, Vector v c, Vector v d)
+izipWith3 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d)
          => (Int -> a -> b -> c -> d) -> v a -> v b -> v c -> v d
 {-# INLINE izipWith3 #-}
 izipWith3 f = \as bs cs ->
@@ -1222,7 +1223,7 @@ izipWith3 f = \as bs cs ->
                                                           (stream bs)
                                                           (stream cs))
 
-izipWith4 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e)
+izipWith4 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e)
          => (Int -> a -> b -> c -> d -> e) -> v a -> v b -> v c -> v d -> v e
 {-# INLINE izipWith4 #-}
 izipWith4 f = \as bs cs ds ->
@@ -1231,7 +1232,7 @@ izipWith4 f = \as bs cs ds ->
                                                           (stream cs)
                                                           (stream ds))
 
-izipWith5 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+izipWith5 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
              Vector v f)
          => (Int -> a -> b -> c -> d -> e -> f) -> v a -> v b -> v c -> v d
                                                 -> v e -> v f
@@ -1243,7 +1244,7 @@ izipWith5 f = \as bs cs ds es ->
                                                           (stream ds)
                                                           (stream es))
 
-izipWith6 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+izipWith6 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
              Vector v f, Vector v g)
          => (Int -> a -> b -> c -> d -> e -> f -> g)
          -> v a -> v b -> v c -> v d -> v e -> v f -> v g
@@ -1257,28 +1258,28 @@ izipWith6 f = \as bs cs ds es fs ->
                                                           (stream fs))
 
 -- | /O(min(m,n))/ Zip two vectors.
-zip :: (Vector v a, Vector v b, Vector v (a,b)) => v a -> v b -> v (a, b)
+zip :: (WDT(Mutable v), Vector v a, Vector v b, Vector v (a,b)) => v a -> v b -> v (a, b)
 {-# INLINE zip #-}
 zip = zipWith (,)
 
 -- | Zip together three vectors into a vector of triples.
-zip3 :: (Vector v a, Vector v b, Vector v c, Vector v (a, b, c))
+zip3 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v (a, b, c))
      => v a -> v b -> v c -> v (a, b, c)
 {-# INLINE zip3 #-}
 zip3 = zipWith3 (,,)
 
-zip4 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v (a, b, c, d))
+zip4 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v (a, b, c, d))
      => v a -> v b -> v c -> v d -> v (a, b, c, d)
 {-# INLINE zip4 #-}
 zip4 = zipWith4 (,,,)
 
-zip5 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+zip5 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
          Vector v (a, b, c, d, e))
      => v a -> v b -> v c -> v d -> v e -> v (a, b, c, d, e)
 {-# INLINE zip5 #-}
 zip5 = zipWith5 (,,,,)
 
-zip6 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+zip6 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
          Vector v f, Vector v (a, b, c, d, e, f))
      => v a -> v b -> v c -> v d -> v e -> v f -> v (a, b, c, d, e, f)
 {-# INLINE zip6 #-}
@@ -1289,7 +1290,7 @@ zip6 = zipWith6 (,,,,,)
 
 -- | /O(min(m,n))/ Zip the two vectors with the monadic action and yield a
 -- vector of results.
-zipWithM :: (Monad m, Vector v a, Vector v b, Vector v c)
+zipWithM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b, Vector v c)
          => (a -> b -> m c) -> v a -> v b -> m (v c)
 -- FIXME: specialise for ST and IO?
 {-# INLINE zipWithM #-}
@@ -1297,7 +1298,7 @@ zipWithM f = \as bs -> unstreamM $ Bundle.zipWithM f (stream as) (stream bs)
 
 -- | /O(min(m,n))/ Zip the two vectors with a monadic action that also takes
 -- the element index and yield a vector of results.
-izipWithM :: (Monad m, Vector v a, Vector v b, Vector v c)
+izipWithM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a, Vector v b, Vector v c)
          => (Int -> a -> b -> m c) -> v a -> v b -> m (v c)
 {-# INLINE izipWithM #-}
 izipWithM m as bs = unstreamM . Bundle.zipWithM (uncurry m)
@@ -1306,14 +1307,14 @@ izipWithM m as bs = unstreamM . Bundle.zipWithM (uncurry m)
 
 -- | /O(min(m,n))/ Zip the two vectors with the monadic action and ignore the
 -- results.
-zipWithM_ :: (Monad m, Vector v a, Vector v b)
+zipWithM_ :: (Total m, Monad m, Vector v a, Vector v b)
           => (a -> b -> m c) -> v a -> v b -> m ()
 {-# INLINE zipWithM_ #-}
 zipWithM_ f = \as bs -> Bundle.zipWithM_ f (stream as) (stream bs)
 
 -- | /O(min(m,n))/ Zip the two vectors with a monadic action that also takes
 -- the element index and ignore the results.
-izipWithM_ :: (Monad m, Vector v a, Vector v b)
+izipWithM_ :: (Total m, Monad m, Vector v a, Vector v b)
           => (Int -> a -> b -> m c) -> v a -> v b -> m ()
 {-# INLINE izipWithM_ #-}
 izipWithM_ m as bs = Bundle.zipWithM_ (uncurry m)
@@ -1324,18 +1325,18 @@ izipWithM_ m as bs = Bundle.zipWithM_ (uncurry m)
 -- ---------
 
 -- | /O(min(m,n))/ Unzip a vector of pairs.
-unzip :: (Vector v a, Vector v b, Vector v (a,b)) => v (a, b) -> (v a, v b)
+unzip :: (WDT(Mutable v), Vector v a, Vector v b, Vector v (a,b)) => v (a, b) -> (v a, v b)
 {-# INLINE unzip #-}
 unzip xs = (map fst xs, map snd xs)
 
-unzip3 :: (Vector v a, Vector v b, Vector v c, Vector v (a, b, c))
+unzip3 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v (a, b, c))
        => v (a, b, c) -> (v a, v b, v c)
 {-# INLINE unzip3 #-}
 unzip3 xs = (map (\(a, _, _) -> a) xs,
              map (\(_, b, _) -> b) xs,
              map (\(_, _, c) -> c) xs)
 
-unzip4 :: (Vector v a, Vector v b, Vector v c, Vector v d,
+unzip4 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d,
            Vector v (a, b, c, d))
        => v (a, b, c, d) -> (v a, v b, v c, v d)
 {-# INLINE unzip4 #-}
@@ -1344,7 +1345,7 @@ unzip4 xs = (map (\(a, _, _, _) -> a) xs,
              map (\(_, _, c, _) -> c) xs,
              map (\(_, _, _, d) -> d) xs)
 
-unzip5 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+unzip5 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
            Vector v (a, b, c, d, e))
        => v (a, b, c, d, e) -> (v a, v b, v c, v d, v e)
 {-# INLINE unzip5 #-}
@@ -1354,7 +1355,7 @@ unzip5 xs = (map (\(a, _, _, _, _) -> a) xs,
              map (\(_, _, _, d, _) -> d) xs,
              map (\(_, _, _, _, e) -> e) xs)
 
-unzip6 :: (Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
+unzip6 :: (WDT(Mutable v), Vector v a, Vector v b, Vector v c, Vector v d, Vector v e,
            Vector v f, Vector v (a, b, c, d, e, f))
        => v (a, b, c, d, e, f) -> (v a, v b, v c, v d, v e, v f)
 {-# INLINE unzip6 #-}
@@ -1369,13 +1370,13 @@ unzip6 xs = (map (\(a, _, _, _, _, _) -> a) xs,
 -- ---------
 
 -- | /O(n)/ Drop all elements that do not satisfy the predicate.
-filter :: Vector v a => (a -> Bool) -> v a -> v a
+filter :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> v a -> v a
 {-# INLINE filter #-}
 filter f = unstream . inplace (S.filter f) toMax . stream
 
 -- | /O(n)/ Drop all elements that do not satisfy the predicate which is applied to
 -- the values and their indices.
-ifilter :: Vector v a => (Int -> a -> Bool) -> v a -> v a
+ifilter :: (WDT(Mutable v), Vector v a) => (Int -> a -> Bool) -> v a -> v a
 {-# INLINE ifilter #-}
 ifilter f = unstream
           . inplace (S.map snd . S.filter (uncurry f) . S.indexed) toMax
@@ -1391,17 +1392,17 @@ ifilter f = unstream
 -- >>> import Data.Semigroup
 -- >>> V.uniq $ V.fromList [ Arg 1 'a', Arg 1 'b', Arg 1 'c']
 -- [Arg 1 'a']
-uniq :: (Vector v a, Eq a) => v a -> v a
+uniq :: (WDT(Mutable v), Vector v a, Eq a) => v a -> v a
 {-# INLINE uniq #-}
 uniq = unstream . inplace S.uniq toMax . stream
 
 -- | /O(n)/ Map the values and collect the 'Just' results.
-mapMaybe :: (Vector v a, Vector v b) => (a -> Maybe b) -> v a -> v b
+mapMaybe :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> Maybe b) -> v a -> v b
 {-# INLINE mapMaybe #-}
 mapMaybe f = unstream . inplace (S.mapMaybe f) toMax . stream
 
 -- | /O(n)/ Map the indices/values and collect the 'Just' results.
-imapMaybe :: (Vector v a, Vector v b) => (Int -> a -> Maybe b) -> v a -> v b
+imapMaybe :: (WDT(Mutable v), Vector v a, Vector v b) => (Int -> a -> Maybe b) -> v a -> v b
 {-# INLINE imapMaybe #-}
 imapMaybe f = unstream
           . inplace (S.mapMaybe (uncurry f) . S.indexed) toMax
@@ -1409,7 +1410,7 @@ imapMaybe f = unstream
 
 
 -- | /O(n)/ Drop all elements that do not satisfy the monadic predicate.
-filterM :: (Monad m, Vector v a) => (a -> m Bool) -> v a -> m (v a)
+filterM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a) => (a -> m Bool) -> v a -> m (v a)
 {-# INLINE filterM #-}
 filterM f = unstreamM . Bundle.filterM f . stream
 
@@ -1417,7 +1418,7 @@ filterM f = unstreamM . Bundle.filterM f . stream
 -- discard elements returning 'Nothing'.
 --
 -- @since 0.12.2.0
-mapMaybeM :: (Monad m, Vector v a, Vector v b) => (a -> m (Maybe b)) -> v a -> m (v b)
+mapMaybeM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b) => (a -> m (Maybe b)) -> v a -> m (v b)
 {-# INLINE mapMaybeM #-}
 mapMaybeM f = unstreamM . Bundle.mapMaybeM f . stream
 
@@ -1425,7 +1426,7 @@ mapMaybeM f = unstreamM . Bundle.mapMaybeM f . stream
 -- Discard elements returning 'Nothing'.
 --
 -- @since 0.12.2.0
-imapMaybeM :: (Monad m, Vector v a, Vector v b)
+imapMaybeM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b)
       => (Int -> a -> m (Maybe b)) -> v a -> m (v b)
 {-# INLINE imapMaybeM #-}
 imapMaybeM f = unstreamM . Bundle.mapMaybeM (\(i, a) -> f i a) . Bundle.indexed . stream
@@ -1433,13 +1434,13 @@ imapMaybeM f = unstreamM . Bundle.mapMaybeM (\(i, a) -> f i a) . Bundle.indexed 
 -- | /O(n)/ Yield the longest prefix of elements satisfying the predicate.
 -- The current implementation is not copy-free, unless the result vector is
 -- fused away.
-takeWhile :: Vector v a => (a -> Bool) -> v a -> v a
+takeWhile :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> v a -> v a
 {-# INLINE takeWhile #-}
 takeWhile f = unstream . Bundle.takeWhile f . stream
 
 -- | /O(n)/ Drop the longest prefix of elements that satisfy the predicate
 -- without copying.
-dropWhile :: Vector v a => (a -> Bool) -> v a -> v a
+dropWhile :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> v a -> v a
 {-# INLINE_FUSED dropWhile #-}
 -- In the case that the argument is an actual vector,
 -- this is a faster solution than stream fusion.
@@ -1466,14 +1467,14 @@ dropWhile f xs = case findIndex (not . f) xs of
 -- elements that satisfy the predicate and the second one those that don't. The
 -- relative order of the elements is preserved at the cost of a sometimes
 -- reduced performance compared to 'unstablePartition'.
-partition :: Vector v a => (a -> Bool) -> v a -> (v a, v a)
+partition :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> v a -> (v a, v a)
 {-# INLINE partition #-}
 partition f = partition_stream f . stream
 
 -- FIXME: Make this inplace-fusible (look at how stable_partition is
 -- implemented in C++)
 
-partition_stream :: Vector v a => (a -> Bool) -> Bundle u a -> (v a, v a)
+partition_stream :: (WDT (Mutable v), Vector v a) => (a -> Bool) -> Bundle u a -> (v a, v a)
 {-# INLINE_FUSED partition_stream #-}
 partition_stream f s = s `seq` runST (
   do
@@ -1487,11 +1488,11 @@ partition_stream f s = s `seq` runST (
 -- The relative order of the elements is preserved.
 --
 -- @since 0.12.1.0
-partitionWith :: (Vector v a, Vector v b, Vector v c) => (a -> Either b c) -> v a -> (v b, v c)
+partitionWith :: (WDT (Mutable v), Vector v a, Vector v b, Vector v c) => (a -> Either b c) -> v a -> (v b, v c)
 {-# INLINE partitionWith #-}
 partitionWith f = partition_with_stream f . stream
 
-partition_with_stream :: (Vector v a, Vector v b, Vector v c) => (a -> Either b c) -> Bundle u a -> (v b, v c)
+partition_with_stream :: (WDT (Mutable v), Vector v a, Vector v b, Vector v c) => (a -> Either b c) -> Bundle u a -> (v b, v c)
 {-# INLINE_FUSED partition_with_stream #-}
 partition_with_stream f s = s `seq` runST (
   do
@@ -1504,12 +1505,12 @@ partition_with_stream f s = s `seq` runST (
 -- elements that satisfy the predicate and the second one those that don't.
 -- The order of the elements is not preserved, but the operation is often
 -- faster than 'partition'.
-unstablePartition :: Vector v a => (a -> Bool) -> v a -> (v a, v a)
+unstablePartition :: (WDT (Mutable v), Vector v a) => (a -> Bool) -> v a -> (v a, v a)
 {-# INLINE unstablePartition #-}
 unstablePartition f = unstablePartition_stream f . stream
 
 unstablePartition_stream
-  :: Vector v a => (a -> Bool) -> Bundle u a -> (v a, v a)
+  :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> Bundle u a -> (v a, v a)
 {-# INLINE_FUSED unstablePartition_stream #-}
 unstablePartition_stream f s = s `seq` runST (
   do
@@ -1518,7 +1519,7 @@ unstablePartition_stream f s = s `seq` runST (
     v2 <- unsafeFreeze mv2
     return (v1,v2))
 
-unstablePartition_new :: Vector v a => (a -> Bool) -> New v a -> (v a, v a)
+unstablePartition_new :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> New v a -> (v a, v a)
 {-# INLINE_FUSED unstablePartition_new #-}
 unstablePartition_new f (New.New p) = runST (
   do
@@ -1540,13 +1541,13 @@ unstablePartition_new f (New.New p) = runST (
 
 -- | /O(n)/ Split the vector into the longest prefix of elements that satisfy
 -- the predicate and the rest without copying.
-span :: Vector v a => (a -> Bool) -> v a -> (v a, v a)
+span :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> v a -> (v a, v a)
 {-# INLINE span #-}
 span f = break (not . f)
 
 -- | /O(n)/ Split the vector into the longest prefix of elements that do not
 -- satisfy the predicate and the rest without copying.
-break :: Vector v a => (a -> Bool) -> v a -> (v a, v a)
+break :: (WDT(Mutable v), Vector v a) => (a -> Bool) -> v a -> (v a, v a)
 {-# INLINE break #-}
 break f xs = case findIndex f xs of
                Just i  -> (unsafeSlice 0 i xs, unsafeSlice i (length xs - i) xs)
@@ -1625,13 +1626,13 @@ findIndex f = Bundle.findIndex f . stream
 -- or 'Nothing' if no such element exists.
 --
 -- @since 0.12.2.0
-findIndexR :: Vector v a => (a -> Bool) -> v a -> Maybe Int
+findIndexR :: (Vector v a) => (a -> Bool) -> v a -> Maybe Int
 {-# INLINE findIndexR #-}
 findIndexR f v = fmap (length v - 1 -) . Bundle.findIndex f $ streamR v
 
 -- | /O(n)/ Yield the indices of elements satisfying the predicate in ascending
 -- order.
-findIndices :: (Vector v a, Vector v Int) => (a -> Bool) -> v a -> v Int
+findIndices :: (WDT(Mutable v), Vector v a, Vector v Int) => (a -> Bool) -> v a -> v Int
 {-# INLINE findIndices #-}
 findIndices f = unstream
               . inplace (S.map fst . S.filter (f . snd) . S.indexed) toMax
@@ -1646,7 +1647,7 @@ elemIndex x = findIndex (x ==)
 
 -- | /O(n)/ Yield the indices of all occurrences of the given element in
 -- ascending order. This is a specialised version of 'findIndices'.
-elemIndices :: (Vector v a, Vector v Int, Eq a) => a -> v a -> v Int
+elemIndices :: (WDT(Mutable v), Vector v a, Vector v Int, Eq a) => a -> v a -> v Int
 {-# INLINE elemIndices #-}
 elemIndices x = findIndices (x ==)
 
@@ -1997,33 +1998,33 @@ minIndexBy cmpr = fst . Bundle.foldl1' imin . Bundle.indexed . stream
 -- -------------
 
 -- | /O(n)/ Monadic fold.
-foldM :: (Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m a
+foldM :: (Total m, Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m a
 {-# INLINE foldM #-}
 foldM m z = Bundle.foldM m z . stream
 
 -- | /O(n)/ Monadic fold using a function applied to each element and its index.
-ifoldM :: (Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m a
+ifoldM :: (Total m, Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m a
 {-# INLINE ifoldM #-}
 ifoldM m z = Bundle.foldM (uncurry . m) z . Bundle.indexed . stream
 
 -- | /O(n)/ Monadic fold over non-empty vectors.
-fold1M :: (Monad m, Vector v a) => (a -> a -> m a) -> v a -> m a
+fold1M :: (Total m, Monad m, Vector v a) => (a -> a -> m a) -> v a -> m a
 {-# INLINE fold1M #-}
 fold1M m = Bundle.fold1M m . stream
 
 -- | /O(n)/ Monadic fold with strict accumulator.
-foldM' :: (Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m a
+foldM' :: (Total m, Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m a
 {-# INLINE foldM' #-}
 foldM' m z = Bundle.foldM' m z . stream
 
 -- | /O(n)/ Monadic fold with strict accumulator using a function applied to each
 -- element and its index.
-ifoldM' :: (Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m a
+ifoldM' :: (Total m, Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m a
 {-# INLINE ifoldM' #-}
 ifoldM' m z = Bundle.foldM' (uncurry . m) z . Bundle.indexed . stream
 
 -- | /O(n)/ Monadic fold over non-empty vectors with strict accumulator.
-fold1M' :: (Monad m, Vector v a) => (a -> a -> m a) -> v a -> m a
+fold1M' :: (Total m, Monad m, Vector v a) => (a -> a -> m a) -> v a -> m a
 {-# INLINE fold1M' #-}
 fold1M' m = Bundle.fold1M' m . stream
 
@@ -2032,35 +2033,35 @@ discard :: Monad m => m a -> m ()
 discard m = m >> return ()
 
 -- | /O(n)/ Monadic fold that discards the result.
-foldM_ :: (Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m ()
+foldM_ :: (Total m, Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m ()
 {-# INLINE foldM_ #-}
 foldM_ m z = discard . Bundle.foldM m z . stream
 
 -- | /O(n)/ Monadic fold that discards the result using a function applied to
 -- each element and its index.
-ifoldM_ :: (Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m ()
+ifoldM_ :: (Total m, Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m ()
 {-# INLINE ifoldM_ #-}
 ifoldM_ m z = discard . Bundle.foldM (uncurry . m) z . Bundle.indexed . stream
 
 -- | /O(n)/ Monadic fold over non-empty vectors that discards the result.
-fold1M_ :: (Monad m, Vector v a) => (a -> a -> m a) -> v a -> m ()
+fold1M_ :: (Total m, Monad m, Vector v a) => (a -> a -> m a) -> v a -> m ()
 {-# INLINE fold1M_ #-}
 fold1M_ m = discard . Bundle.fold1M m . stream
 
 -- | /O(n)/ Monadic fold with strict accumulator that discards the result.
-foldM'_ :: (Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m ()
+foldM'_ :: (Total m, Monad m, Vector v b) => (a -> b -> m a) -> a -> v b -> m ()
 {-# INLINE foldM'_ #-}
 foldM'_ m z = discard . Bundle.foldM' m z . stream
 
 -- | /O(n)/ Monadic fold with strict accumulator that discards the result
 -- using a function applied to each element and its index.
-ifoldM'_ :: (Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m ()
+ifoldM'_ :: (Total m, Monad m, Vector v b) => (a -> Int -> b -> m a) -> a -> v b -> m ()
 {-# INLINE ifoldM'_ #-}
 ifoldM'_ m z = discard . Bundle.foldM' (uncurry . m) z . Bundle.indexed . stream
 
 -- | /O(n)/ Monad fold over non-empty vectors with strict accumulator
 -- that discards the result.
-fold1M'_ :: (Monad m, Vector v a) => (a -> a -> m a) -> v a -> m ()
+fold1M'_ :: (Total m, Monad m, Vector v a) => (a -> a -> m a) -> v a -> m ()
 {-# INLINE fold1M'_ #-}
 fold1M'_ m = discard . Bundle.fold1M' m . stream
 
@@ -2068,12 +2069,12 @@ fold1M'_ m = discard . Bundle.fold1M' m . stream
 -- ------------------
 
 -- | Evaluate each action and collect the results.
-sequence :: (Monad m, Vector v a, Vector v (m a)) => v (m a) -> m (v a)
+sequence :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v (m a)) => v (m a) -> m (v a)
 {-# INLINE sequence #-}
 sequence = mapM id
 
 -- | Evaluate each action and discard the results.
-sequence_ :: (Monad m, Vector v (m a)) => v (m a) -> m ()
+sequence_ :: (Total m, Monad m, Vector v (m a)) => v (m a) -> m ()
 {-# INLINE sequence_ #-}
 sequence_ = mapM_ id
 
@@ -2091,12 +2092,12 @@ sequence_ = mapM_ id
 -- >>> import qualified Data.Vector as V
 -- >>> V.prescanl (+) 0 (V.fromList [1,2,3,4])
 -- [0,1,3,6]
-prescanl :: (Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
+prescanl :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
 {-# INLINE prescanl #-}
 prescanl f z = unstream . inplace (S.prescanl f z) id . stream
 
 -- | /O(n)/ Left-to-right prescan with strict accumulator.
-prescanl' :: (Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
+prescanl' :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
 {-# INLINE prescanl' #-}
 prescanl' f z = unstream . inplace (S.prescanl' f z) id . stream
 
@@ -2111,12 +2112,12 @@ prescanl' f z = unstream . inplace (S.prescanl' f z) id . stream
 -- >>> import qualified Data.Vector as V
 -- >>> V.postscanl (+) 0 (V.fromList [1,2,3,4])
 -- [1,3,6,10]
-postscanl :: (Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
+postscanl :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
 {-# INLINE postscanl #-}
 postscanl f z = unstream . inplace (S.postscanl f z) id . stream
 
 -- | /O(n)/ Left-to-right postscan with strict accumulator.
-postscanl' :: (Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
+postscanl' :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
 {-# INLINE postscanl' #-}
 postscanl' f z = unstream . inplace (S.postscanl' f z) id . stream
 
@@ -2131,17 +2132,17 @@ postscanl' f z = unstream . inplace (S.postscanl' f z) id . stream
 -- >>> import qualified Data.Vector as V
 -- >>> V.scanl (+) 0 (V.fromList [1,2,3,4])
 -- [0,1,3,6,10]
-scanl :: (Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
+scanl :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
 {-# INLINE scanl #-}
 scanl f z = unstream . Bundle.scanl f z . stream
 
 -- | /O(n)/ Left-to-right scan with strict accumulator.
-scanl' :: (Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
+scanl' :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> a) -> a -> v b -> v a
 {-# INLINE scanl' #-}
 scanl' f z = unstream . Bundle.scanl' f z . stream
 
 -- | /O(n)/ Left-to-right scan over a vector with its index.
-iscanl :: (Vector v a, Vector v b) => (Int -> a -> b -> a) -> a -> v b -> v a
+iscanl :: (WDT(Mutable v), Vector v a, Vector v b) => (Int -> a -> b -> a) -> a -> v b -> v a
 {-# INLINE iscanl #-}
 iscanl f z =
     unstream
@@ -2149,7 +2150,7 @@ iscanl f z =
   . stream
 
 -- | /O(n)/ Left-to-right scan over a vector (strictly) with its index.
-iscanl' :: (Vector v a, Vector v b) => (Int -> a -> b -> a) -> a -> v b -> v a
+iscanl' :: (WDT(Mutable v), Vector v a, Vector v b) => (Int -> a -> b -> a) -> a -> v b -> v a
 {-# INLINE iscanl' #-}
 iscanl' f z =
     unstream
@@ -2174,7 +2175,7 @@ iscanl' f z =
 -- [1,3,3,5,5]
 -- >>> V.scanl1 min (V.empty :: V.Vector Int)
 -- []
-scanl1 :: Vector v a => (a -> a -> a) -> v a -> v a
+scanl1 :: (WDT(Mutable v), Vector v a) => (a -> a -> a) -> v a -> v a
 {-# INLINE scanl1 #-}
 scanl1 f = unstream . inplace (S.scanl1 f) id . stream
 
@@ -2191,7 +2192,7 @@ scanl1 f = unstream . inplace (S.scanl1 f) id . stream
 -- [1,3,3,5,5]
 -- >>> V.scanl1' min (V.empty :: V.Vector Int)
 -- []
-scanl1' :: Vector v a => (a -> a -> a) -> v a -> v a
+scanl1' :: (WDT(Mutable v), Vector v a) => (a -> a -> a) -> v a -> v a
 {-# INLINE scanl1' #-}
 scanl1' f = unstream . inplace (S.scanl1' f) id . stream
 
@@ -2200,37 +2201,37 @@ scanl1' f = unstream . inplace (S.scanl1' f) id . stream
 -- @
 -- prescanr f z = 'reverse' . 'prescanl' (flip f) z . 'reverse'
 -- @
-prescanr :: (Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
+prescanr :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
 {-# INLINE prescanr #-}
 prescanr f z = unstreamR . inplace (S.prescanl (flip f) z) id . streamR
 
 -- | /O(n)/ Right-to-left prescan with strict accumulator.
-prescanr' :: (Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
+prescanr' :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
 {-# INLINE prescanr' #-}
 prescanr' f z = unstreamR . inplace (S.prescanl' (flip f) z) id . streamR
 
 -- | /O(n)/ Right-to-left postscan.
-postscanr :: (Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
+postscanr :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
 {-# INLINE postscanr #-}
 postscanr f z = unstreamR . inplace (S.postscanl (flip f) z) id . streamR
 
 -- | /O(n)/ Right-to-left postscan with strict accumulator.
-postscanr' :: (Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
+postscanr' :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
 {-# INLINE postscanr' #-}
 postscanr' f z = unstreamR . inplace (S.postscanl' (flip f) z) id . streamR
 
 -- | /O(n)/ Right-to-left scan.
-scanr :: (Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
+scanr :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
 {-# INLINE scanr #-}
 scanr f z = unstreamR . Bundle.scanl (flip f) z . streamR
 
 -- | /O(n)/ Right-to-left scan with strict accumulator.
-scanr' :: (Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
+scanr' :: (WDT(Mutable v), Vector v a, Vector v b) => (a -> b -> b) -> b -> v a -> v b
 {-# INLINE scanr' #-}
 scanr' f z = unstreamR . Bundle.scanl' (flip f) z . streamR
 
 -- | /O(n)/ Right-to-left scan over a vector with its index.
-iscanr :: (Vector v a, Vector v b) => (Int -> a -> b -> b) -> b -> v a -> v b
+iscanr :: (WDT(Mutable v), Vector v a, Vector v b) => (Int -> a -> b -> b) -> b -> v a -> v b
 {-# INLINE iscanr #-}
 iscanr f z v =
     unstreamR
@@ -2240,7 +2241,7 @@ iscanr f z v =
  where n = length v
 
 -- | /O(n)/ Right-to-left scan over a vector (strictly) with its index.
-iscanr' :: (Vector v a, Vector v b) => (Int -> a -> b -> b) -> b -> v a -> v b
+iscanr' :: (WDT(Mutable v), Vector v a, Vector v b) => (Int -> a -> b -> b) -> b -> v a -> v b
 {-# INLINE iscanr' #-}
 iscanr' f z v =
     unstreamR
@@ -2262,7 +2263,7 @@ iscanr' f z v =
 -- [5,5,3,3,1]
 -- >>> V.scanr1 min (V.empty :: V.Vector Int)
 -- []
-scanr1 :: Vector v a => (a -> a -> a) -> v a -> v a
+scanr1 :: (WDT(Mutable v), Vector v a) => (a -> a -> a) -> v a -> v a
 {-# INLINE scanr1 #-}
 scanr1 f = unstreamR . inplace (S.scanl1 (flip f)) id . streamR
 
@@ -2280,7 +2281,7 @@ scanr1 f = unstreamR . inplace (S.scanl1 (flip f)) id . streamR
 -- [5,5,3,3,1]
 -- >>> V.scanr1' min (V.empty :: V.Vector Int)
 -- []
-scanr1' :: Vector v a => (a -> a -> a) -> v a -> v a
+scanr1' :: (WDT(Mutable v), Vector v a) => (a -> a -> a) -> v a -> v a
 {-# INLINE scanr1' #-}
 scanr1' f = unstreamR . inplace (S.scanl1' (flip f)) id . streamR
 
@@ -2293,7 +2294,7 @@ toList :: Vector v a => v a -> [a]
 toList = Bundle.toList . stream
 
 -- | /O(n)/ Convert a list to a vector.
-fromList :: Vector v a => [a] -> v a
+fromList :: (WDT(Mutable v), Vector v a) => [a] -> v a
 {-# INLINE fromList #-}
 fromList = unstream . Bundle.fromList
 
@@ -2310,7 +2311,7 @@ fromList = unstream . Bundle.fromList
 -- [1,2,3]
 -- >>> V.fromListN 3 [1]
 -- [1]
-fromListN :: Vector v a => Int -> [a] -> v a
+fromListN :: (WDT(Mutable v), Vector v a) => Int -> [a] -> v a
 {-# INLINE fromListN #-}
 fromListN n = unstream . Bundle.fromListN n
 
@@ -2318,7 +2319,7 @@ fromListN n = unstream . Bundle.fromListN n
 -- -------------------------------
 
 -- | /O(n)/ Convert between different vector types.
-convert :: (Vector v a, Vector w a) => v a -> w a
+convert :: (WDT(Mutable v), WDT(Mutable w), Vector v a, Vector w a) => v a -> w a
 {-# INLINE convert #-}
 convert = unstream . Bundle.reVector . stream
 
@@ -2442,7 +2443,7 @@ stream v = v `seq` n `seq` (Bundle.unfoldr get 0 `Bundle.sized` Exact n)
 -}
 
 -- | /O(n)/ Construct a vector from a 'Bundle'.
-unstream :: Vector v a => Bundle v a -> v a
+unstream :: (WDT(Mutable v), Vector v a) => Bundle v a -> v a
 {-# INLINE unstream #-}
 unstream s = new (New.unstream s)
 
@@ -2468,7 +2469,7 @@ unstream s = new (New.unstream s)
 
 
 -- | /O(1)/ Convert a vector to a 'Bundle', proceeding from right to left.
-streamR :: Vector v a => v a -> Bundle u a
+streamR :: (Vector v a) => v a -> Bundle u a
 {-# INLINE_FUSED streamR #-}
 streamR v = v `seq` n `seq` (Bundle.unfoldr get n `Bundle.sized` Exact n)
   where
@@ -2481,7 +2482,7 @@ streamR v = v `seq` n `seq` (Bundle.unfoldr get n `Bundle.sized` Exact n)
             case basicUnsafeIndexM v i' of Box x -> Just (x, i')
 
 -- | /O(n)/ Construct a vector from a 'Bundle', proceeding from right to left.
-unstreamR :: Vector v a => Bundle v a -> v a
+unstreamR :: (WDT(Mutable v), Vector v a) => Bundle v a -> v a
 {-# INLINE unstreamR #-}
 unstreamR s = new (New.unstreamR s)
 
@@ -2512,30 +2513,30 @@ unstreamR s = new (New.unstreamR s)
 -- a list, so prefer using `unstream`, unless you need to be in a monad.
 --
 -- @since 0.12.2.0
-unstreamM :: (Monad m, Vector v a) => MBundle m u a -> m (v a)
+unstreamM :: (WDT(PrimState m), WDT(Mutable v), Total m, Monad m, Vector v a) => MBundle m u a -> m (v a)
 {-# INLINE_FUSED unstreamM #-}
 unstreamM s = do
                 xs <- MBundle.toList s
                 return $ unstream $ Bundle.unsafeFromList (MBundle.size s) xs
 
-unstreamPrimM :: (PrimMonad m, Vector v a) => MBundle m u a -> m (v a)
+unstreamPrimM :: (WDT(PrimState m), WDT(Mutable v), Total m, PrimMonad m, Vector v a) => MBundle m u a -> m (v a)
 {-# INLINE_FUSED unstreamPrimM #-}
 unstreamPrimM s = M.munstream s >>= unsafeFreeze
 
 -- FIXME: the next two functions are only necessary for the specialisations
-unstreamPrimM_IO :: Vector v a => MBundle IO u a -> IO (v a)
+unstreamPrimM_IO :: (WDT (Mutable v), Vector v a) => MBundle IO u a -> IO (v a)
 {-# INLINE unstreamPrimM_IO #-}
 unstreamPrimM_IO = unstreamPrimM
 
-unstreamPrimM_ST :: Vector v a => MBundle (ST s) u a -> ST s (v a)
+unstreamPrimM_ST :: (WDT (Mutable v), Vector v a) => MBundle (ST s) u a -> ST s (v a)
 {-# INLINE unstreamPrimM_ST #-}
 unstreamPrimM_ST = unstreamPrimM
-
+{-
 {-# RULES
 
 "unstreamM[IO]" unstreamM = unstreamPrimM_IO
 "unstreamM[ST]" unstreamM = unstreamPrimM_ST  #-}
-
+-}
 
 
 
@@ -2543,7 +2544,7 @@ unstreamPrimM_ST = unstreamPrimM
 -- -----------------
 
 -- | Construct a vector from a monadic initialiser.
-new :: Vector v a => New v a -> v a
+new :: (WDT (Mutable v), Vector v a) => New v a -> v a
 {-# INLINE_FUSED new #-}
 new m = m `seq` runST (unsafeFreeze =<< New.run m)
 
@@ -2602,21 +2603,21 @@ liftShowsPrec :: (Vector v a) => (Int -> a -> ShowS) -> ([a] -> ShowS) -> Int ->
 liftShowsPrec _ s _ = s . toList
 
 -- | Generic definition of 'Text.Read.readPrec'.
-readPrec :: (Vector v a, Read a) => Read.ReadPrec (v a)
+readPrec :: (WDT(Mutable v), Vector v a, Read a) => Read.ReadPrec (v a)
 {-# INLINE readPrec #-}
 readPrec = do
   xs <- Read.readPrec
   return (fromList xs)
 
 -- | /Note:/ uses 'ReadS'.
-liftReadsPrec :: (Vector v a) => (Int -> Read.ReadS a) -> ReadS [a] -> Int -> Read.ReadS (v a)
+liftReadsPrec :: (WDT(Mutable v), Vector v a) => (Int -> Read.ReadS a) -> ReadS [a] -> Int -> Read.ReadS (v a)
 liftReadsPrec _ r _ s = [ (fromList v, s') | (v, s') <- r s ]
 
 -- Data and Typeable
 -- -----------------
 
 -- | Generic definion of 'Data.Data.gfoldl' that views a 'Vector' as a list.
-gfoldl :: (Vector v a, Data a)
+gfoldl :: (WDT(Mutable v), Total c, Vector v a, Data a)
        => (forall d b. Data d => c (d -> b) -> d -> c b)
        -> (forall g. g -> c g)
        -> v a
@@ -2637,7 +2638,7 @@ mkType :: String -> DataType
 {-# DEPRECATED mkType "Use Data.Data.mkNoRepType" #-}
 mkType = mkNoRepType
 
-gunfold :: (Vector v a, Data a, HasCallStack)
+gunfold :: (WDT(Mutable v), Total c, Vector v a, Data a, HasCallStack)
         => (forall b r. Data b => c (b -> r) -> c r)
         -> (forall r. r -> c r)
         -> Constr -> c (v a)
@@ -2645,7 +2646,7 @@ gunfold k z c = case constrIndex c of
   1 -> k (z fromList)
   _ -> error "gunfold"
 
-dataCast :: (Vector v a, Data a, Typeable v, Typeable t)
+dataCast :: (WDT(Mutable v), Total c, Total t, Vector v a, Data a, Typeable v, Typeable t)
          => (forall d. Data  d => c (t d)) -> Maybe  (c (v a))
 {-# INLINE dataCast #-}
 dataCast f = gcast1 f

@@ -1,0 +1,2785 @@
+
+./Setup.hs,15
+main main2,3
+
+./tests-inspect/Inspect/DerivingVia.hs,592
+module Inspect.DerivingVia Inspect.DerivingVia12,13
+data Foo Foo29,30
+data Foo a = Foo Foo29,30
+instance VU.IsoUnbox VU-IsoUnbox (Foo a) (Int, a)32,33
+newtype instance instance34,35
+newtype instance VU.MVector s (Foo a) = MV_Int MV_Int34,35
+newtype instance instance35,36
+newtype instance VU.Vector    (Foo a) = V_Int V_Int35,36
+instance VU.Unbox VU-Unbox a => VU-Unbox (Foo a)37,38
+deriving via (Foo a `VU.As`VU.As38,39
+map_Foo map_Foo41,42
+pipeline_Foo pipeline_Foo44,45
+map_OtherFoo map_OtherFoo51,52
+pipeline_OtherFoo pipeline_OtherFoo54,55
+tests tests64,65
+
+./tests-inspect/Inspect/DerivingVia/OtherFoo.hs,507
+module Inspect.DerivingVia.OtherFoo Inspect.DerivingVia.OtherFoo8,9
+data OtherFoo OtherFoo19,20
+data OtherFoo a = OtherFoo OtherFoo19,20
+instance VU.IsoUnbox VU-IsoUnbox (OtherFoo a) (Int, a)22,23
+newtype instance instance24,25
+newtype instance VU.MVector s (OtherFoo a) = MV_Int MV_Int24,25
+newtype instance instance25,26
+newtype instance VU.Vector    (OtherFoo a) = V_Int V_Int25,26
+instance VU.Unbox VU-Unbox a => VU-Unbox (OtherFoo a)27,28
+deriving via (OtherFoo a `VU.As`VU.As28,29
+
+./tests-inspect/Inspect.hs,82
+module Inspect Inspect5,6
+simple_fusion simple_fusion11,12
+tests tests15,16
+
+./tests-inspect/main.hs,38
+module Main Main1,2
+main main9,10
+
+./tests/Boilerplater.hs,116
+module Boilerplater Boilerplater0,1
+testProperties testProperties7,8
+stripPrefix_maybe stripPrefix_maybe22,23
+
+./tests/Setup.hs,15
+main main1,2
+
+./tests/Tests/Move.hs,189
+module Tests.Move Tests.Move0,1
+basicMove basicMove20,21
+testMove testMove25,26
+checkPermutations checkPermutations34,35
+testPermutations testPermutations40,41
+tests tests43,44
+
+./tests/Tests/Vector.hs,56
+module Tests.Vector Tests.Vector1,2
+tests tests9,10
+
+./tests/Tests/Bundle.hs,279
+module Tests.Bundle Tests.Bundle1,2
+type CommonContext CommonContext17,18
+testSanity testSanity20,21
+testPolymorphicFunctions testPolymorphicFunctions31,32
+testBoolFunctions testBoolFunctions149,150
+testBundleFunctions testBundleFunctions155,156
+tests tests159,160
+
+./tests/Tests/Vector/Primitive.hs,199
+module Tests.Vector.Primitive Tests.Vector.Primitive1,2
+testGeneralPrimitiveVector testGeneralPrimitiveVector13,14
+testNumericPrimitiveVector testNumericPrimitiveVector26,27
+tests tests33,34
+
+./tests/Tests/Vector/Unboxed.hs,342
+module Tests.Vector.Unboxed Tests.Vector.Unboxed1,2
+testGeneralUnboxedVector testGeneralUnboxedVector12,13
+testUnitUnboxedVector testUnitUnboxedVector22,23
+testBoolUnboxedVector testBoolUnboxedVector27,28
+testNumericUnboxedVector testNumericUnboxedVector37,38
+testTupleUnboxedVector testTupleUnboxedVector47,48
+tests tests52,53
+
+./tests/Tests/Vector/Storable.hs,193
+module Tests.Vector.Storable Tests.Vector.Storable1,2
+testGeneralStorableVector testGeneralStorableVector13,14
+testNumericStorableVector testNumericStorableVector26,27
+tests tests33,34
+
+./tests/Tests/Vector/Property.hs,1532
+module Tests.Vector.PropertyTests.Vector.Property1,2
+type CommonContext CommonContext60,61
+type VanillaContext VanillaContext61,62
+type VectorContext VectorContext63,64
+testSanity testSanity74,75
+testPolymorphicFunctions testPolymorphicFunctions88,89
+liftRunST liftRunST583,584
+hoistST hoistST586,587
+partitionWith partitionWith590,591
+testTuplyFunctions testTuplyFunctions605,606
+testOrdFunctions testOrdFunctions622,623
+listMaxIndexFMW listMaxIndexFMW657,658
+newtype LastMaxWith LastMaxWith660,661
+newtype LastMaxWith a i = LMW LMW660,661
+newtype LastMaxWith a i = LMW {extractLMW:extractLMW660,661
+instance (O(Ord a) => Semigroup (LastMaxWith a i)662,663
+    (<(<>)663,664
+newtype FirstMaxWith FirstMaxWith666,667
+newtype FirstMaxWith a i = FMW FMW666,667
+newtype FirstMaxWith a i = FMW {extractFMW:extractFMW666,667
+instance (O(Ord a) => Semigroup (FirstMaxWith a i)668,669
+    (<(<>)669,670
+testEnumFunctions testEnumFunctions674,675
+testMonoidFunctions testMonoidFunctions706,707
+testFunctorFunctions testFunctorFunctions715,716
+testMonadFunctions testMonadFunctions722,723
+testSequenceFunctions testSequenceFunctions742,743
+testApplicativeFunctions testApplicativeFunctions750,751
+testAlternativeFunctions testAlternativeFunctions760,761
+testBoolFunctions testBoolFunctions769,770
+testNumFunctions testNumFunctions776,777
+testNestedVectorFunctions testNestedVectorFunctions783,784
+testDataFunctions testDataFunctions791,792
+testUnstream testUnstream803,804
+
+./tests/Tests/Vector/Boxed.hs,222
+module Tests.Vector.Boxed Tests.Vector.Boxed1,2
+testGeneralBoxedVector testGeneralBoxedVector13,14
+testBoolBoxedVector testBoolBoxedVector29,30
+testNumericBoxedVector testNumericBoxedVector38,39
+tests tests45,46
+
+./tests/Tests/Vector/UnitTests.hs,953
+module Tests.Vector.UnitTests Tests.Vector.UnitTests2,3
+import import24,25
+newtype Aligned Aligned27,28
+newtype Aligned a = Aligned { getAligned getAligned27,28
+instance (S(Storable a) => Storable (Aligned a)29,30
+  sizeOf sizeOf30,31
+  alignment alignment31,32
+  peek peek32,33
+  poke poke33,34
+checkAddressAlignment checkAddressAlignment35,36
+withBoundsChecksOnly withBoundsChecksOnly46,47
+tests tests52,53
+testsSliceOutOfBounds testsSliceOutOfBounds99,100
+sliceTest sliceTest116,117
+testTakeOutOfMemory testTakeOutOfMemory145,146
+regression188 regression188157,158
+alignedDoubleVec alignedDoubleVec161,162
+alignedIntVec alignedIntVec164,165
+_f _f169,170
+checkMonadFix checkMonadFix173,174
+mkArrayRoundtrip mkArrayRoundtrip186,187
+toFromArray toFromArray201,202
+toFromArraySlice toFromArraySlice206,207
+toFromArraySliceUnsafe toFromArraySliceUnsafe214,215
+toFromMutableArray toFromMutableArray222,223
+
+./tests/Utilities.hs,6054
+module Utilities Utilities2,3
+instance Show Show a => Show (S-Bundle v a)21,22
+    show show22,23
+instance Arbitrary Arbitrary a => Arbitrary (DV-Vector a)25,26
+    arbitrary arbitrary26,27
+instance CoArbitrary CoArbitrary a => CoArbitrary (DV-Vector a)28,29
+    coarbitrary coarbitrary29,30
+instance (A(Arbitrary a, DVP-Prim a) => Arbitrary (DVP-Vector a)31,32
+    arbitrary arbitrary32,33
+instance (C(CoArbitrary a, DVP-Prim a) => CoArbitrary (DVP-Vector a)34,35
+    coarbitrary coarbitrary35,36
+instance (A(Arbitrary a, DVS-Storable a) => Arbitrary (DVS-Vector a)37,38
+    arbitrary arbitrary38,39
+instance (C(CoArbitrary a, DVS-Storable a) => CoArbitrary (DVS-Vector a)40,41
+    coarbitrary coarbitrary41,42
+instance (A(Arbitrary a, DVU-Unbox a) => Arbitrary (DVU-Vector a)43,44
+    arbitrary arbitrary44,45
+instance (C(CoArbitrary a, DVU-Unbox a) => CoArbitrary (DVU-Vector a)46,47
+    coarbitrary coarbitrary47,48
+instance Arbitrary Arbitrary a => Arbitrary (S-Bundle v a)49,50
+    arbitrary arbitrary50,51
+instance CoArbitrary CoArbitrary a => CoArbitrary (S-Bundle v a)52,53
+    coarbitrary coarbitrary53,54
+instance (A(Arbitrary a, Arbitrary b) => Arbitrary (Writer a b)55,56
+    arbitrary arbitrary56,57
+instance CoArbitrary CoArbitrary a => CoArbitrary (Writer a ())60,61
+    coarbitrary coarbitrary61,62
+class (Testable (EqTest a), Conclusion (EqTest a)) => TestData TestData63,64
+  type Model Model64,65
+  model model65,66
+  unmodel unmodel66,67
+  type EqTest EqTest68,69
+  equal equal69,70
+instance (E(Eq a, TestData a) => TestData (S-Bundle v a)71,72
+  type Model Model72,73
+  model model73,74
+  unmodel unmodel74,75
+  type EqTest EqTest76,77
+  equal equal77,78
+instance (E(Eq a, TestData a) => TestData (DV-Vector a)79,80
+  type Model Model80,81
+  model model81,82
+  unmodel unmodel82,83
+  type EqTest EqTest84,85
+  equal equal85,86
+instance (E(Eq a, DVP-Prim a, TestData a) => TestData (DVP-Vector a)87,88
+  type Model Model88,89
+  model model89,90
+  unmodel unmodel90,91
+  type EqTest EqTest92,93
+  equal equal93,94
+instance (E(Eq a, DVS-Storable a, TestData a) => TestData (DVS-Vector a)95,96
+  type Model Model96,97
+  model model97,98
+  unmodel unmodel98,99
+  type EqTest EqTest100,101
+  equal equal101,102
+instance (E(Eq a, DVU-Unbox a, TestData a) => TestData (DVU-Vector a)103,104
+  type Model Model104,105
+  model model105,106
+  unmodel unmodel106,107
+  type EqTest EqTest108,109
+  equal equal109,110
+instance TestData TestData ty112,113
+instance TestData ty where { {112,113
+bimapEither bimapEither127,128
+instance (E(Eq a, TestData a) => TestData (Maybe a)133,134
+  type Model Model134,135
+  model model135,136
+  unmodel unmodel136,137
+  type EqTest EqTest138,139
+  equal equal139,140
+instance (E(Eq a, TestData a, Eq b, TestData b) => TestData (Either a b)141,142
+  type Model Model142,143
+  model model143,144
+  unmodel unmodel144,145
+  type EqTest EqTest146,147
+  equal equal147,148
+instance (E(Eq a, TestData a) => TestData [a]149,150
+  type Model Model150,151
+  model model151,152
+  unmodel unmodel152,153
+  type EqTest EqTest154,155
+  equal equal155,156
+instance (E(Eq a, TestData a) => TestData (Identity a)157,158
+  type Model Model158,159
+  model model159,160
+  unmodel unmodel160,161
+  type EqTest EqTest162,163
+  equal equal163,164
+instance (E(Eq a, TestData a, Eq b, TestData b, Monoid a) => TestData (Writer a b)165,166
+  type Model Model166,167
+  model model167,168
+  unmodel unmodel168,169
+  type EqTest EqTest170,171
+  equal equal171,172
+instance (E(Eq a, Eq b, TestData a, TestData b) => TestData (a, b)173,174
+  type Model Model174,175
+  model model175,176
+  unmodel unmodel176,177
+  type EqTest EqTest178,179
+  equal equal179,180
+instance (E(Eq a, Eq b, Eq c, TestData a, TestData b, TestData c) => TestData (a, b, c)181,182
+  type Model Model182,183
+  model model183,184
+  unmodel unmodel184,185
+  type EqTest EqTest186,187
+  equal equal187,188
+instance (A(Arbitrary a, Show a, TestData a, TestData b) => TestData (a -> b)189,190
+  type Model Model190,191
+  model model191,192
+  unmodel unmodel192,193
+  type EqTest EqTest194,195
+  equal equal195,196
+newtype P P197,198
+newtype P a = P { unP unP197,198
+instance TestData TestData a => Testable (P a)199,200
+  property property200,201
+infix 4 `eq`eq202,203
+class Conclusion Conclusion206,207
+  type Predicate Predicate207,208
+  predicate predicate209,210
+instance Conclusion Conclusion Property211,212
+  type Predicate Predicate212,213
+  predicate predicate214,215
+instance Conclusion Conclusion p => Conclusion (a -> p)216,217
+  type Predicate Predicate217,218
+  predicate predicate219,220
+infixr infixr221,222
+(=(===>)222,223
+p p223,224
+notNull2 notNull2225,226
+notNullS2 notNullS2226,227
+index_value_pairs index_value_pairs229,230
+indices indices238,239
+singleton singleton247,248
+snoc snoc248,249
+generate generate249,250
+generateM generateM250,251
+slice slice251,252
+backpermute backpermute252,253
+prescanl prescanl253,254
+postscanl postscanl254,255
+prescanr prescanr255,256
+postscanr postscanr256,257
+accum accum258,259
+(/(//)268,269
+xs xs269,270
+withIndexFirst withIndexFirst279,280
+modifyList modifyList281,282
+writeList writeList287,288
+imap imap290,291
+imapM imapM293,294
+imapM_ imapM_296,297
+izipWith izipWith299,300
+izipWithM izipWithM302,303
+izipWithM_ izipWithM_305,306
+izipWith3 izipWith3308,309
+ifilter ifilter311,312
+mapMaybe mapMaybe314,315
+imapMaybe imapMaybe317,318
+indexedLeftFold indexedLeftFold320,321
+ifoldl ifoldl322,323
+iscanl iscanl325,326
+iscanr iscanr328,329
+ifoldr ifoldr331,332
+ifoldM ifoldM334,335
+ifoldrM ifoldrM337,338
+ifoldM_ ifoldM_340,341
+minIndex minIndex343,344
+maxIndex maxIndex349,350
+iterateNM iterateNM355,356
+unfoldrM unfoldrM363,364
+limitUnfolds limitUnfolds372,373
+
+./tests/Main.hs,38
+module Main Main0,1
+main main9,10
+
+./tests/doctests.hs,15
+main main2,3
+
+./internal/GenUnboxTuple.hs,62
+module Main Main2,3
+main main8,9
+generate generate13,14
+
+./benchmarks/TestData/ParenTree.hs,75
+module TestData.ParenTree TestData.ParenTree0,1
+parenTree parenTree4,5
+
+./benchmarks/TestData/Graph.hs,109
+module TestData.GraphTestData.Graph0,1
+randomGraph randomGraph14,15
+addRandomEdges addRandomEdges29,30
+
+./benchmarks/Algo/Spectral.hs,63
+module Algo.Spectral Algo.Spectral0,1
+spectral spectral6,7
+
+./benchmarks/Algo/Rootfix.hs,59
+module Algo.Rootfix Algo.Rootfix0,1
+rootfix rootfix4,5
+
+./benchmarks/Algo/MutableSet.hs,71
+module Algo.MutableSetAlgo.MutableSet2,3
+mutableSet mutableSet9,10
+
+./benchmarks/Algo/FindIndexR.hs,155
+module Algo.FindIndexR Algo.FindIndexR0,1
+findIndexR findIndexR6,7
+findIndexR_naive findIndexR_naive10,11
+findIndexR_manual findIndexR_manual17,18
+
+./benchmarks/Algo/Tridiag.hs,59
+module Algo.Tridiag Algo.Tridiag0,1
+tridiag tridiag4,5
+
+./benchmarks/Algo/HybCC.hs,51
+module Algo.HybCC Algo.HybCC0,1
+hybcc hybcc4,5
+
+./benchmarks/Algo/ListRank.hs,62
+module Algo.ListRankAlgo.ListRank0,1
+listRank listRank5,6
+
+./benchmarks/Algo/AwShCC.hs,55
+module Algo.AwShCC Algo.AwShCC1,2
+awshcc awshcc5,6
+
+./benchmarks/Algo/Quickhull.hs,67
+module Algo.Quickhull Algo.Quickhull0,1
+quickhull quickhull4,5
+
+./benchmarks/Algo/Leaffix.hs,59
+module Algo.Leaffix Algo.Leaffix0,1
+leaffix leaffix4,5
+
+./benchmarks/Main.hs,504
+module Main Main0,1
+newtype VectorSize VectorSize26,27
+instance IsOption IsOption VectorSize28,29
+  defaultValue defaultValue29,30
+  parseValue parseValue30,31
+  optionName optionName31,32
+  optionHelp optionHelp32,33
+newtype RandomSeed RandomSeed34,35
+instance IsOption IsOption RandomSeed36,37
+  defaultValue defaultValue37,38
+  parseValue parseValue38,39
+  optionName optionName39,40
+  optionHelp optionHelp40,41
+indexFindThreshold indexFindThreshold42,43
+main main45,46
+
+./src/Data/Vector.hs,8918
+module Data.Vector Data.Vector29,30
+data Vector Vector221,222
+data Vector a = Vector Vector221,222
+liftRnfV liftRnfV226,227
+instance NFData NFData a => NFData (Vector a)229,230
+  rnf rnf230,231
+instance NFData1 NFData1 Vector235,236
+  liftRnf liftRnf236,237
+instance Show Show a => Show (Vector a)240,241
+  showsPrec showsPrec241,242
+instance Read Read a => Read (Vector a)243,244
+  readPrec readPrec244,245
+  readListPrec readListPrec245,246
+instance Show1 Show1 Vector247,248
+    liftShowsPrec liftShowsPrec248,249
+instance Read1 Read1 Vector250,251
+    liftReadsPrec liftReadsPrec251,252
+instance Exts.IsList Exts-IsList (Vector a)253,254
+  type Item Item254,255
+  fromList fromList255,256
+  fromListN fromListN256,257
+  toList toList257,258
+instance Data Data a => Data (Vector a)259,260
+  gfoldl gfoldl260,261
+  toConstr toConstr261,262
+  gunfold gunfold262,263
+  dataTypeOf dataTypeOf263,264
+  dataCast1 dataCast1264,265
+type instance instance266,267
+instance G.Vector G-Vector Vector a268,269
+  basicUnsafeFreeze basicUnsafeFreeze270,271
+  basicUnsafeThaw basicUnsafeThaw274,275
+  basicLength basicLength278,279
+  basicUnsafeSlice basicUnsafeSlice281,282
+  basicUnsafeIndexM basicUnsafeIndexM284,285
+  basicUnsafeCopy basicUnsafeCopy287,288
+instance Eq Eq a => Eq (Vector a)291,292
+  xs xs293,294
+instance Ord Ord a => Ord (Vector a)296,297
+  compare compare298,299
+  xs xs301,302
+instance Eq1 Eq1 Vector312,313
+  liftEq liftEq313,314
+instance Ord1 Ord1 Vector315,316
+  liftCompare liftCompare316,317
+instance Semigroup Semigroup (Vector a)318,319
+  (<(<>)320,321
+  sconcat sconcat323,324
+instance Monoid Monoid (Vector a)325,326
+  mempty mempty327,328
+  mappend mappend330,331
+  mconcat mconcat333,334
+instance Functor Functor Vector335,336
+  fmap fmap337,338
+  (<(<$)340,341
+instance Monad Monad Vector342,343
+  return return344,345
+  (>(>>=)347,348
+  fail fail351,352
+instance Fail.MonadFail Fail-MonadFail Vector355,356
+  fail fail357,358
+instance MonadPlus MonadPlus Vector359,360
+  mzero mzero361,362
+  mplus mplus364,365
+instance MonadZip MonadZip Vector366,367
+  mzip mzip368,369
+  mzipWith mzipWith371,372
+  munzip munzip374,375
+instance MonadFix MonadFix Vector379,380
+  mfix mfix386,387
+instance Applicative.Applicative Applicative-Applicative Vector400,401
+  pure pure402,403
+  (<(<*>)405,406
+instance Applicative.Alternative Applicative-Alternative Vector407,408
+  empty empty409,410
+  (<(<|>)412,413
+instance Foldable.Foldable Foldable-Foldable Vector414,415
+  foldr foldr416,417
+  foldl foldl419,420
+  foldr1 foldr1422,423
+  foldl1 foldl1425,426
+  foldr' foldr'428,429
+  foldl' foldl'431,432
+  toList toList434,435
+  length length437,438
+  null null440,441
+  elem elem443,444
+  maximum maximum446,447
+  minimum minimum449,450
+  sum sum452,453
+  product product455,456
+instance Traversable.Traversable Traversable-Traversable Vector457,458
+  traverse traverse459,460
+  mapM mapM467,468
+  sequence sequence470,471
+length length476,477
+null null481,482
+(!(!)489,490
+(!(!?)494,495
+head head499,500
+last last504,505
+unsafeIndex unsafeIndex509,510
+unsafeHead unsafeHead514,515
+unsafeLast unsafeLast519,520
+indexM indexM544,545
+headM headM550,551
+lastM lastM556,557
+unsafeIndexM unsafeIndexM562,563
+unsafeHeadM unsafeHeadM568,569
+unsafeLastM unsafeLastM574,575
+slice slice583,584
+init init592,593
+tail tail598,599
+take take604,605
+drop drop610,611
+splitAt splitAt620,621
+uncons uncons628,629
+unsnoc unsnoc636,637
+unsafeSlice unsafeSlice642,643
+unsafeInit unsafeInit651,652
+unsafeTail unsafeTail657,658
+unsafeTake unsafeTake663,664
+unsafeDrop unsafeDrop669,670
+empty empty677,678
+singleton singleton682,683
+replicate replicate687,688
+generate generate693,694
+iterateN iterateN712,713
+unfoldr unfoldr725,726
+unfoldrN unfoldrN734,735
+unfoldrExactN unfoldrExactN745,746
+unfoldrM unfoldrM753,754
+unfoldrNM unfoldrNM761,762
+unfoldrExactNM unfoldrExactNM770,771
+constructN constructN778,779
+constructrN constructrN787,788
+enumFromN enumFromN798,799
+enumFromStepN enumFromStepN806,807
+enumFromTo enumFromTo814,815
+enumFromThenTo enumFromThenTo822,823
+cons cons830,831
+snoc snoc835,836
+(+(++)841,842
+concat concat846,847
+replicateM replicateM855,856
+generateM generateM861,862
+iterateNM iterateNM872,873
+create create881,882
+createT createT887,888
+force force906,907
+(/(//)918,919
+update update929,930
+update_ update_947,948
+unsafeUpd unsafeUpd955,956
+unsafeUpdate unsafeUpdate960,961
+unsafeUpdate_ unsafeUpdate_965,966
+accum accum980,981
+accumulate accumulate995,996
+accumulate_ accumulate_1015,1016
+unsafeAccum unsafeAccum1024,1025
+unsafeAccumulate unsafeAccumulate1029,1030
+unsafeAccumulate_ unsafeAccumulate_1037,1038
+reverse reverse1043,1044
+backpermute backpermute1052,1053
+unsafeBackpermute unsafeBackpermute1057,1058
+modify modify1071,1072
+indexed indexed1079,1080
+map map1087,1088
+imap imap1092,1093
+concatMap concatMap1097,1098
+mapM mapM1106,1107
+imapM imapM1112,1113
+mapM_ mapM_1118,1119
+imapM_ imapM_1124,1125
+forM forM1130,1131
+forM_ forM_1136,1137
+iforM iforM1144,1145
+iforM_ iforM_1152,1153
+zipWith zipWith1160,1161
+zipWith3 zipWith31165,1166
+zipWith4 zipWith41169,1170
+zipWith5 zipWith51174,1175
+zipWith6 zipWith61180,1181
+izipWith izipWith1188,1189
+izipWith3 izipWith31193,1194
+izipWith4 izipWith41198,1199
+izipWith5 izipWith51203,1204
+izipWith6 izipWith61209,1210
+zip zip1216,1217
+zip3 zip31221,1222
+zip4 zip41225,1226
+zip5 zip51230,1231
+zip6 zip61235,1236
+unzip unzip1244,1245
+unzip3 unzip31248,1249
+unzip4 unzip41252,1253
+unzip5 unzip51256,1257
+unzip6 unzip61261,1262
+zipWithM zipWithM1271,1272
+izipWithM izipWithM1277,1278
+zipWithM_ zipWithM_1283,1284
+izipWithM_ izipWithM_1289,1290
+filter filter1297,1298
+ifilter ifilter1303,1304
+uniq uniq1317,1318
+mapMaybe mapMaybe1322,1323
+imapMaybe imapMaybe1327,1328
+catMaybes catMaybes1334,1335
+filterM filterM1339,1340
+mapMaybeM mapMaybeM1347,1348
+imapMaybeM imapMaybeM1355,1356
+takeWhile takeWhile1362,1363
+dropWhile dropWhile1368,1369
+partition partition1379,1380
+partitionWith partitionWith1388,1389
+unstablePartition unstablePartition1396,1397
+span span1402,1403
+break break1408,1409
+groupBy groupBy1428,1429
+group group1448,1449
+infix 4 `elem`elem1455,1456
+infix 4 `notElem`notElem1461,1462
+find find1469,1470
+findIndex findIndex1475,1476
+findIndices findIndices1481,1482
+elemIndex elemIndex1488,1489
+elemIndices elemIndices1494,1495
+foldl foldl1502,1503
+foldl1 foldl11507,1508
+foldl' foldl'1512,1513
+foldl1' foldl1'1517,1518
+foldr foldr1522,1523
+foldr1 foldr11527,1528
+foldr' foldr'1532,1533
+foldr1' foldr1'1537,1538
+ifoldl ifoldl1542,1543
+ifoldl' ifoldl'1548,1549
+ifoldr ifoldr1553,1554
+ifoldr' ifoldr'1559,1560
+foldMap foldMap1570,1571
+foldMap' foldMap'1580,1581
+all all1599,1600
+any any1614,1615
+and and1627,1628
+or or1640,1641
+sum sum1653,1654
+product product1666,1667
+maximum maximum1683,1684
+maximumBy maximumBy1700,1701
+maximumOn maximumOn1715,1716
+minimum minimum1732,1733
+minimumBy minimumBy1748,1749
+minimumOn minimumOn1763,1764
+maxIndex maxIndex1769,1770
+maxIndexBy maxIndexBy1785,1786
+minIndex minIndex1791,1792
+minIndexBy minIndexBy1806,1807
+foldM foldM1814,1815
+ifoldM ifoldM1819,1820
+fold1M fold1M1824,1825
+foldM' foldM'1829,1830
+ifoldM' ifoldM'1835,1836
+fold1M' fold1M'1840,1841
+foldM_ foldM_1845,1846
+ifoldM_ ifoldM_1851,1852
+fold1M_ fold1M_1856,1857
+foldM'_ foldM'_1861,1862
+ifoldM'_ ifoldM'_1867,1868
+fold1M'_ fold1M'_1873,1874
+sequence sequence1881,1882
+sequence_ sequence_1886,1887
+prescanl prescanl1904,1905
+prescanl' prescanl'1909,1910
+postscanl postscanl1924,1925
+postscanl' postscanl'1929,1930
+scanl scanl1944,1945
+scanl' scanl'1949,1950
+iscanl iscanl1956,1957
+iscanl' iscanl'1963,1964
+scanl1 scanl11984,1985
+scanl1' scanl1'2001,2002
+prescanr prescanr2010,2011
+prescanr' prescanr'2015,2016
+postscanr postscanr2020,2021
+postscanr' postscanr'2025,2026
+scanr scanr2030,2031
+scanr' scanr'2035,2036
+iscanr iscanr2042,2043
+iscanr' iscanr'2049,2050
+scanr1 scanr12066,2067
+scanr1' scanr1'2084,2085
+eqBy eqBy2095,2096
+cmpBy cmpBy2105,2106
+toList toList2112,2113
+fromList fromList2117,2118
+fromListN fromListN2126,2127
+fromArray fromArray2136,2137
+toArray toArray2143,2144
+toArraySlice toArraySlice2156,2157
+unsafeFromArraySlice unsafeFromArraySlice2168,2169
+unsafeFreeze unsafeFreeze2181,2182
+freeze freeze2186,2187
+unsafeThaw unsafeThaw2215,2216
+thaw thaw2220,2221
+unsafeCopy unsafeCopy2226,2227
+copy copy2232,2233
+
+./src/Data/Vector/Fusion/Stream/Monadic.hs,81
+module Data.Vector.Fusion.Stream.MonadicData.Vector.Fusion.Stream.Monadic12,13
+
+./src/Data/Vector/Fusion/Bundle/Monadic.hs,3935
+module Data.Vector.Fusion.Bundle.Monadic Data.Vector.Fusion.Bundle.Monadic22,23
+data Chunk Chunk125,126
+data Chunk v a = Chunk Chunk125,126
+data (M(128,129
+  Bundle Bundle129,130
+  Bundle { sElems sElems129,130
+         , sChunks sChunks130,131
+         , sVector sVector131,132
+         , sSize sSize132,133
+lift lift136,137
+fromStream fromStream142,143
+chunks chunks149,150
+elements elements153,154
+size size158,159
+sized sized163,164
+length length171,172
+null null177,178
+type Bundleable Bundleable184,185
+empty empty186,187
+singleton singleton191,192
+replicate replicate196,197
+replicateM replicateM207,208
+generate generate213,214
+generateM generateM218,219
+cons cons223,224
+snoc snoc228,229
+(+(++)234,235
+Bundle Bundle236,237
+head head242,243
+last last247,248
+(!(!!)253,254
+b b255,256
+(!(!?)259,260
+b b261,262
+slice slice267,268
+init init275,276
+tail tail280,281
+take take285,286
+drop drop290,291
+instance (f(forall s a- m @ Step s a) => Functor (Bundle m v)298,299
+  fmap fmap300,301
+  (<(<$)302,303
+map map305,306
+mapM mapM310,311
+mapM_ mapM_315,316
+trans trans320,321
+unbox unbox326,327
+indexed indexed334,335
+indexedR indexedR340,341
+zipWithM zipWithM345,346
+zipWithM_ zipWithM_357,358
+zipWith3M zipWith3M361,362
+zipWith4M zipWith4M368,369
+zipWith5M zipWith5M375,376
+zipWith6M zipWith6M382,383
+zipWith zipWith390,391
+zipWith3 zipWith3394,395
+zipWith4 zipWith4399,400
+zipWith5 zipWith5405,406
+zipWith6 zipWith6411,412
+zip zip417,418
+zip3 zip3421,422
+zip4 zip4425,426
+zip5 zip5430,431
+zip6 zip6435,436
+eqBy eqBy444,445
+cmpBy cmpBy457,458
+filter filter465,466
+filterM filterM470,471
+mapMaybeM mapMaybeM477,478
+takeWhile takeWhile482,483
+takeWhileM takeWhileM487,488
+dropWhile dropWhile492,493
+dropWhileM dropWhileM497,498
+infix 4 `elem`elem504,505
+infix 4 `notElem`notElem510,511
+find find518,519
+findM findM524,525
+findIndex findIndex530,531
+findIndexM findIndexM536,537
+foldl foldl544,545
+foldlM foldlM549,550
+foldM foldM554,555
+foldl1 foldl1559,560
+foldl1M foldl1M564,565
+fold1M fold1M569,570
+foldl' foldl'574,575
+foldlM' foldlM'579,580
+foldM' foldM'584,585
+foldl1' foldl1'589,590
+foldl1M' foldl1M'595,596
+fold1M' fold1M'600,601
+foldr foldr605,606
+foldrM foldrM610,611
+foldr1 foldr1615,616
+foldr1M foldr1M620,621
+and and627,628
+or or631,632
+concatMap concatMap635,636
+concatMapM concatMapM639,640
+flatten flatten644,645
+unfoldr unfoldr653,654
+unfoldrM unfoldrM658,659
+unfoldrN unfoldrN663,664
+unfoldrNM unfoldrNM668,669
+unfoldrExactN unfoldrExactN675,676
+unfoldrExactNM unfoldrExactNM682,683
+iterateNM iterateNM689,690
+iterateN iterateN696,697
+prescanl prescanl704,705
+prescanlM prescanlM709,710
+prescanl' prescanl'714,715
+prescanlM' prescanlM'719,720
+postscanl postscanl724,725
+postscanlM postscanlM729,730
+postscanl' postscanl'734,735
+postscanlM' postscanlM'739,740
+scanl scanl744,745
+scanlM scanlM749,750
+scanl' scanl'754,755
+scanlM' scanlM'759,760
+scanl1 scanl1764,765
+scanl1M scanl1M769,770
+scanl1' scanl1'774,775
+scanl1M' scanl1M'780,781
+enumFromStepN enumFromStepN793,794
+enumFromTo enumFromTo801,802
+enumFromTo_small enumFromTo_small809,810
+enumFromTo_int enumFromTo_int861,862
+enumFromTo_intlike enumFromTo_intlike878,879
+"enumFromTo<Int32> "enumFromTo<Int32>909,910
+enumFromTo_big_word enumFromTo_big_word916,917
+enumFromTo_big_int enumFromTo_big_int960,961
+enumFromTo_char enumFromTo_char989,990
+enumFromTo_double enumFromTo_double1014,1015
+enumFromThenTo enumFromThenTo1063,1064
+toList toList1073,1074
+fromList fromList1078,1079
+fromListN fromListN1083,1084
+unsafeFromList unsafeFromList1088,1089
+fromVector fromVector1092,1093
+fromVectors fromVectors1111,1112
+concatVectors concatVectors1139,1140
+reVector reVector1172,1173
+
+./src/Data/Vector/Fusion/Bundle/Size.hs,677
+module Data.Vector.Fusion.Bundle.Size Data.Vector.Fusion.Bundle.Size12,13
+data Size Size19,20
+data Size = Exact Exact19,20
+          | Max Max20,21
+          | Unknown Unknown21,22
+instance Num Num Size24,25
+  Exact Exact25,26
+  Max Max28,29
+  _ _31,32
+  Exact Exact34,35
+  Max Max37,38
+  _ _41,42
+  fromInteger fromInteger44,45
+  (*(*)46,47
+  abs abs47,48
+  signum signum48,49
+checkedAdd checkedAdd51,52
+checkedSubtract checkedSubtract61,62
+clampedSubtract clampedSubtract71,72
+smaller smaller81,82
+smallerThan smallerThan94,95
+larger larger102,103
+toMax toMax113,114
+lowerBound lowerBound119,120
+upperBound upperBound124,125
+
+./src/Data/Vector/Fusion/Bundle.hs,2625
+module Data.Vector.Fusion.Bundle Data.Vector.Fusion.Bundle16,17
+type Bundle Bundle110,111
+type MBundle MBundle113,114
+inplace inplace115,116
+size size130,131
+sized sized135,136
+length length143,144
+null null148,149
+empty empty156,157
+singleton singleton161,162
+replicate replicate166,167
+generate generate171,172
+cons cons176,177
+snoc snoc181,182
+(+(++)187,188
+head head195,196
+last last200,201
+(!(!!)206,207
+s s208,209
+(!(!?)212,213
+s s214,215
+slice slice220,221
+init init228,229
+tail tail233,234
+take take238,239
+drop drop243,244
+map map251,252
+unbox unbox255,256
+concatMap concatMap259,260
+indexed indexed267,268
+indexedR indexedR273,274
+zipWith zipWith278,279
+zipWith3 zipWith3283,284
+zipWith4 zipWith4287,288
+zipWith5 zipWith5293,294
+zipWith6 zipWith6299,300
+zip zip305,306
+zip3 zip3309,310
+zip4 zip4313,314
+zip5 zip5318,319
+zip6 zip6323,324
+filter filter332,333
+takeWhile takeWhile337,338
+dropWhile dropWhile342,343
+infix 4 `elem`elem349,350
+infix 4 `notElem`notElem355,356
+find find363,364
+findIndex findIndex369,370
+foldl foldl377,378
+foldl1 foldl1382,383
+foldl' foldl'387,388
+foldl1' foldl1'392,393
+foldr foldr397,398
+foldr1 foldr1402,403
+and and409,410
+or or413,414
+unfoldr unfoldr421,422
+unfoldrN unfoldrN426,427
+unfoldrExactN unfoldrExactN433,434
+iterateN iterateN439,440
+prescanl prescanl447,448
+prescanl' prescanl'452,453
+postscanl postscanl457,458
+postscanl' postscanl'462,463
+scanl scanl467,468
+scanl' scanl'472,473
+scanl1 scanl1477,478
+scanl1' scanl1'482,483
+eq eq491,492
+eqBy eqBy495,496
+cmp cmp500,501
+cmpBy cmpBy504,505
+instance Eq Eq a => Eq (M-Bundle Id v a)508,509
+  (=(==)510,511
+instance Ord Ord a => Ord (M-Bundle Id v a)512,513
+  compare compare514,515
+instance Eq1 Eq1 (M-Bundle Id v)516,517
+  liftEq liftEq518,519
+instance Ord1 Ord1 (M-Bundle Id v)520,521
+  liftCompare liftCompare522,523
+mapM mapM529,530
+mapM_ mapM_534,535
+zipWithM zipWithM538,539
+zipWithM_ zipWithM_542,543
+filterM filterM547,548
+mapMaybeM mapMaybeM555,556
+foldM foldM560,561
+fold1M fold1M565,566
+foldM' foldM'570,571
+fold1M' fold1M'575,576
+enumFromStepN enumFromStepN584,585
+enumFromTo enumFromTo592,593
+enumFromThenTo enumFromThenTo600,601
+toList toList608,609
+toListFB toListFB614,615
+fromList fromList624,625
+fromListN fromListN631,632
+unsafeFromList unsafeFromList635,636
+fromVector fromVector639,640
+reVector reVector643,644
+fromVectors fromVectors647,648
+concatVectors concatVectors651,652
+flatten flatten656,657
+
+./src/Data/Vector/Fusion/Util.hs,384
+module Data.Vector.Fusion.Util Data.Vector.Fusion.Util12,13
+newtype Id Id21,22
+newtype Id a = Id { unId unId21,22
+instance Functor Functor Id23,24
+  fmap fmap24,25
+instance Applicative Applicative Id26,27
+  pure pure27,28
+  Id Id28,29
+instance Monad Monad Id30,31
+  return return31,32
+  Id Id32,33
+delay_inline delay_inline35,36
+delayed_min delayed_min40,41
+
+./src/Data/Vector/Primitive.hs,6784
+module Data.Vector.Primitive Data.Vector.Primitive22,23
+type role role197,198
+unsafeCoerceVector unsafeCoerceVector207,208
+data Vector Vector211,212
+data Vector a = Vector Vector211,212
+instance NFData NFData (Vector a)216,217
+  rnf rnf217,218
+instance NFData1 NFData1 Vector221,222
+  liftRnf liftRnf222,223
+instance (S(Show a, Prim a) => Show (Vector a)225,226
+  showsPrec showsPrec226,227
+instance (R(Read a, Prim a) => Read (Vector a)228,229
+  readPrec readPrec229,230
+  readListPrec readListPrec230,231
+instance (D(Data a, Prim a) => Data (Vector a)232,233
+  gfoldl gfoldl233,234
+  toConstr toConstr234,235
+  gunfold gunfold235,236
+  dataTypeOf dataTypeOf236,237
+  dataCast1 dataCast1237,238
+type instance instance240,241
+instance Prim Prim a => G-Vector Vector a242,243
+  basicUnsafeFreeze basicUnsafeFreeze244,245
+  basicUnsafeThaw basicUnsafeThaw248,249
+  basicLength basicLength252,253
+  basicUnsafeSlice basicUnsafeSlice255,256
+  basicUnsafeIndexM basicUnsafeIndexM258,259
+  basicUnsafeCopy basicUnsafeCopy261,262
+  elemseq elemseq267,268
+instance (P(Prim a, Eq a) => Eq (Vector a)270,271
+  xs xs272,273
+instance (P(Prim a, Ord a) => Ord (Vector a)275,276
+  compare compare277,278
+  xs xs280,281
+instance Prim Prim a => Semigroup (Vector a)291,292
+  (<(<>)293,294
+  sconcat sconcat296,297
+instance Prim Prim a => Monoid (Vector a)298,299
+  mempty mempty300,301
+  mappend mappend303,304
+  mconcat mconcat306,307
+instance Prim Prim a => Exts-IsList (Vector a)308,309
+  type Item Item309,310
+  fromList fromList310,311
+  fromListN fromListN311,312
+  toList toList312,313
+length length319,320
+null null324,325
+(!(!)332,333
+(!(!?)337,338
+head head342,343
+last last347,348
+unsafeIndex unsafeIndex352,353
+unsafeHead unsafeHead357,358
+unsafeLast unsafeLast362,363
+indexM indexM387,388
+headM headM393,394
+lastM lastM399,400
+unsafeIndexM unsafeIndexM405,406
+unsafeHeadM unsafeHeadM411,412
+unsafeLastM unsafeLastM417,418
+slice slice426,427
+init init436,437
+tail tail442,443
+take take448,449
+drop drop454,455
+splitAt splitAt464,465
+uncons uncons472,473
+unsnoc unsnoc480,481
+unsafeSlice unsafeSlice486,487
+unsafeInit unsafeInit495,496
+unsafeTail unsafeTail501,502
+unsafeTake unsafeTake507,508
+unsafeDrop unsafeDrop513,514
+empty empty521,522
+singleton singleton526,527
+replicate replicate531,532
+generate generate537,538
+iterateN iterateN556,557
+unfoldr unfoldr569,570
+unfoldrN unfoldrN578,579
+unfoldrExactN unfoldrExactN589,590
+unfoldrM unfoldrM597,598
+unfoldrNM unfoldrNM605,606
+unfoldrExactNM unfoldrExactNM614,615
+constructN constructN622,623
+constructrN constructrN631,632
+enumFromN enumFromN642,643
+enumFromStepN enumFromStepN650,651
+enumFromTo enumFromTo658,659
+enumFromThenTo enumFromThenTo666,667
+cons cons674,675
+snoc snoc679,680
+(+(++)685,686
+concat concat690,691
+replicateM replicateM699,700
+generateM generateM705,706
+iterateNM iterateNM716,717
+create create725,726
+createT createT731,732
+force force748,749
+(/(//)760,761
+update_ update_772,773
+unsafeUpd unsafeUpd781,782
+unsafeUpdate_ unsafeUpdate_786,787
+accum accum801,802
+accumulate_ accumulate_816,817
+unsafeAccum unsafeAccum826,827
+unsafeAccumulate_ unsafeAccumulate_831,832
+reverse reverse840,841
+backpermute backpermute849,850
+unsafeBackpermute unsafeBackpermute854,855
+modify modify868,869
+map map876,877
+imap imap881,882
+concatMap concatMap886,887
+mapM mapM895,896
+imapM imapM903,904
+mapM_ mapM_910,911
+imapM_ imapM_918,919
+forM forM924,925
+forM_ forM_930,931
+iforM iforM938,939
+iforM_ iforM_946,947
+zipWith zipWith954,955
+zipWith3 zipWith3960,961
+zipWith4 zipWith4965,966
+zipWith5 zipWith5971,972
+zipWith6 zipWith6979,980
+izipWith izipWith989,990
+izipWith3 izipWith3995,996
+izipWith4 izipWith41001,1002
+izipWith5 izipWith51007,1008
+izipWith6 izipWith61015,1016
+zipWithM zipWithM1028,1029
+izipWithM izipWithM1037,1038
+zipWithM_ zipWithM_1044,1045
+izipWithM_ izipWithM_1053,1054
+filter filter1062,1063
+ifilter ifilter1068,1069
+uniq uniq1079,1080
+mapMaybe mapMaybe1084,1085
+imapMaybe imapMaybe1089,1090
+filterM filterM1094,1095
+mapMaybeM mapMaybeM1106,1107
+imapMaybeM imapMaybeM1116,1117
+takeWhile takeWhile1121,1122
+dropWhile dropWhile1127,1128
+partition partition1138,1139
+partitionWith partitionWith1147,1148
+unstablePartition unstablePartition1155,1156
+span span1161,1162
+break break1167,1168
+groupBy groupBy1187,1188
+group group1207,1208
+infix 4 `elem`elem1214,1215
+infix 4 `notElem`notElem1220,1221
+find find1228,1229
+findIndex findIndex1234,1235
+findIndices findIndices1240,1241
+elemIndex elemIndex1247,1248
+elemIndices elemIndices1253,1254
+foldl foldl1261,1262
+foldl1 foldl11266,1267
+foldl' foldl'1271,1272
+foldl1' foldl1'1276,1277
+foldr foldr1281,1282
+foldr1 foldr11286,1287
+foldr' foldr'1291,1292
+foldr1' foldr1'1296,1297
+ifoldl ifoldl1301,1302
+ifoldl' ifoldl'1307,1308
+ifoldr ifoldr1312,1313
+ifoldr' ifoldr'1318,1319
+foldMap foldMap1329,1330
+foldMap' foldMap'1339,1340
+all all1357,1358
+any any1372,1373
+sum sum1385,1386
+product product1398,1399
+maximum maximum1410,1411
+maximumBy maximumBy1418,1419
+maximumOn maximumOn1425,1426
+minimum minimum1437,1438
+minimumBy minimumBy1444,1445
+minimumOn minimumOn1451,1452
+maxIndex maxIndex1457,1458
+maxIndexBy maxIndexBy1464,1465
+minIndex minIndex1470,1471
+minIndexBy minIndexBy1476,1477
+foldM foldM1484,1485
+ifoldM ifoldM1491,1492
+fold1M fold1M1496,1497
+foldM' foldM'1501,1502
+ifoldM' ifoldM'1509,1510
+fold1M' fold1M'1514,1515
+foldM_ foldM_1519,1520
+ifoldM_ ifoldM_1527,1528
+fold1M_ fold1M_1532,1533
+foldM'_ foldM'_1537,1538
+ifoldM'_ ifoldM'_1545,1546
+fold1M'_ fold1M'_1552,1553
+prescanl prescanl1570,1571
+prescanl' prescanl'1575,1576
+postscanl postscanl1590,1591
+postscanl' postscanl'1595,1596
+scanl scanl1610,1611
+scanl' scanl'1615,1616
+iscanl iscanl1622,1623
+iscanl' iscanl'1629,1630
+scanl1 scanl11651,1652
+scanl1' scanl1'1668,1669
+prescanr prescanr1677,1678
+prescanr' prescanr'1682,1683
+postscanr postscanr1687,1688
+postscanr' postscanr'1692,1693
+scanr scanr1697,1698
+scanr' scanr'1702,1703
+iscanr iscanr1709,1710
+iscanr' iscanr'1716,1717
+scanr1 scanr11733,1734
+scanr1' scanr1'1751,1752
+eqBy eqBy1762,1763
+cmpBy cmpBy1772,1773
+toList toList1779,1780
+fromList fromList1784,1785
+fromListN fromListN1801,1802
+unsafeCast unsafeCast1815,1816
+unsafeFreeze unsafeFreeze1826,1827
+freeze freeze1831,1832
+unsafeThaw unsafeThaw1860,1861
+thaw thaw1865,1866
+unsafeCopy unsafeCopy1874,1875
+copy copy1878,1879
+
+./src/Data/Vector/Unboxed.hs,6115
+module Data.Vector.Unboxed Data.Vector.Unboxed57,58
+instance (U(Unbox a, Eq a) => Eq (Vector a)232,233
+  xs xs234,235
+instance (U(Unbox a, Ord a) => Ord (Vector a)237,238
+  compare compare239,240
+  xs xs242,243
+instance Unbox Unbox a => Semigroup (Vector a)253,254
+  (<(<>)255,256
+  sconcat sconcat258,259
+instance Unbox Unbox a => Monoid (Vector a)260,261
+  mempty mempty262,263
+  mappend mappend265,266
+  mconcat mconcat268,269
+instance (S(Show a, Unbox a) => Show (Vector a)270,271
+  showsPrec showsPrec271,272
+instance (R(Read a, Unbox a) => Read (Vector a)273,274
+  readPrec readPrec274,275
+  readListPrec readListPrec275,276
+instance (U(Unbox e) => Exts-IsList (Vector e)277,278
+  type Item Item278,279
+  fromList fromList279,280
+  fromListN fromListN280,281
+  toList toList281,282
+length length287,288
+null null292,293
+(!(!)300,301
+(!(!?)305,306
+head head310,311
+last last315,316
+unsafeIndex unsafeIndex320,321
+unsafeHead unsafeHead325,326
+unsafeLast unsafeLast330,331
+indexM indexM355,356
+headM headM361,362
+lastM lastM367,368
+unsafeIndexM unsafeIndexM373,374
+unsafeHeadM unsafeHeadM379,380
+unsafeLastM unsafeLastM385,386
+slice slice394,395
+init init403,404
+tail tail409,410
+take take415,416
+drop drop421,422
+splitAt splitAt431,432
+uncons uncons439,440
+unsnoc unsnoc447,448
+unsafeSlice unsafeSlice453,454
+unsafeInit unsafeInit462,463
+unsafeTail unsafeTail468,469
+unsafeTake unsafeTake474,475
+unsafeDrop unsafeDrop480,481
+empty empty488,489
+singleton singleton493,494
+replicate replicate498,499
+generate generate504,505
+iterateN iterateN523,524
+unfoldr unfoldr536,537
+unfoldrN unfoldrN545,546
+unfoldrExactN unfoldrExactN556,557
+unfoldrM unfoldrM564,565
+unfoldrNM unfoldrNM572,573
+unfoldrExactNM unfoldrExactNM581,582
+constructN constructN589,590
+constructrN constructrN598,599
+enumFromN enumFromN609,610
+enumFromStepN enumFromStepN617,618
+enumFromTo enumFromTo625,626
+enumFromThenTo enumFromThenTo633,634
+cons cons641,642
+snoc snoc646,647
+(+(++)652,653
+concat concat657,658
+replicateM replicateM666,667
+generateM generateM672,673
+iterateNM iterateNM683,684
+create create692,693
+createT createT698,699
+force force715,716
+(/(//)727,728
+update update738,739
+update_ update_757,758
+unsafeUpd unsafeUpd766,767
+unsafeUpdate unsafeUpdate771,772
+unsafeUpdate_ unsafeUpdate_776,777
+accum accum791,792
+accumulate accumulate807,808
+accumulate_ accumulate_828,829
+unsafeAccum unsafeAccum838,839
+unsafeAccumulate unsafeAccumulate843,844
+unsafeAccumulate_ unsafeAccumulate_849,850
+reverse reverse858,859
+backpermute backpermute867,868
+unsafeBackpermute unsafeBackpermute872,873
+modify modify886,887
+indexed indexed894,895
+map map902,903
+imap imap907,908
+concatMap concatMap912,913
+mapM mapM921,922
+imapM imapM927,928
+mapM_ mapM_934,935
+imapM_ imapM_940,941
+forM forM946,947
+forM_ forM_952,953
+iforM iforM960,961
+iforM_ iforM_968,969
+zipWith zipWith976,977
+zipWith3 zipWith3982,983
+zipWith4 zipWith4987,988
+zipWith5 zipWith5993,994
+zipWith6 zipWith61000,1001
+izipWith izipWith1009,1010
+izipWith3 izipWith31015,1016
+izipWith4 izipWith41021,1022
+izipWith5 izipWith51027,1028
+izipWith6 izipWith61034,1035
+zipWithM zipWithM1046,1047
+izipWithM izipWithM1053,1054
+zipWithM_ zipWithM_1060,1061
+izipWithM_ izipWithM_1067,1068
+filter filter1076,1077
+ifilter ifilter1082,1083
+uniq uniq1096,1097
+mapMaybe mapMaybe1101,1102
+imapMaybe imapMaybe1106,1107
+filterM filterM1111,1112
+mapMaybeM mapMaybeM1119,1120
+imapMaybeM imapMaybeM1127,1128
+takeWhile takeWhile1134,1135
+dropWhile dropWhile1140,1141
+partition partition1151,1152
+partitionWith partitionWith1160,1161
+unstablePartition unstablePartition1168,1169
+span span1174,1175
+break break1180,1181
+groupBy groupBy1200,1201
+group group1219,1220
+infix 4 `elem`elem1225,1226
+infix 4 `notElem`notElem1231,1232
+find find1239,1240
+findIndex findIndex1245,1246
+findIndices findIndices1251,1252
+elemIndex elemIndex1258,1259
+elemIndices elemIndices1264,1265
+foldl foldl1272,1273
+foldl1 foldl11277,1278
+foldl' foldl'1282,1283
+foldl1' foldl1'1287,1288
+foldr foldr1292,1293
+foldr1 foldr11297,1298
+foldr' foldr'1302,1303
+foldr1' foldr1'1307,1308
+ifoldl ifoldl1312,1313
+ifoldl' ifoldl'1318,1319
+ifoldr ifoldr1323,1324
+ifoldr' ifoldr'1329,1330
+foldMap foldMap1340,1341
+foldMap' foldMap'1350,1351
+all all1368,1369
+any any1383,1384
+and and1396,1397
+or or1409,1410
+sum sum1422,1423
+product product1435,1436
+maximum maximum1452,1453
+maximumBy maximumBy1469,1470
+maximumOn maximumOn1484,1485
+minimum minimum1501,1502
+minimumBy minimumBy1517,1518
+minimumOn minimumOn1534,1535
+maxIndex maxIndex1540,1541
+maxIndexBy maxIndexBy1556,1557
+minIndex minIndex1562,1563
+minIndexBy minIndexBy1577,1578
+foldM foldM1585,1586
+ifoldM ifoldM1590,1591
+fold1M fold1M1595,1596
+foldM' foldM'1600,1601
+ifoldM' ifoldM'1606,1607
+fold1M' fold1M'1611,1612
+foldM_ foldM_1616,1617
+ifoldM_ ifoldM_1622,1623
+fold1M_ fold1M_1627,1628
+foldM'_ foldM'_1632,1633
+ifoldM'_ ifoldM'_1638,1639
+fold1M'_ fold1M'_1645,1646
+prescanl prescanl1663,1664
+prescanl' prescanl'1668,1669
+postscanl postscanl1683,1684
+postscanl' postscanl'1688,1689
+scanl scanl1703,1704
+scanl' scanl'1708,1709
+iscanl iscanl1715,1716
+iscanl' iscanl'1722,1723
+scanl1 scanl11743,1744
+scanl1' scanl1'1760,1761
+prescanr prescanr1769,1770
+prescanr' prescanr'1774,1775
+postscanr postscanr1779,1780
+postscanr' postscanr'1784,1785
+scanr scanr1789,1790
+scanr' scanr'1794,1795
+iscanr iscanr1801,1802
+iscanr' iscanr'1808,1809
+scanr1 scanr11825,1826
+scanr1' scanr1'1843,1844
+eqBy eqBy1854,1855
+cmpBy cmpBy1864,1865
+toList toList1871,1872
+fromList fromList1876,1877
+fromListN fromListN1893,1894
+unsafeFreeze unsafeFreeze1902,1903
+freeze freeze1907,1908
+unsafeThaw unsafeThaw1936,1937
+thaw thaw1941,1942
+unsafeCopy unsafeCopy1950,1951
+copy copy1954,1955
+
+./src/Data/Vector/Mutable.hs,2755
+module Data.Vector.Mutable Data.Vector.Mutable18,19
+type role role82,83
+data MVector MVector85,86
+data MVector s a = MVector MVector85,86
+data MVector s a = MVector { _offset _offset85,86
+                           , _size _size87,88
+                           , _array _array89,90
+type IOVector IOVector94,95
+type STVector STVector95,96
+instance G.MVector G-MVector MVector a107,108
+  basicLength basicLength109,110
+  basicUnsafeSlice basicUnsafeSlice112,113
+  basicOverlaps basicOverlaps115,116
+  basicUnsafeNew basicUnsafeNew122,123
+  basicInitialize basicInitialize129,130
+  basicUnsafeReplicate basicUnsafeReplicate132,133
+  basicUnsafeRead basicUnsafeRead138,139
+  basicUnsafeWrite basicUnsafeWrite141,142
+  basicUnsafeCopy basicUnsafeCopy144,145
+  basicUnsafeMove basicUnsafeMove147,148
+  basicClear basicClear168,169
+moveBackwards moveBackwards171,172
+moveForwardsSmallOverlap moveForwardsSmallOverlap178,179
+moveForwardsLargeOverlap moveForwardsLargeOverlap189,190
+loopM loopM205,206
+uninitialised uninitialised210,211
+length length217,218
+null null222,223
+slice slice231,232
+take take241,242
+drop drop248,249
+splitAt splitAt257,258
+init init263,264
+tail tail269,270
+unsafeSlice unsafeSlice275,276
+unsafeTake unsafeTake284,285
+unsafeDrop unsafeDrop290,291
+unsafeInit unsafeInit295,296
+unsafeTail unsafeTail300,301
+overlaps overlaps308,309
+new new316,317
+unsafeNew unsafeNew324,325
+replicate replicate330,331
+replicateM replicateM336,337
+generate generate345,346
+generateM generateM354,355
+clone clone359,360
+grow grow400,401
+unsafeGrow unsafeGrow409,410
+clear clear419,420
+read read435,436
+readMaybe readMaybe452,453
+write write457,458
+modify modify462,463
+modifyM modifyM469,470
+swap swap474,475
+exchange exchange479,480
+unsafeRead unsafeRead484,485
+unsafeWrite unsafeWrite489,490
+unsafeModify unsafeModify494,495
+unsafeModifyM unsafeModifyM502,503
+unsafeSwap unsafeSwap507,508
+unsafeExchange unsafeExchange513,514
+set set521,522
+copy copy527,528
+unsafeCopy unsafeCopy535,536
+move move548,549
+unsafeMove unsafeMove561,562
+nextPermutation nextPermutation572,573
+mapM_ mapM_582,583
+imapM_ imapM_589,590
+forM_ forM_597,598
+iforM_ iforM_605,606
+foldl foldl612,613
+foldl' foldl'619,620
+ifoldl ifoldl626,627
+ifoldl' ifoldl'633,634
+foldr foldr640,641
+foldr' foldr'647,648
+ifoldr ifoldr654,655
+ifoldr' ifoldr'662,663
+foldM foldM669,670
+foldM' foldM'676,677
+ifoldM ifoldM683,684
+ifoldM' ifoldM'690,691
+foldrM foldrM697,698
+foldrM' foldrM'704,705
+ifoldrM ifoldrM711,712
+ifoldrM' ifoldrM'719,720
+fromMutableArray fromMutableArray729,730
+toMutableArray toMutableArray738,739
+
+./src/Data/Vector/Primitive/Mutable.hs,2504
+module Data.Vector.Primitive.Mutable Data.Vector.Primitive.Mutable17,18
+type role role92,93
+unsafeCoerceMVector unsafeCoerceMVector101,102
+data MVector MVector105,106
+data MVector s a = MVector MVector105,106
+type IOVector IOVector110,111
+type STVector STVector111,112
+instance NFData NFData (MVector s a)113,114
+  rnf rnf114,115
+instance NFData1 NFData1 (MVector s)117,118
+  liftRnf liftRnf118,119
+instance Prim Prim a => G-MVector MVector a121,122
+  basicLength basicLength122,123
+  basicUnsafeSlice basicUnsafeSlice123,124
+  basicOverlaps basicOverlaps127,128
+  basicUnsafeNew basicUnsafeNew134,135
+  basicInitialize basicInitialize143,144
+  basicUnsafeRead basicUnsafeRead150,151
+  basicUnsafeWrite basicUnsafeWrite153,154
+  basicUnsafeCopy basicUnsafeCopy156,157
+  basicUnsafeMove basicUnsafeMove162,163
+  basicSet basicSet168,169
+length length174,175
+null null179,180
+slice slice188,189
+take take199,200
+drop drop206,207
+splitAt splitAt215,216
+init init221,222
+tail tail227,228
+unsafeSlice unsafeSlice233,234
+unsafeTake unsafeTake243,244
+unsafeDrop unsafeDrop249,250
+unsafeInit unsafeInit254,255
+unsafeTail unsafeTail259,260
+overlaps overlaps267,268
+new new275,276
+unsafeNew unsafeNew284,285
+replicate replicate290,291
+replicateM replicateM296,297
+generate generate305,306
+generateM generateM314,315
+clone clone319,320
+grow grow362,363
+unsafeGrow unsafeGrow371,372
+clear clear381,382
+read read397,398
+readMaybe readMaybe414,415
+write write419,420
+modify modify424,425
+modifyM modifyM431,432
+swap swap436,437
+exchange exchange441,442
+unsafeRead unsafeRead446,447
+unsafeWrite unsafeWrite451,452
+unsafeModify unsafeModify456,457
+unsafeModifyM unsafeModifyM464,465
+unsafeSwap unsafeSwap469,470
+unsafeExchange unsafeExchange475,476
+set set483,484
+copy copy489,490
+unsafeCopy unsafeCopy498,499
+move move512,513
+unsafeMove unsafeMove526,527
+nextPermutation nextPermutation538,539
+mapM_ mapM_548,549
+imapM_ imapM_555,556
+forM_ forM_563,564
+iforM_ iforM_571,572
+foldl foldl578,579
+foldl' foldl'585,586
+ifoldl ifoldl592,593
+ifoldl' ifoldl'599,600
+foldr foldr606,607
+foldr' foldr'613,614
+ifoldr ifoldr620,621
+ifoldr' ifoldr'628,629
+foldM foldM635,636
+foldM' foldM'642,643
+ifoldM ifoldM649,650
+ifoldM' ifoldM'656,657
+foldrM foldrM663,664
+foldrM' foldrM'670,671
+ifoldrM ifoldrM677,678
+ifoldrM' ifoldrM'685,686
+unsafeCast unsafeCast699,700
+
+./src/Data/Vector/Storable/Mutable.hs,2989
+module Data.Vector.Storable.Mutable(Data.Vector.Storable.Mutable18,19
+type role role111,112
+unsafeCoerceMVector unsafeCoerceMVector121,122
+data MVector MVector125,126
+data MVector s a = MVector MVector125,126
+type IOVector IOVector129,130
+type STVector STVector130,131
+instance NFData NFData (MVector s a)132,133
+  rnf rnf133,134
+instance NFData1 NFData1 (MVector s)136,137
+  liftRnf liftRnf137,138
+instance Storable Storable a => G-MVector MVector a140,141
+  basicLength basicLength142,143
+  basicUnsafeSlice basicUnsafeSlice145,146
+  basicOverlaps basicOverlaps149,150
+  basicUnsafeNew basicUnsafeNew157,158
+  basicInitialize basicInitialize168,169
+  basicUnsafeRead basicUnsafeRead171,172
+  basicUnsafeWrite basicUnsafeWrite176,177
+  basicSet basicSet181,182
+  basicUnsafeCopy basicUnsafeCopy184,185
+  basicUnsafeMove basicUnsafeMove191,192
+storableZero storableZero197,198
+storableSet storableSet207,208
+storableSetAsPrim storableSetAsPrim233,234
+memsetPrimPtr_vector memsetPrimPtr_vector249,250
+peakPrimPtr_vector peakPrimPtr_vector256,257
+mallocVector mallocVector261,262
+length length273,274
+null null278,279
+slice slice287,288
+take take298,299
+drop drop305,306
+splitAt splitAt314,315
+init init320,321
+tail tail326,327
+unsafeSlice unsafeSlice332,333
+unsafeTake unsafeTake342,343
+unsafeDrop unsafeDrop348,349
+unsafeInit unsafeInit353,354
+unsafeTail unsafeTail358,359
+overlaps overlaps366,367
+new new374,375
+unsafeNew unsafeNew383,384
+replicate replicate389,390
+replicateM replicateM395,396
+generate generate404,405
+generateM generateM413,414
+clone clone418,419
+grow grow461,462
+unsafeGrow unsafeGrow470,471
+clear clear480,481
+read read496,497
+readMaybe readMaybe513,514
+write write521,522
+modify modify524,525
+modifyM modifyM531,532
+swap swap539,540
+exchange exchange542,543
+unsafeRead unsafeRead547,548
+unsafeWrite unsafeWrite552,553
+unsafeModify unsafeModify557,558
+unsafeModifyM unsafeModifyM565,566
+unsafeSwap unsafeSwap570,571
+unsafeExchange unsafeExchange576,577
+set set584,585
+copy copy590,591
+unsafeCopy unsafeCopy599,600
+move move613,614
+unsafeMove unsafeMove627,628
+nextPermutation nextPermutation639,640
+mapM_ mapM_649,650
+imapM_ imapM_656,657
+forM_ forM_664,665
+iforM_ iforM_672,673
+foldl foldl679,680
+foldl' foldl'686,687
+ifoldl ifoldl693,694
+ifoldl' ifoldl'700,701
+foldr foldr707,708
+foldr' foldr'714,715
+ifoldr ifoldr721,722
+ifoldr' ifoldr'729,730
+foldM foldM736,737
+foldM' foldM'743,744
+ifoldM ifoldM750,751
+ifoldM' ifoldM'757,758
+foldrM foldrM764,765
+foldrM' foldrM'771,772
+ifoldrM ifoldrM778,779
+ifoldrM' ifoldrM'786,787
+unsafeCast unsafeCast799,800
+unsafeFromForeignPtr unsafeFromForeignPtr815,816
+unsafeFromForeignPtr0 unsafeFromForeignPtr0837,838
+unsafeToForeignPtr unsafeToForeignPtr846,847
+unsafeToForeignPtr0 unsafeToForeignPtr0856,857
+unsafeWith unsafeWith863,864
+
+./src/Data/Vector/Storable/Internal.hs,186
+module Data.Vector.Storable.Internal Data.Vector.Storable.Internal13,14
+getPtr getPtr27,28
+setPtr setPtr31,32
+updPtr updPtr35,36
+unsafeWithForeignPtr unsafeWithForeignPtr45,46
+
+./src/Data/Vector/Internal/Check.hs,932
+module Data.Vector.Internal.Check Data.Vector.Internal.Check15,16
+not not36,37
+(&(&&)41,42
+False False43,44
+True True44,45
+(|(||)46,47
+True True48,49
+False False49,50
+data Checks Checks52,53
+data Checks = Bounds Bounds52,53
+data Checks = Bounds | Unsafe Unsafe52,53
+data Checks = Bounds | Unsafe | Internal Internal52,53
+doBoundsChecks doBoundsChecks54,55
+doUnsafeChecks doUnsafeChecks61,62
+doInternalChecks doInternalChecks68,69
+doChecks doChecks76,77
+internalError internalError82,83
+checkError checkError91,92
+check check98,99
+checkIndex_msg checkIndex_msg104,105
+checkIndex_msg# checkIndex_msg#108,109
+checkIndex checkIndex112,113
+checkLength_msg checkLength_msg118,119
+checkLength_msg# checkLength_msg#122,123
+checkLength checkLength126,127
+checkSlice_msg checkSlice_msg131,132
+checkSlice_msg# checkSlice_msg#135,136
+checkSlice checkSlice139,140
+inRange inRange146,147
+
+./src/Data/Vector/Storable.hs,7152
+module Data.Vector.Storable Data.Vector.Storable19,20
+type role role208,209
+unsafeCoerceVector unsafeCoerceVector218,219
+data Vector Vector222,223
+data Vector a = Vector Vector222,223
+instance NFData NFData (Vector a)226,227
+  rnf rnf227,228
+instance NFData1 NFData1 Vector231,232
+  liftRnf liftRnf232,233
+instance (S(Show a, Storable a) => Show (Vector a)235,236
+  showsPrec showsPrec236,237
+instance (R(Read a, Storable a) => Read (Vector a)238,239
+  readPrec readPrec239,240
+  readListPrec readListPrec240,241
+instance (D(Data a, Storable a) => Data (Vector a)242,243
+  gfoldl gfoldl243,244
+  toConstr toConstr244,245
+  gunfold gunfold245,246
+  dataTypeOf dataTypeOf246,247
+  dataCast1 dataCast1247,248
+type instance instance250,251
+instance Storable Storable a => G-Vector Vector a252,253
+  basicUnsafeFreeze basicUnsafeFreeze254,255
+  basicUnsafeThaw basicUnsafeThaw257,258
+  basicLength basicLength260,261
+  basicUnsafeSlice basicUnsafeSlice263,264
+  basicUnsafeIndexM basicUnsafeIndexM266,267
+  basicUnsafeCopy basicUnsafeCopy272,273
+  elemseq elemseq279,280
+instance (S(Storable a, Eq a) => Eq (Vector a)282,283
+  xs xs284,285
+instance (S(Storable a, Ord a) => Ord (Vector a)287,288
+  compare compare289,290
+  xs xs292,293
+instance Storable Storable a => Semigroup (Vector a)303,304
+  (<(<>)305,306
+  sconcat sconcat308,309
+instance Storable Storable a => Monoid (Vector a)310,311
+  mempty mempty312,313
+  mappend mappend315,316
+  mconcat mconcat318,319
+instance Storable Storable a => Exts-IsList (Vector a)320,321
+  type Item Item321,322
+  fromList fromList322,323
+  fromListN fromListN323,324
+  toList toList324,325
+length length330,331
+null null335,336
+(!(!)343,344
+(!(!?)348,349
+head head353,354
+last last358,359
+unsafeIndex unsafeIndex363,364
+unsafeHead unsafeHead368,369
+unsafeLast unsafeLast373,374
+indexM indexM398,399
+headM headM404,405
+lastM lastM410,411
+unsafeIndexM unsafeIndexM416,417
+unsafeHeadM unsafeHeadM422,423
+unsafeLastM unsafeLastM428,429
+slice slice437,438
+init init447,448
+tail tail453,454
+take take459,460
+drop drop465,466
+splitAt splitAt475,476
+uncons uncons483,484
+unsnoc unsnoc491,492
+unsafeSlice unsafeSlice497,498
+unsafeInit unsafeInit506,507
+unsafeTail unsafeTail512,513
+unsafeTake unsafeTake518,519
+unsafeDrop unsafeDrop524,525
+empty empty532,533
+singleton singleton537,538
+replicate replicate542,543
+generate generate548,549
+iterateN iterateN567,568
+unfoldr unfoldr580,581
+unfoldrN unfoldrN589,590
+unfoldrExactN unfoldrExactN600,601
+unfoldrM unfoldrM608,609
+unfoldrNM unfoldrNM616,617
+unfoldrExactNM unfoldrExactNM625,626
+constructN constructN633,634
+constructrN constructrN642,643
+enumFromN enumFromN653,654
+enumFromStepN enumFromStepN661,662
+enumFromTo enumFromTo669,670
+enumFromThenTo enumFromThenTo677,678
+cons cons685,686
+snoc snoc690,691
+(+(++)696,697
+concat concat701,702
+replicateM replicateM710,711
+generateM generateM716,717
+iterateNM iterateNM727,728
+create create736,737
+createT createT742,743
+force force759,760
+(/(//)771,772
+update_ update_783,784
+unsafeUpd unsafeUpd792,793
+unsafeUpdate_ unsafeUpdate_797,798
+accum accum812,813
+accumulate_ accumulate_827,828
+unsafeAccum unsafeAccum837,838
+unsafeAccumulate_ unsafeAccumulate_842,843
+reverse reverse851,852
+backpermute backpermute860,861
+unsafeBackpermute unsafeBackpermute865,866
+modify modify879,880
+map map887,888
+imap imap892,893
+concatMap concatMap897,898
+mapM mapM906,907
+imapM imapM914,915
+mapM_ mapM_921,922
+imapM_ imapM_929,930
+forM forM935,936
+forM_ forM_941,942
+iforM iforM949,950
+iforM_ iforM_957,958
+zipWith zipWith965,966
+zipWith3 zipWith3971,972
+zipWith4 zipWith4976,977
+zipWith5 zipWith5982,983
+zipWith6 zipWith6990,991
+izipWith izipWith1000,1001
+izipWith3 izipWith31006,1007
+izipWith4 izipWith41012,1013
+izipWith5 izipWith51018,1019
+izipWith6 izipWith61026,1027
+isSameVector isSameVector1039,1040
+zipWithM zipWithM1049,1050
+izipWithM izipWithM1058,1059
+zipWithM_ zipWithM_1065,1066
+izipWithM_ izipWithM_1074,1075
+filter filter1083,1084
+ifilter ifilter1089,1090
+uniq uniq1100,1101
+mapMaybe mapMaybe1105,1106
+imapMaybe imapMaybe1110,1111
+filterM filterM1115,1116
+mapMaybeM mapMaybeM1127,1128
+imapMaybeM imapMaybeM1137,1138
+takeWhile takeWhile1142,1143
+dropWhile dropWhile1148,1149
+partition partition1159,1160
+partitionWith partitionWith1168,1169
+unstablePartition unstablePartition1176,1177
+span span1182,1183
+break break1188,1189
+groupBy groupBy1208,1209
+group group1228,1229
+infix 4 `elem`elem1235,1236
+infix 4 `notElem`notElem1241,1242
+find find1249,1250
+findIndex findIndex1255,1256
+findIndices findIndices1261,1262
+elemIndex elemIndex1268,1269
+elemIndices elemIndices1274,1275
+foldl foldl1282,1283
+foldl1 foldl11287,1288
+foldl' foldl'1292,1293
+foldl1' foldl1'1297,1298
+foldr foldr1302,1303
+foldr1 foldr11307,1308
+foldr' foldr'1312,1313
+foldr1' foldr1'1317,1318
+ifoldl ifoldl1322,1323
+ifoldl' ifoldl'1328,1329
+ifoldr ifoldr1333,1334
+ifoldr' ifoldr'1339,1340
+foldMap foldMap1350,1351
+foldMap' foldMap'1360,1361
+all all1378,1379
+any any1393,1394
+and and1406,1407
+or or1419,1420
+sum sum1432,1433
+product product1445,1446
+maximum maximum1457,1458
+maximumBy maximumBy1465,1466
+maximumOn maximumOn1472,1473
+minimum minimum1484,1485
+minimumBy minimumBy1491,1492
+minimumOn minimumOn1498,1499
+maxIndex maxIndex1504,1505
+maxIndexBy maxIndexBy1511,1512
+minIndex minIndex1517,1518
+minIndexBy minIndexBy1523,1524
+foldM foldM1531,1532
+ifoldM ifoldM1538,1539
+fold1M fold1M1543,1544
+foldM' foldM'1548,1549
+ifoldM' ifoldM'1556,1557
+fold1M' fold1M'1561,1562
+foldM_ foldM_1566,1567
+ifoldM_ ifoldM_1574,1575
+fold1M_ fold1M_1579,1580
+foldM'_ foldM'_1584,1585
+ifoldM'_ ifoldM'_1592,1593
+fold1M'_ fold1M'_1599,1600
+prescanl prescanl1617,1618
+prescanl' prescanl'1622,1623
+postscanl postscanl1637,1638
+postscanl' postscanl'1642,1643
+scanl scanl1657,1658
+scanl' scanl'1662,1663
+iscanl iscanl1669,1670
+iscanl' iscanl'1676,1677
+scanl1 scanl11697,1698
+scanl1' scanl1'1714,1715
+prescanr prescanr1723,1724
+prescanr' prescanr'1728,1729
+postscanr postscanr1733,1734
+postscanr' postscanr'1738,1739
+scanr scanr1743,1744
+scanr' scanr'1748,1749
+iscanr iscanr1755,1756
+iscanr' iscanr'1762,1763
+scanr1 scanr11779,1780
+scanr1' scanr1'1797,1798
+eqBy eqBy1808,1809
+cmpBy cmpBy1818,1819
+toList toList1825,1826
+fromList fromList1830,1831
+fromListN fromListN1847,1848
+unsafeCast unsafeCast1860,1861
+unsafeFreeze unsafeFreeze1874,1875
+freeze freeze1877,1878
+unsafeThaw unsafeThaw1909,1910
+thaw thaw1912,1913
+unsafeCopy unsafeCopy1921,1922
+copy copy1925,1926
+unsafeFromForeignPtr unsafeFromForeignPtr1937,1938
+unsafeFromForeignPtr0 unsafeFromForeignPtr01958,1959
+unsafeToForeignPtr unsafeToForeignPtr1966,1967
+unsafeToForeignPtr0 unsafeToForeignPtr01975,1976
+unsafeWith unsafeWith1981,1982
+
+./src/Data/Vector/Unboxed/Base.hs,11451
+module Data.Vector.Unboxed.Base Data.Vector.Unboxed.Base24,25
+data family family64,65
+type IOVector IOVector67,68
+type STVector STVector68,69
+type instance instance70,71
+class (G.Vector Vector a, M.MVector MVector a) => Unbox Unbox72,73
+instance NFData NFData (Vector a)74,75
+instance NFData (Vector a) where rnf rnf74,75
+instance NFData NFData (MVector s a)75,76
+instance NFData (MVector s a) where rnf rnf75,76
+instance NFData1 NFData1 Vector79,80
+  liftRnf liftRnf80,81
+instance NFData1 NFData1 (MVector s)82,83
+  liftRnf liftRnf83,84
+instance (D(Data a, Unbox a) => Data (Vector a)92,93
+  gfoldl gfoldl93,94
+  toConstr toConstr94,95
+  gunfold gunfold95,96
+  dataTypeOf dataTypeOf96,97
+  dataCast1 dataCast197,98
+newtype instance instance103,104
+newtype instance MVector s () = MV_Unit MV_Unit103,104
+newtype instance instance104,105
+newtype instance Vector    () = V_Unit V_Unit104,105
+instance Unbox Unbox ()106,107
+instance M.MVector M-MVector MVector ()108,109
+  basicLength basicLength121,122
+  basicUnsafeSlice basicUnsafeSlice123,124
+  basicOverlaps basicOverlaps125,126
+  basicUnsafeNew basicUnsafeNew127,128
+  basicInitialize basicInitialize130,131
+  basicUnsafeRead basicUnsafeRead132,133
+  basicUnsafeWrite basicUnsafeWrite134,135
+  basicClear basicClear136,137
+  basicSet basicSet138,139
+  basicUnsafeCopy basicUnsafeCopy140,141
+  basicUnsafeGrow basicUnsafeGrow142,143
+instance G.Vector G-Vector Vector ()144,145
+  basicUnsafeFreeze basicUnsafeFreeze146,147
+  basicUnsafeThaw basicUnsafeThaw149,150
+  basicLength basicLength152,153
+  basicUnsafeSlice basicUnsafeSlice155,156
+  basicUnsafeIndexM basicUnsafeIndexM158,159
+  basicUnsafeCopy basicUnsafeCopy161,162
+  elemseq elemseq164,165
+newtype UnboxViaPrim UnboxViaPrim213,214
+newtype instance instance215,216
+newtype instance MVector s (UnboxViaPrim a) = MV_UnboxViaPrim MV_UnboxViaPrim215,216
+newtype instance instance216,217
+newtype instance Vector    (UnboxViaPrim a) = V_UnboxViaPrim V_UnboxViaPrim216,217
+instance P.Prim P-Prim a => M-MVector MVector (UnboxViaPrim a)218,219
+  basicLength basicLength231,232
+  basicUnsafeSlice basicUnsafeSlice232,233
+  basicOverlaps basicOverlaps233,234
+  basicUnsafeNew basicUnsafeNew234,235
+  basicInitialize basicInitialize235,236
+  basicUnsafeReplicate basicUnsafeReplicate236,237
+  basicUnsafeRead basicUnsafeRead237,238
+  basicUnsafeWrite basicUnsafeWrite238,239
+  basicClear basicClear239,240
+  basicSet basicSet240,241
+  basicUnsafeCopy basicUnsafeCopy241,242
+  basicUnsafeMove basicUnsafeMove242,243
+  basicUnsafeGrow basicUnsafeGrow243,244
+instance P.Prim P-Prim a => G-Vector Vector (UnboxViaPrim a)245,246
+  basicUnsafeFreeze basicUnsafeFreeze252,253
+  basicUnsafeThaw basicUnsafeThaw253,254
+  basicLength basicLength254,255
+  basicUnsafeSlice basicUnsafeSlice255,256
+  basicUnsafeIndexM basicUnsafeIndexM256,257
+  basicUnsafeCopy basicUnsafeCopy257,258
+  elemseq elemseq258,259
+class IsoUnbox IsoUnbox277,278
+  toURepr toURepr279,280
+  fromURepr fromURepr283,284
+idU idU287,288
+newtype As As337,338
+newtype instance instance339,340
+newtype instance MVector s (As a b) = MV_UnboxAs MV_UnboxAs339,340
+newtype instance instance340,341
+newtype instance Vector    (As a b) = V_UnboxAs V_UnboxAs340,341
+instance (I(IsoUnbox a b, Unbox b) => M-MVector MVector (As a b)342,343
+  basicLength basicLength353,354
+  basicUnsafeSlice basicUnsafeSlice354,355
+  basicOverlaps basicOverlaps355,356
+  basicUnsafeNew basicUnsafeNew356,357
+  basicInitialize basicInitialize357,358
+  basicUnsafeCopy basicUnsafeCopy358,359
+  basicUnsafeMove basicUnsafeMove359,360
+  basicUnsafeGrow basicUnsafeGrow360,361
+  basicClear basicClear361,362
+  basicUnsafeReplicate basicUnsafeReplicate367,368
+  basicUnsafeRead basicUnsafeRead368,369
+  basicUnsafeWrite basicUnsafeWrite369,370
+  basicSet basicSet370,371
+instance (I(IsoUnbox a b, Unbox b) => G-Vector Vector (As a b)372,373
+  basicUnsafeFreeze basicUnsafeFreeze380,381
+  basicUnsafeThaw basicUnsafeThaw381,382
+  basicLength basicLength382,383
+  basicUnsafeSlice basicUnsafeSlice383,384
+  basicUnsafeCopy basicUnsafeCopy384,385
+  elemseq elemseq385,386
+  basicUnsafeIndexM basicUnsafeIndexM388,389
+instance M.MVector M-MVector MVector ty392,393
+; ;405,406
+instance G.Vector G-Vector Vector ty420,421
+; ;427,428
+newtype instance instance435,436
+newtype instance MVector s Int = MV_Int MV_Int435,436
+newtype instance instance436,437
+newtype instance Vector    Int = V_Int V_Int436,437
+instance Unbox Unbox Int437,438
+newtype instance instance441,442
+newtype instance MVector s Int8 = MV_Int8 MV_Int8441,442
+newtype instance instance442,443
+newtype instance Vector    Int8 = V_Int8 V_Int8442,443
+instance Unbox Unbox Int8443,444
+newtype instance instance447,448
+newtype instance MVector s Int16 = MV_Int16 MV_Int16447,448
+newtype instance instance448,449
+newtype instance Vector    Int16 = V_Int16 V_Int16448,449
+instance Unbox Unbox Int16449,450
+newtype instance instance453,454
+newtype instance MVector s Int32 = MV_Int32 MV_Int32453,454
+newtype instance instance454,455
+newtype instance Vector    Int32 = V_Int32 V_Int32454,455
+instance Unbox Unbox Int32455,456
+newtype instance instance459,460
+newtype instance MVector s Int64 = MV_Int64 MV_Int64459,460
+newtype instance instance460,461
+newtype instance Vector    Int64 = V_Int64 V_Int64460,461
+instance Unbox Unbox Int64461,462
+newtype instance instance466,467
+newtype instance MVector s Word = MV_Word MV_Word466,467
+newtype instance instance467,468
+newtype instance Vector    Word = V_Word V_Word467,468
+instance Unbox Unbox Word468,469
+newtype instance instance472,473
+newtype instance MVector s Word8 = MV_Word8 MV_Word8472,473
+newtype instance instance473,474
+newtype instance Vector    Word8 = V_Word8 V_Word8473,474
+instance Unbox Unbox Word8474,475
+newtype instance instance478,479
+newtype instance MVector s Word16 = MV_Word16 MV_Word16478,479
+newtype instance instance479,480
+newtype instance Vector    Word16 = V_Word16 V_Word16479,480
+instance Unbox Unbox Word16480,481
+newtype instance instance484,485
+newtype instance MVector s Word32 = MV_Word32 MV_Word32484,485
+newtype instance instance485,486
+newtype instance Vector    Word32 = V_Word32 V_Word32485,486
+instance Unbox Unbox Word32486,487
+newtype instance instance490,491
+newtype instance MVector s Word64 = MV_Word64 MV_Word64490,491
+newtype instance instance491,492
+newtype instance Vector    Word64 = V_Word64 V_Word64491,492
+instance Unbox Unbox Word64492,493
+newtype instance instance497,498
+newtype instance MVector s Float = MV_Float MV_Float497,498
+newtype instance instance498,499
+newtype instance Vector    Float = V_Float V_Float498,499
+instance Unbox Unbox Float499,500
+newtype instance instance503,504
+newtype instance MVector s Double = MV_Double MV_Double503,504
+newtype instance instance504,505
+newtype instance Vector    Double = V_Double V_Double504,505
+instance Unbox Unbox Double505,506
+newtype instance instance510,511
+newtype instance MVector s Char = MV_Char MV_Char510,511
+newtype instance instance511,512
+newtype instance Vector    Char = V_Char V_Char511,512
+instance Unbox Unbox Char512,513
+fromBool fromBool520,521
+toBool toBool525,526
+newtype instance instance530,531
+newtype instance MVector s Bool = MV_Bool MV_Bool530,531
+newtype instance instance531,532
+newtype instance Vector    Bool = V_Bool V_Bool531,532
+instance Unbox Unbox Bool533,534
+instance M.MVector M-MVector MVector Bool535,536
+  basicLength basicLength548,549
+  basicUnsafeSlice basicUnsafeSlice549,550
+  basicOverlaps basicOverlaps550,551
+  basicUnsafeNew basicUnsafeNew551,552
+  basicInitialize basicInitialize552,553
+  basicUnsafeReplicate basicUnsafeReplicate553,554
+  basicUnsafeRead basicUnsafeRead554,555
+  basicUnsafeWrite basicUnsafeWrite555,556
+  basicClear basicClear556,557
+  basicSet basicSet557,558
+  basicUnsafeCopy basicUnsafeCopy558,559
+  basicUnsafeMove basicUnsafeMove559,560
+  basicUnsafeGrow basicUnsafeGrow560,561
+instance G.Vector G-Vector Vector Bool562,563
+  basicUnsafeFreeze basicUnsafeFreeze569,570
+  basicUnsafeThaw basicUnsafeThaw570,571
+  basicLength basicLength571,572
+  basicUnsafeSlice basicUnsafeSlice572,573
+  basicUnsafeIndexM basicUnsafeIndexM573,574
+  basicUnsafeCopy basicUnsafeCopy574,575
+  elemseq elemseq575,576
+newtype instance instance581,582
+newtype instance MVector s (Complex a) = MV_Complex MV_Complex581,582
+newtype instance instance582,583
+newtype instance Vector    (Complex a) = V_Complex V_Complex582,583
+instance (U(Unbox a) => Unbox (Complex a)584,585
+instance (U(Unbox a) => M-MVector MVector (Complex a)586,587
+  basicLength basicLength596,597
+  basicUnsafeSlice basicUnsafeSlice597,598
+  basicOverlaps basicOverlaps598,599
+  basicUnsafeNew basicUnsafeNew599,600
+  basicInitialize basicInitialize600,601
+  basicUnsafeCopy basicUnsafeCopy601,602
+  basicUnsafeMove basicUnsafeMove602,603
+  basicUnsafeGrow basicUnsafeGrow603,604
+  basicClear basicClear604,605
+  basicUnsafeReplicate basicUnsafeReplicate609,610
+  basicUnsafeRead basicUnsafeRead610,611
+  basicUnsafeWrite basicUnsafeWrite611,612
+  basicSet basicSet612,613
+instance (U(Unbox a) => G-Vector Vector (Complex a)614,615
+  basicUnsafeFreeze basicUnsafeFreeze620,621
+  basicUnsafeThaw basicUnsafeThaw621,622
+  basicLength basicLength622,623
+  basicUnsafeSlice basicUnsafeSlice623,624
+  basicUnsafeCopy basicUnsafeCopy624,625
+  basicUnsafeIndexM basicUnsafeIndexM627,628
+  elemseq elemseq629,630
+instance inst_ctxt inst_ctxt => M-MVector MVector (inst_head)636,637
+; ;649,650
+instance inst_ctxt inst_ctxt => G-Vector Vector (inst_head)664,665
+; ;671,672
+newtype instance instance680,681
+newtype instance MVector s (inst_head) = mcon mcon680,681
+newtype instance instance681,682
+newtype instance Vector    (inst_head) = con con681,682
+instance inst_ctxt inst_ctxt => Unbox (inst_head) ;\682,683
+newtype instance instance707,708
+newtype instance MVector s (Arg a b) = MV_Arg MV_Arg707,708
+newtype instance instance708,709
+newtype instance Vector    (Arg a b) = V_Arg V_Arg708,709
+instance (U(Unbox a, Unbox b) => Unbox (Arg a b)710,711
+instance (U(Unbox a, Unbox b) => M-MVector MVector (Arg a b)712,713
+  basicLength basicLength722,723
+  basicUnsafeSlice basicUnsafeSlice723,724
+  basicOverlaps basicOverlaps724,725
+  basicUnsafeNew basicUnsafeNew725,726
+  basicInitialize basicInitialize726,727
+  basicUnsafeCopy basicUnsafeCopy727,728
+  basicUnsafeMove basicUnsafeMove728,729
+  basicUnsafeGrow basicUnsafeGrow729,730
+  basicClear basicClear730,731
+  basicUnsafeReplicate basicUnsafeReplicate735,736
+  basicUnsafeRead basicUnsafeRead736,737
+  basicUnsafeWrite basicUnsafeWrite737,738
+  basicSet basicSet738,739
+instance (U(Unbox a, Unbox b) => G-Vector Vector (Arg a b)741,742
+  basicUnsafeFreeze basicUnsafeFreeze747,748
+  basicUnsafeThaw basicUnsafeThaw748,749
+  basicLength basicLength749,750
+  basicUnsafeSlice basicUnsafeSlice750,751
+  basicUnsafeCopy basicUnsafeCopy751,752
+  basicUnsafeIndexM basicUnsafeIndexM754,755
+  elemseq elemseq755,756
+
+./src/Data/Vector/Unboxed/Mutable.hs,1657
+module Data.Vector.Unboxed.Mutable Data.Vector.Unboxed.Mutable13,14
+length length81,82
+null null86,87
+slice slice95,96
+take take106,107
+drop drop113,114
+splitAt splitAt122,123
+init init128,129
+tail tail134,135
+unsafeSlice unsafeSlice140,141
+unsafeTake unsafeTake150,151
+unsafeDrop unsafeDrop156,157
+unsafeInit unsafeInit161,162
+unsafeTail unsafeTail166,167
+overlaps overlaps174,175
+new new182,183
+unsafeNew unsafeNew191,192
+replicate replicate197,198
+replicateM replicateM203,204
+generate generate212,213
+generateM generateM221,222
+clone clone226,227
+grow grow269,270
+unsafeGrow unsafeGrow278,279
+clear clear288,289
+read read304,305
+readMaybe readMaybe321,322
+write write326,327
+modify modify331,332
+modifyM modifyM338,339
+swap swap343,344
+exchange exchange348,349
+unsafeRead unsafeRead353,354
+unsafeWrite unsafeWrite358,359
+unsafeModify unsafeModify363,364
+unsafeModifyM unsafeModifyM371,372
+unsafeSwap unsafeSwap376,377
+unsafeExchange unsafeExchange382,383
+set set390,391
+copy copy396,397
+unsafeCopy unsafeCopy405,406
+move move419,420
+unsafeMove unsafeMove433,434
+nextPermutation nextPermutation445,446
+mapM_ mapM_455,456
+imapM_ imapM_463,464
+forM_ forM_471,472
+iforM_ iforM_479,480
+foldl foldl486,487
+foldl' foldl'493,494
+ifoldl ifoldl500,501
+ifoldl' ifoldl'507,508
+foldr foldr514,515
+foldr' foldr'521,522
+ifoldr ifoldr528,529
+ifoldr' ifoldr'536,537
+foldM foldM543,544
+foldM' foldM'550,551
+ifoldM ifoldM557,558
+ifoldM' ifoldM'564,565
+foldrM foldrM571,572
+foldrM' foldrM'578,579
+ifoldrM ifoldrM585,586
+ifoldrM' ifoldrM'593,594
+
+./src/Data/Vector/Generic/New.hs,554
+module Data.Vector.Generic.New Data.Vector.Generic.New16,17
+data New New41,42
+data New v a = New New41,42
+create create43,44
+run run47,48
+runPrim runPrim51,52
+apply apply55,56
+modify modify59,60
+modifyWithBundle modifyWithBundle63,64
+unstream unstream68,69
+transform transform76,77
+unstreamR unstreamR94,95
+transformR transformR102,103
+slice slice120,121
+init init124,125
+tail tail128,129
+take take132,133
+drop drop136,137
+unsafeSlice unsafeSlice140,141
+unsafeInit unsafeInit144,145
+unsafeTail unsafeTail148,149
+
+./src/Data/Vector/Generic/Mutable/Base.hs,860
+module Data.Vector.Generic.Mutable.Base Data.Vector.Generic.Mutable.Base15,16
+class MVector MVector26,27
+  basicLength basicLength29,30
+  basicUnsafeSlice basicUnsafeSlice33,34
+  basicOverlaps basicOverlaps40,41
+  basicUnsafeNew basicUnsafeNew44,45
+  basicInitialize basicInitialize54,55
+  basicUnsafeReplicate basicUnsafeReplicate59,60
+  basicUnsafeRead basicUnsafeRead63,64
+  basicUnsafeWrite basicUnsafeWrite67,68
+  basicClear basicClear72,73
+  basicSet basicSet76,77
+  basicUnsafeCopy basicUnsafeCopy80,81
+  basicUnsafeMove basicUnsafeMove86,87
+  basicUnsafeGrow basicUnsafeGrow93,94
+  basicUnsafeReplicate basicUnsafeReplicate96,97
+  basicClear basicClear103,104
+  basicSet basicSet106,107
+  basicUnsafeCopy basicUnsafeCopy121,122
+  basicUnsafeMove basicUnsafeMove132,133
+  basicUnsafeGrow basicUnsafeGrow140,141
+
+./src/Data/Vector/Generic/Base.hs,421
+module Data.Vector.Generic.Base Data.Vector.Generic.Base20,21
+type family family33,34
+class MVector (Mutable v) a => Vector Vector52,53
+  basicUnsafeFreeze basicUnsafeFreeze58,59
+  basicUnsafeThaw basicUnsafeThaw64,65
+  basicLength basicLength69,70
+  basicUnsafeSlice basicUnsafeSlice75,76
+  basicUnsafeIndexM basicUnsafeIndexM103,104
+  basicUnsafeCopy basicUnsafeCopy115,116
+  elemseq elemseq137,138
+
+./src/Data/Vector/Generic/Mutable.hs,3120
+module Data.Vector.Generic.Mutable Data.Vector.Generic.Mutable17,18
+unsafeAppend1 unsafeAppend199,100
+unsafePrepend1 unsafePrepend1115,116
+mstream mstream129,130
+fill fill140,141
+transform transform156,157
+mstreamR mstreamR158,159
+fillR fillR171,172
+transformR transformR191,192
+unstream unstream196,197
+munstream munstream205,206
+munstreamMax munstreamMax212,213
+munstreamUnknown munstreamUnknown225,226
+vunstream vunstream244,245
+vmunstream vmunstream253,254
+vmunstreamMax vmunstreamMax260,261
+vmunstreamUnknown vmunstreamUnknown276,277
+unstreamR unstreamR300,301
+munstreamR munstreamR309,310
+munstreamRMax munstreamRMax316,317
+munstreamRUnknown munstreamRUnknown331,332
+length length349,350
+null null354,355
+slice slice363,364
+take take374,375
+drop drop381,382
+splitAt splitAt393,394
+init init405,406
+tail tail411,412
+unsafeSlice unsafeSlice417,418
+unsafeInit unsafeInit426,427
+unsafeTail unsafeTail431,432
+unsafeTake unsafeTake437,438
+unsafeDrop unsafeDrop443,444
+overlaps overlaps451,452
+new new459,460
+unsafeNew unsafeNew472,473
+replicate replicate478,479
+replicateM replicateM484,485
+generate generate493,494
+generateM generateM502,503
+clone clone514,515
+grow grow536,537
+growFront growFront549,550
+enlarge_delta enlarge_delta558,559
+enlarge enlarge562,563
+enlargeFront enlargeFront572,573
+unsafeGrow unsafeGrow608,609
+unsafeGrowFront unsafeGrowFront616,617
+clear clear630,631
+read read646,647
+readMaybe readMaybe664,665
+readMaybe v i | i `inRange`inRange666,667
+write write670,671
+modify modify676,677
+modifyM modifyM684,685
+swap swap690,691
+exchange exchange697,698
+unsafeRead unsafeRead702,703
+unsafeWrite unsafeWrite709,710
+unsafeModify unsafeModify716,717
+unsafeModifyM unsafeModifyM727,728
+unsafeSwap unsafeSwap733,734
+unsafeExchange unsafeExchange745,746
+forI_ forI_755,756
+mapM_ mapM_766,767
+imapM_ imapM_773,774
+forM_ forM_781,782
+iforM_ iforM_789,790
+foldl foldl796,797
+foldl' foldl'803,804
+ifoldl ifoldl810,811
+ifoldl' ifoldl'817,818
+foldr foldr824,825
+foldr' foldr'831,832
+ifoldr ifoldr838,839
+ifoldr' ifoldr'846,847
+foldM foldM853,854
+foldM' foldM'860,861
+ifoldM ifoldM867,868
+ifoldM' ifoldM'879,880
+foldrM foldrM891,892
+foldrM' foldrM'898,899
+ifoldrM ifoldrM905,906
+ifoldrM' ifoldrM'918,919
+set set931,932
+copy copy937,938
+move move953,954
+unsafeCopy unsafeCopy963,964
+unsafeMove unsafeMove979,980
+accum accum988,989
+update update1000,1001
+unsafeAccum unsafeAccum1011,1012
+unsafeUpdate unsafeUpdate1022,1023
+reverse reverse1031,1032
+unstablePartition unstablePartition1040,1041
+unstablePartitionBundle unstablePartitionBundle1069,1070
+unstablePartitionMax unstablePartitionMax1077,1078
+partitionBundle partitionBundle1096,1097
+partitionMax partitionMax1104,1105
+partitionUnknown partitionUnknown1130,1131
+partitionWithBundle partitionWithBundle1156,1157
+partitionWithMax partitionWithMax1164,1165
+partitionWithUnknown partitionWithUnknown1184,1185
+nextPermutation nextPermutation1227,1228
+
+./src/Data/Vector/Generic.hs,7016
+module Data.Vector.Generic Data.Vector.Generic18,19
+length length225,226
+null null230,231
+(!(!)239,240
+(!(!?)245,246
+v !? i | i `inRange`inRange248,249
+head head253,254
+last last258,259
+unsafeIndex unsafeIndex263,264
+unsafeHead unsafeHead268,269
+unsafeLast unsafeLast273,274
+indexM indexM323,324
+headM headM329,330
+lastM lastM335,336
+unsafeIndexM unsafeIndexM341,342
+unsafeHeadM unsafeHeadM349,350
+unsafeLastM unsafeLastM355,356
+slice slice386,387
+init init396,397
+tail tail402,403
+take take408,409
+drop drop415,416
+splitAt splitAt428,429
+uncons uncons442,443
+unsnoc unsnoc450,451
+unsafeSlice unsafeSlice456,457
+unsafeInit unsafeInit465,466
+unsafeTail unsafeTail471,472
+unsafeTake unsafeTake477,478
+unsafeDrop unsafeDrop483,484
+empty empty521,522
+singleton singleton526,527
+replicate replicate532,533
+generate generate540,541
+iterateN iterateN551,552
+unfoldr unfoldr564,565
+unfoldrN unfoldrN573,574
+unfoldrExactN unfoldrExactN584,585
+unfoldrM unfoldrM592,593
+unfoldrNM unfoldrNM600,601
+unfoldrExactNM unfoldrExactNM609,610
+constructN constructN617,618
+constructrN constructrN642,643
+enumFromN enumFromN670,671
+enumFromStepN enumFromStepN678,679
+enumFromTo enumFromTo689,690
+enumFromThenTo enumFromThenTo697,698
+cons cons705,706
+snoc snoc713,714
+(+(++)721,722
+v v723,724
+concat concat726,727
+concatNE concatNE747,748
+replicateM replicateM755,756
+generateM generateM761,762
+iterateNM iterateNM772,773
+create create781,782
+createT createT790,791
+force force805,806
+(/(//)819,820
+v v823,824
+update update830,831
+update_ update_849,850
+update_stream update_stream857,858
+unsafeUpd unsafeUpd862,863
+unsafeUpdate unsafeUpdate867,868
+unsafeUpdate_ unsafeUpdate_872,873
+unsafeUpdate_stream unsafeUpdate_stream877,878
+accum accum892,893
+accumulate accumulate908,909
+accumulate_ accumulate_929,930
+accum_stream accum_stream940,941
+unsafeAccum unsafeAccum945,946
+unsafeAccumulate unsafeAccumulate950,951
+unsafeAccumulate_ unsafeAccumulate_956,957
+unsafeAccum_stream unsafeAccum_stream965,966
+reverse reverse971,972
+backpermute backpermute981,982
+backpermute backpermute989,990
+unsafeBackpermute unsafeBackpermute1005,1006
+modify modify1031,1032
+modifyWithBundle modifyWithBundle1037,1038
+indexed indexed1047,1048
+map map1055,1056
+imap imap1060,1061
+concatMap concatMap1066,1067
+concatMap concatMap1095,1096
+mapM mapM1105,1106
+imapM imapM1111,1112
+mapM_ mapM_1117,1118
+imapM_ imapM_1123,1124
+forM forM1129,1130
+forM_ forM_1135,1136
+iforM iforM1143,1144
+iforM_ iforM_1151,1152
+zipWith zipWith1159,1160
+zipWith3 zipWith31165,1166
+zipWith4 zipWith41172,1173
+zipWith5 zipWith51181,1182
+zipWith6 zipWith61193,1194
+izipWith izipWith1208,1209
+izipWith3 izipWith31216,1217
+izipWith4 izipWith41224,1225
+izipWith5 izipWith51233,1234
+izipWith6 izipWith61245,1246
+zip zip1259,1260
+zip3 zip31264,1265
+zip4 zip41269,1270
+zip5 zip51274,1275
+zip6 zip61280,1281
+zipWithM zipWithM1291,1292
+izipWithM izipWithM1299,1300
+zipWithM_ zipWithM_1308,1309
+izipWithM_ izipWithM_1315,1316
+unzip unzip1326,1327
+unzip3 unzip31330,1331
+unzip4 unzip41337,1338
+unzip5 unzip51346,1347
+unzip6 unzip61356,1357
+filter filter1371,1372
+ifilter ifilter1377,1378
+uniq uniq1393,1394
+mapMaybe mapMaybe1398,1399
+imapMaybe imapMaybe1403,1404
+filterM filterM1411,1412
+mapMaybeM mapMaybeM1419,1420
+imapMaybeM imapMaybeM1427,1428
+takeWhile takeWhile1435,1436
+dropWhile dropWhile1441,1442
+partition partition1468,1469
+partition_stream partition_stream1475,1476
+partitionWith partitionWith1489,1490
+partition_with_stream partition_with_stream1493,1494
+unstablePartition unstablePartition1506,1507
+unstablePartition_stream unstablePartition_stream1513,1514
+unstablePartition_new unstablePartition_new1520,1521
+span span1542,1543
+break break1548,1549
+groupBy groupBy1569,1570
+group group1592,1593
+infix 4 `elem`elem1599,1600
+infix 4 `notElem`notElem1605,1606
+find find1613,1614
+findIndex findIndex1619,1620
+findIndexR findIndexR1627,1628
+findIndices findIndices1633,1634
+elemIndex elemIndex1642,1643
+elemIndices elemIndices1648,1649
+foldl foldl1656,1657
+foldl1 foldl11661,1662
+foldl' foldl'1666,1667
+foldl1' foldl1'1671,1672
+foldr foldr1676,1677
+foldr1 foldr11681,1682
+foldr' foldr'1686,1687
+foldr1' foldr1'1691,1692
+ifoldl ifoldl1696,1697
+ifoldl' ifoldl'1702,1703
+ifoldr ifoldr1707,1708
+ifoldr' ifoldr'1713,1714
+foldMap foldMap1725,1726
+foldMap' foldMap'1735,1736
+all all1754,1755
+any any1769,1770
+and and1782,1783
+or or1795,1796
+sum sum1808,1809
+product product1821,1822
+maximum maximum1838,1839
+maximumBy maximumBy1855,1856
+maximumOn maximumOn1875,1876
+minimum minimum1897,1898
+minimumBy minimumBy1913,1914
+minimumOn minimumOn1933,1934
+maxIndex maxIndex1944,1945
+maxIndexBy maxIndexBy1960,1961
+minIndex minIndex1971,1972
+minIndexBy minIndexBy1986,1987
+foldM foldM1999,2000
+ifoldM ifoldM2004,2005
+fold1M fold1M2009,2010
+foldM' foldM'2014,2015
+ifoldM' ifoldM'2020,2021
+fold1M' fold1M'2025,2026
+discard discard2029,2030
+foldM_ foldM_2034,2035
+ifoldM_ ifoldM_2040,2041
+fold1M_ fold1M_2045,2046
+foldM'_ foldM'_2050,2051
+ifoldM'_ ifoldM'_2056,2057
+fold1M'_ fold1M'_2062,2063
+sequence sequence2070,2071
+sequence_ sequence_2075,2076
+prescanl prescanl2093,2094
+prescanl' prescanl'2098,2099
+postscanl postscanl2113,2114
+postscanl' postscanl'2118,2119
+scanl scanl2133,2134
+scanl' scanl'2138,2139
+iscanl iscanl2143,2144
+iscanl' iscanl'2151,2152
+scanl1 scanl12176,2177
+scanl1' scanl1'2193,2194
+prescanr prescanr2202,2203
+prescanr' prescanr'2207,2208
+postscanr postscanr2212,2213
+postscanr' postscanr'2217,2218
+scanr scanr2222,2223
+scanr' scanr'2227,2228
+iscanr iscanr2232,2233
+iscanr' iscanr'2242,2243
+scanr1 scanr12264,2265
+scanr1' scanr1'2282,2283
+toList toList2290,2291
+fromList fromList2295,2296
+fromListN fromListN2312,2313
+convert convert2320,2321
+unsafeFreeze unsafeFreeze2332,2333
+freeze freeze2335,2336
+unsafeThaw unsafeThaw2364,2365
+thaw thaw2369,2370
+thawMany thawMany2394,2395
+unsafeCopy unsafeCopy2411,2412
+copy copy2418,2419
+stream stream2427,2428
+unstream unstream2444,2445
+streamR streamR2470,2471
+unstreamR unstreamR2483,2484
+unstreamM unstreamM2514,2515
+unstreamPrimM unstreamPrimM2520,2521
+unstreamPrimM_IO unstreamPrimM_IO2525,2526
+unstreamPrimM_ST unstreamPrimM_ST2529,2530
+new new2545,2546
+clone clone2551,2552
+eq eq2566,2567
+eqBy eqBy2572,2573
+cmp cmp2580,2581
+cmpBy cmpBy2588,2589
+showsPrec showsPrec2595,2596
+liftShowsPrec liftShowsPrec2599,2600
+readPrec readPrec2604,2605
+liftReadsPrec liftReadsPrec2611,2612
+gfoldl gfoldl2618,2619
+mkVecConstr mkVecConstr2626,2627
+mkVecType mkVecType2630,2631
+mkType mkType2634,2635
+gunfold gunfold2639,2640
+dataCast dataCast2647,2648

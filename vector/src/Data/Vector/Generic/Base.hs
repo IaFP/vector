@@ -28,7 +28,7 @@ import           Data.Vector.Fusion.Util (Box(..), liftBox)
 
 import Control.Monad.ST
 import Data.Kind (Type)
-
+import GHC.Types (type(@))
 -- | @Mutable v s a@ is the mutable version of the immutable vector type @v a@ with
 -- the state token @s@. It is injective on GHC 8 and newer.
 type family Mutable (v :: Type -> Type) = (mv :: Type -> Type -> Type) | mv -> v
@@ -50,7 +50,8 @@ type family Mutable (v :: Type -> Type) = (mv :: Type -> Type -> Type) | mv -> v
 --
 --   * 'basicUnsafeIndexM'
 --
-class MVector (Mutable v) a => Vector v a where
+class (forall s. Mutable v @ s, forall s. Mutable v s @ a,
+        MVector (Mutable v) a) => Vector v a where
   -- | /Assumed complexity: O(1)/
   --
   -- Unsafely convert a mutable vector to its immutable version
