@@ -591,7 +591,7 @@ unfoldrExactN n f = unstream . Bundle.unfoldrExactN n f
 -- generator function to a seed. The generator function yields 'Just'
 -- the next element and the new seed or 'Nothing' if there are no more
 -- elements.
-unfoldrM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => (b -> m (Maybe (a, b))) -> b -> m (v a)
+unfoldrM :: (WDT(Mutable v), Total m, Monad m, Vector v a) => (b -> m (Maybe (a, b))) -> b -> m (v a)
 {-# INLINE unfoldrM #-}
 unfoldrM f = unstreamM . MBundle.unfoldrM f
 
@@ -599,7 +599,7 @@ unfoldrM f = unstreamM . MBundle.unfoldrM f
 -- generator function to a seed. The generator function yields 'Just'
 -- the next element and the new seed or 'Nothing' if there are no more
 -- elements.
-unfoldrNM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> (b -> m (Maybe (a, b))) -> b -> m (v a)
+unfoldrNM :: (WDT(Mutable v), Total m, Monad m, Vector v a) => Int -> (b -> m (Maybe (a, b))) -> b -> m (v a)
 {-# INLINE unfoldrNM #-}
 unfoldrNM n f = unstreamM . MBundle.unfoldrNM n f
 
@@ -608,7 +608,7 @@ unfoldrNM n f = unstreamM . MBundle.unfoldrNM n f
 -- function yields the next element and the new seed.
 --
 -- @since 0.12.2.0
-unfoldrExactNM :: (WDT(Mutable v), WDT(PrimState m), Total m, Monad m, Vector v a) => Int -> (b -> m (a, b)) -> b -> m (v a)
+unfoldrExactNM :: (WDT(Mutable v), Total m, Monad m, Vector v a) => Int -> (b -> m (a, b)) -> b -> m (v a)
 {-# INLINE unfoldrExactNM #-}
 unfoldrExactNM n f = unstreamM . MBundle.unfoldrExactNM n f
 
@@ -1104,13 +1104,13 @@ concatMap f = unstream
 
 -- | /O(n)/ Apply the monadic action to all elements of the vector, yielding a
 -- vector of results.
-mapM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b) => (a -> m b) -> v a -> m (v b)
+mapM :: (WDT(Mutable v), Total m, Monad m, Vector v a, Vector v b) => (a -> m b) -> v a -> m (v b)
 {-# INLINE mapM #-}
 mapM f = unstreamM . Bundle.mapM f . stream
 
 -- | /O(n)/ Apply the monadic action to every element of a vector and its
 -- index, yielding a vector of results.
-imapM :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v b)
+imapM :: (WDT(Mutable v), Total m, Monad m, Vector v a, Vector v b)
       => (Int -> a -> m b) -> v a -> m (v b)
 imapM f = unstreamM . Bundle.mapM (uncurry f) . Bundle.indexed . stream
 
@@ -2069,7 +2069,7 @@ fold1M'_ m = discard . Bundle.fold1M' m . stream
 -- ------------------
 
 -- | Evaluate each action and collect the results.
-sequence :: (WDT(Mutable v), WDT (PrimState m), Total m, Monad m, Vector v a, Vector v (m a)) => v (m a) -> m (v a)
+sequence :: (WDT(Mutable v), Total m, Monad m, Vector v a, Vector v (m a)) => v (m a) -> m (v a)
 {-# INLINE sequence #-}
 sequence = mapM id
 
@@ -2513,7 +2513,7 @@ unstreamR s = new (New.unstreamR s)
 -- a list, so prefer using `unstream`, unless you need to be in a monad.
 --
 -- @since 0.12.2.0
-unstreamM :: (WDT(PrimState m), WDT(Mutable v), Total m, Monad m, Vector v a) => MBundle m u a -> m (v a)
+unstreamM :: (WDT(Mutable v), Total m, Monad m, Vector v a) => MBundle m u a -> m (v a)
 {-# INLINE_FUSED unstreamM #-}
 unstreamM s = do
                 xs <- MBundle.toList s

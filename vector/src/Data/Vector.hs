@@ -455,20 +455,20 @@ instance Foldable.Foldable Vector where
   {-# INLINE product #-}
   product = product
 
--- instance Traversable.Traversable Vector where
---   {-# INLINE traverse #-}
---   traverse f xs =
---       -- Get the length of the vector in /O(1)/ time
---       let !n = G.length xs
---       -- Use fromListN to be more efficient in construction of resulting vector
---       -- Also behaves better with compact regions, preventing runtime exceptions
---       in  Data.Vector.fromListN n Applicative.<$> Traversable.traverse f (toList xs)
+instance Traversable.Traversable Vector where
+  {-# INLINE traverse #-}
+  traverse f xs =
+      -- Get the length of the vector in /O(1)/ time
+      let !n = G.length xs
+      -- Use fromListN to be more efficient in construction of resulting vector
+      -- Also behaves better with compact regions, preventing runtime exceptions
+      in  Data.Vector.fromListN n Applicative.<$> Traversable.traverse f (toList xs)
 
---   {-# INLINE mapM #-}
---   mapM = mapM
+  {-# INLINE mapM #-}
+  mapM = mapM
 
---   {-# INLINE sequence #-}
---   sequence = sequence
+  {-# INLINE sequence #-}
+  sequence = sequence
 
 -- Length information
 -- ------------------
@@ -1104,7 +1104,7 @@ concatMap = G.concatMap
 
 -- | /O(n)/ Apply the monadic action to all elements of the vector, yielding a
 -- vector of results.
-mapM :: (Total m, WDT (PrimState m), Monad m) => (a -> m b) -> Vector a -> m (Vector b)
+mapM :: (Total m, Monad m) => (a -> m b) -> Vector a -> m (Vector b)
 {-# INLINE mapM #-}
 mapM = G.mapM
 
@@ -1879,7 +1879,7 @@ fold1M'_ = G.fold1M'_
 -- ------------------
 
 -- | Evaluate each action and collect the results.
-sequence :: (Total m, WDT (PrimState m), Monad m) => Vector (m a) -> m (Vector a)
+sequence :: (Total m, Monad m) => Vector (m a) -> m (Vector a)
 {-# INLINE sequence #-}
 sequence = G.sequence
 
